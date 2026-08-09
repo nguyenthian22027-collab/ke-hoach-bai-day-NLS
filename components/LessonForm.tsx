@@ -1,11 +1,14 @@
 import React from 'react';
-import { Subject } from '../types';
+import { Subject, IntegrationMode } from '../types';
+import { Bot, Cpu, Sparkles } from 'lucide-react';
 
 interface LessonFormProps {
   subject: Subject;
   setSubject: (val: Subject) => void;
   grade: number;
   setGrade: (val: number) => void;
+  integrationMode: IntegrationMode;
+  setIntegrationMode: (val: IntegrationMode) => void;
 }
 
 const LessonForm: React.FC<LessonFormProps> = ({
@@ -13,18 +16,21 @@ const LessonForm: React.FC<LessonFormProps> = ({
   setSubject,
   grade,
   setGrade,
+  integrationMode,
+  setIntegrationMode,
 }) => {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-blue-100 mb-6">
-      <div className="flex items-center mb-4">
-        <div className="h-8 w-1 bg-blue-600 rounded-full mr-3"></div>
-        <h2 className="text-lg font-semibold text-blue-900">Thông tin Kế hoạch bài dạy</h2>
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-blue-100 mb-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <div className="h-8 w-1 bg-blue-600 rounded-full mr-3"></div>
+          <h2 className="text-lg font-semibold text-blue-900">Thông tin Kế hoạch bài dạy</h2>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
         {/* Subject */}
-        <div className="space-y-2">
+        <div className="space-y-2 text-left">
           <label className="block text-sm font-medium text-slate-700">Môn học</label>
           <select
             value={subject}
@@ -38,7 +44,7 @@ const LessonForm: React.FC<LessonFormProps> = ({
         </div>
 
         {/* Grade */}
-        <div className="space-y-2">
+        <div className="space-y-2 text-left">
           <label className="block text-sm font-medium text-slate-700">Khối lớp</label>
           <select
             value={grade}
@@ -49,6 +55,54 @@ const LessonForm: React.FC<LessonFormProps> = ({
               <option key={g} value={g}>Lớp {g}</option>
             ))}
           </select>
+        </div>
+      </div>
+
+      {/* Integration Mode Selector */}
+      <div className="space-y-2 text-left pt-2 border-t border-slate-100">
+        <label className="block text-sm font-semibold text-slate-800 flex items-center">
+          <Bot className="text-blue-600 mr-2" size={18} />
+          Chế độ tích hợp năng lực:
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button
+            type="button"
+            onClick={() => setIntegrationMode('BOTH')}
+            className={`p-3 rounded-xl border text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 transition-all ${
+              integrationMode === 'BOTH'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-600 shadow-md'
+                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <Sparkles size={16} />
+            <span>Tích hợp NLS & AI (Khuyên dùng)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIntegrationMode('NLS')}
+            className={`p-3 rounded-xl border text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 transition-all ${
+              integrationMode === 'NLS'
+                ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <Cpu size={16} />
+            <span>Chỉ Năng lực số (TT 02/2025)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIntegrationMode('AI')}
+            className={`p-3 rounded-xl border text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 transition-all ${
+              integrationMode === 'AI'
+                ? 'bg-purple-600 text-white border-purple-600 shadow-md'
+                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <Bot size={16} />
+            <span>Chỉ Năng lực AI (QĐ 3439)</span>
+          </button>
         </div>
       </div>
     </div>

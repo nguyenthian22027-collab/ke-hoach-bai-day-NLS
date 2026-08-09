@@ -40,30 +40,29 @@ Tôi đang triển khai ứng dụng từ github qua vercel, hãy kiểm tra gi�
 - Các file trong `word/embeddings/` và `word/media/` được giữ nguyên
 
 ### 5.3. Cấu trúc đầu ra từ AI
-AI trả về nội dung theo **nhiều section** để chèn vào **nhiều vị trí**:
+AI trả về nội dung theo các section:
 ```
-===NLS_MỤC_TIÊU===     → Chèn sau phần Thái độ/Phẩm chất
-===NLS_HOẠT_ĐỘNG_1===  → Chèn sau "Hoạt động 1"
-===NLS_HOẠT_ĐỘNG_2===  → Chèn sau "Hoạt động 2"
-===NLS_HOẠT_ĐỘNG_3===  → Chèn sau "Hoạt động 3"
-===NLS_HOẠT_ĐỘNG_4===  → Chèn sau "Hoạt động 4"
-===NLS_CỦNG_CỐ===      → Chèn vào phần Củng cố/Vận dụng
+===NLS_MỤC_TIÊU===          → Chèn vào cuối phần "2. Năng lực" của Mục I. MỤC TIÊU
+===NLS_HOẠT_ĐỘNG_1_TỔ_CHỨC=== → Chèn vào phần "d) Tổ chức thực hiện" của Hoạt động 1
+===NLS_HOẠT_ĐỘNG_2_TỔ_CHỨC=== → Chèn vào phần "d) Tổ chức thực hiện" của Hoạt động 2
+===NLS_HOẠT_ĐỘNG_3_TỔ_CHỨC=== → Chèn vào phần "d) Tổ chức thực hiện" của Hoạt động 3
+===NLS_HOẠT_ĐỘNG_4_TỔ_CHỨC=== → Chèn vào phần "d) Tổ chức thực hiện" của Hoạt động 4
 ```
 
-### 5.4. Chèn PHÂN TÁN vào nhiều vị trí
-- Hệ thống tìm các pattern "Hoạt động 1", "Hoạt động 2", etc. trong file gốc
-- Chèn nội dung NLS **SAU** mỗi hoạt động tương ứng
-- Nếu không tìm thấy vị trí → Fallback chèn vào cuối file
+### 5.4. Quy tắc chèn chi tiết
+- **Mục I. MỤC TIÊU**: Chèn tiêu đề `<red>* Phát triển năng lực số</red>` kèm các câu chỉ báo mã NLS (ví dụ `1.1.TC1a:...`) ở cuối phần **`2. Năng lực`** (trước mục `3. Phẩm chất`).
+- **Các Hoạt động**: **CHỈ CHÈN** vào phần **`d) Tổ chức thực hiện`** (hoặc các bước *Chuyển giao*, *Thực hiện*, *Báo cáo*, *Đánh giá* trong Tổ chức thực hiện). Tuyệt đối không chèn vào `a) Mục tiêu`, `b) Nội dung`, `c) Sản phẩm`.
+- **Mã chỉ báo NLS**: Giữ nguyên mã chỉ báo NLS (dạng `1.1.TC1a:`) bằng văn bản màu đỏ trong cả Mục I và trong các Hoạt động.
 
 ### 5.5. Định dạng nội dung NLS
-- Hiển thị **màu đỏ** (không in đậm) để dễ nhận biết
-- Sử dụng thẻ `<red>...</red>` trong Markdown
+- Hiển thị **màu đỏ** (không in đậm) để dễ nhận biết.
+- Sử dụng thẻ `<red>...</red>` trong Markdown.
 
 ### 5.6. Thư viện sử dụng
-- **JSZip**: Đọc và ghi file DOCX (ZIP)
+- **JSZip**: Đọc và ghi file DOCX (ZIP).
 - Workflow:
   ```
-  File gốc → JSZip → Tìm "Hoạt động X" → Chèn NLS màu đỏ → Đóng gói → File mới
+  File gốc → JSZip → Tìm vị trí "2. Năng lực" & "d. Tổ chức thực hiện" → Chèn NLS màu đỏ → Đóng gói → File mới
   ```
 
 

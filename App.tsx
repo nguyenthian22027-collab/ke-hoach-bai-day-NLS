@@ -3,15 +3,17 @@ import Header from './components/Header';
 import LessonForm from './components/LessonForm';
 import ContentInput from './components/ContentInput';
 import ResultDisplay from './components/ResultDisplay';
-import { Subject, OriginalDocxFile } from './types';
+import { Subject, OriginalDocxFile, HistoryItem } from './types';
 import { generateNLSLessonPlan } from './services/geminiService';
 import { Sparkles, Settings2, Key } from 'lucide-react';
 import ApiKeyModal from './components/ApiKeyModal';
+import HistoryModal from './components/HistoryModal';
 
 const App: React.FC = () => {
   // State for Form
   const [subject, setSubject] = useState<Subject>(Subject.TOAN);
   const [grade, setGrade] = useState<number>(7);
+  const [integrationMode, setIntegrationMode] = useState<IntegrationMode>('BOTH');
 
   // Content States
   const [lessonContent, setLessonContent] = useState<string>('');
@@ -26,26 +28,75 @@ const App: React.FC = () => {
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // API Key State
+  // API Key & Model State
   const [apiKey, setApiKey] = useState<string>('');
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.5-flash');
+  const [selectedMathModel, setSelectedMathModel] = useState<string>('gemini-3.5-flash');
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
+
+  // History State
+  const [historyList, setHistoryList] = useState<HistoryItem[]>([]);
+  const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
 
   // State lưu trữ file DOCX gốc cho XML Injection
   const [originalDocx, setOriginalDocx] = useState<OriginalDocxFile | null>(null);
 
   useEffect(() => {
     const storedKey = localStorage.getItem('GEMINI_API_KEY');
+    const storedModel = localStorage.getItem('GEMINI_SELECTED_MODEL');
+    const storedMathModel = localStorage.getItem('GEMINI_MATH_MODEL');
+    const storedHistory = localStorage.getItem('NLS_HISTORY_LIST');
+
     if (storedKey) {
       setApiKey(storedKey);
     } else {
       setShowApiKeyModal(true);
     }
+
+    if (storedModel) setSelectedModel(storedModel);
+    if (storedMathModel) setSelectedMathModel(storedMathModel);
+
+    if (storedHistory) {
+      try {
+        setHistoryList(JSON.parse(storedHistory));
+      } catch (e) {
+        console.error("Lỗi đọc lịch sử:", e);
+      }
+    }
   }, []);
 
-  const handleSaveApiKey = (key: string) => {
-    localStorage.setItem('GEMINI_API_KEY', key);
-    setApiKey(key);
+  const handleSaveApiKey = (keys: string, model?: string, mathModel?: string) => {
+    localStorage.setItem('GEMINI_API_KEY', keys);
+    if (model) localStorage.setItem('GEMINI_SELECTED_MODEL', model);
+    if (mathModel) localStorage.setItem('GEMINI_MATH_MODEL', mathModel);
+
+    setApiKey(keys);
+    if (model) setSelectedModel(model);
+    if (mathModel) setSelectedMathModel(mathModel);
+
     setShowApiKeyModal(false);
+  };
+
+  const saveToHistory = (newItem: HistoryItem) => {
+    setHistoryList(prev => {
+      const filtered = prev.filter(i => i.id !== newItem.id);
+      const updated = [newItem, ...filtered].slice(0, 30);
+      localStorage.setItem('NLS_HISTORY_LIST', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleDeleteHistoryItem = (id: string) => {
+    setHistoryList(prev => {
+      const updated = prev.filter(i => i.id !== id);
+      localStorage.setItem('NLS_HISTORY_LIST', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleClearAllHistory = () => {
+    setHistoryList([]);
+    localStorage.removeItem('NLS_HISTORY_LIST');
   };
 
   const handleProcess = async () => {
@@ -67,7 +118,7 @@ const App: React.FC = () => {
           content: lessonContent,
           distributionContent: distributionContent
         },
-        { analyzeOnly, detailedReport, comparisonExport: false, apiKey }
+        { analyzeOnly, detailedReport, comparisonExport: false, apiKey, selectedModel, selectedMathModel, integrationMode }
       );
 
       if (!generatedText || generatedText.trim().length === 0) {
@@ -75,6 +126,25 @@ const App: React.FC = () => {
       }
 
       setResult(generatedText);
+
+      // Tự động lưu vào Lịch sử
+      const firstLine = lessonContent.split('\n').find(l => l.trim().length > 0) || 'Bài dạy tích hợp NLS';
+      const lessonTitle = originalDocx?.fileName
+        ? originalDocx.fileName.replace(/\.docx$/i, '')
+        : (firstLine.length > 50 ? firstLine.slice(0, 50) + '...' : firstLine);
+
+      const historyItem: HistoryItem = {
+        id: Date.now().toString(),
+        timestamp: Date.now(),
+        subject,
+        grade,
+        lessonTitle,
+        originalFileName: originalDocx?.fileName,
+        result: generatedText,
+        integrationMode,
+      };
+
+      saveToHistory(historyItem);
     } catch (err: any) {
       console.error("Process Error:", err);
       setError(err.message || "Đã xảy ra lỗi không xác định khi kết nối với AI.");
@@ -85,7 +155,11 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#E3F2FD] font-sans pb-12">
-      <Header onOpenSettings={() => setShowApiKeyModal(true)} />
+      <Header
+        onOpenSettings={() => setShowApiKeyModal(true)}
+        onOpenHistory={() => setShowHistoryModal(true)}
+        historyCount={historyList.length}
+      />
 
       <main className="max-w-5xl mx-auto px-4 mt-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -95,6 +169,7 @@ const App: React.FC = () => {
             <LessonForm
               subject={subject} setSubject={setSubject}
               grade={grade} setGrade={setGrade}
+              integrationMode={integrationMode} setIntegrationMode={setIntegrationMode}
             />
 
             <ContentInput
@@ -223,15 +298,12 @@ const App: React.FC = () => {
 
       <footer className="mt-12 text-center text-blue-800/60 text-sm py-6">
         <p>© 2024 NLS Assistant. Built with Gemini API & React.</p>
-        <p className="mt-2 font-bold text-blue-800">
-          ĐĂNG KÝ KHOÁ HỌC THỰC CHIẾN VIẾT SKKN, TẠO APP DẠY HỌC, TẠO MÔ PHỎNG TRỰC QUAN CHỈ VỚI 1 CÂU LỆNH: <a href="https://forms.gle/d7AmcT9MTyGy7bJd8" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">https://forms.gle/d7AmcT9MTyGy7bJd8</a>
-        </p>
         <div className="mt-3 space-y-1 text-blue-800 font-medium">
           <p>Mọi thông tin vui lòng liên hệ:</p>
           <p>
-            FB: <a href="https://www.facebook.com/tranhoaithanhvicko/" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">https://www.facebook.com/tranhoaithanhvicko/</a>
+            FB: <a href="https://www.facebook.com/nguyenthien1984" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">https://www.facebook.com/nguyenthien1984</a>
           </p>
-          <p>Zalo: 0348296773</p>
+          <p>Zalo: 0988250112</p>
         </div>
       </footer>
 
@@ -240,9 +312,25 @@ const App: React.FC = () => {
         onSave={handleSaveApiKey}
         onClose={() => setShowApiKeyModal(false)}
         initialKey={apiKey}
+        initialModel={selectedModel}
+        initialMathModel={selectedMathModel}
+      />
+
+      <HistoryModal
+        isOpen={showHistoryModal}
+        onClose={() => setShowHistoryModal(false)}
+        historyList={historyList}
+        onSelectHistory={(item) => {
+          setResult(item.result);
+          setSubject(item.subject);
+          setGrade(item.grade);
+        }}
+        onDeleteHistory={handleDeleteHistoryItem}
+        onClearAllHistory={handleClearAllHistory}
       />
     </div>
   );
 };
 
 export default App;
+

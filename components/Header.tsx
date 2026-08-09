@@ -1,11 +1,13 @@
 import React from 'react';
-import { BookOpen, GraduationCap, Settings } from 'lucide-react';
+import { BookOpen, GraduationCap, Settings, Clock } from 'lucide-react';
 
 interface HeaderProps {
   onOpenSettings: () => void;
+  onOpenHistory?: () => void;
+  historyCount?: number;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenSettings, onOpenHistory, historyCount = 0 }) => {
   return (
     <header className="bg-blue-600 text-white shadow-lg">
       <div className="max-w-5xl mx-auto px-6 py-6 flex items-center justify-between">
@@ -15,10 +17,21 @@ const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">SOẠN GIÁO ÁN NĂNG LỰC SỐ</h1>
-            <p className="text-blue-100 text-sm">Hỗ trợ tích hợp Năng lực số toàn cấp bởi Trần Hoài Thanh</p>
+            <p className="text-blue-100 text-sm">Hỗ trợ tích hợp Năng lực số toàn cấp bởi Nguyễn Thiện</p>
           </div>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          {onOpenHistory && (
+            <button
+              onClick={onOpenHistory}
+              className="flex items-center space-x-1.5 px-3 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm border border-blue-500/50"
+              title="Xem lịch sử các bài dạy đã làm"
+            >
+              <Clock size={18} />
+              <span>Lịch sử ({historyCount})</span>
+            </button>
+          )}
+
           <button
             onClick={onOpenSettings}
             className="p-2 hover:bg-blue-700 rounded-full transition-colors text-blue-100 hover:text-white"
