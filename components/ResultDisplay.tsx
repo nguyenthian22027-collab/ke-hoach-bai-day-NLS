@@ -109,25 +109,34 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
             searchPatterns = [
               'Bước 1:', 'Bước 1.', 'bước 1',
               'Chuyển giao nhiệm vụ học tập', 'Chuyển giao nhiệm vụ', 'Chuyển giao',
-              '*Chuyển giao nhiệm vụ học tập', 'NV1:', 'Nhiệm vụ 1:'
+              '*Chuyển giao nhiệm vụ học tập', 'NV1:', 'Nhiệm vụ 1:',
+              // Từ khóa tiêu đề bước thực tế (không có "Bước X")
+              'Giao nhiệm vụ:', '- Giao nhiệm vụ', '* Giao nhiệm vụ', 'Giao nhiệm vụ'
             ];
           } else if (subPart === 'BƯỚC_2') {
             searchPatterns = [
               'Bước 2:', 'Bước 2.', 'bước 2',
               'Thực hiện nhiệm vụ học tập', 'Thực hiện nhiệm vụ', 'HS thực hiện',
-              '*Thực hiện nhiệm vụ học tập', 'NV2:', 'Nhiệm vụ 2:'
+              '*Thực hiện nhiệm vụ học tập', 'NV2:', 'Nhiệm vụ 2:',
+              // Từ khóa tiêu đề bước thực tế (không có "Bước X")
+              'Hướng dẫn HS thực hiện nhiệm vụ', 'Hướng dẫn HS thực hiện',
+              'Hướng dẫn HS:', '- Hướng dẫn HS', '* Hướng dẫn HS'
             ];
           } else if (subPart === 'BƯỚC_3') {
             searchPatterns = [
               'Bước 3:', 'Bước 3.', 'bước 3',
               'Báo cáo kết quả và thảo luận', 'Báo cáo kết quả', 'Báo cáo', 'Thảo luận',
-              '*Báo cáo kết quả và thảo luận'
+              '*Báo cáo kết quả và thảo luận',
+              // Từ khóa tiêu đề bước thực tế (không có "Bước X")
+              'Báo cáo kết quả:', '- Báo cáo kết quả', '* Báo cáo kết quả'
             ];
           } else if (subPart === 'BƯỚC_4' || subPart === 'KẾT_LUẬN') {
             searchPatterns = [
               'Bước 4:', 'Bước 4.', 'bước 4',
               'Đánh giá kết quả thực hiện nhiệm vụ', 'Đánh giá kết quả', 'Kết luận, nhận định', 'Kết luận', 'Nhận định',
-              '*Đánh giá kết quả thực hiện nhiệm vụ học tập'
+              '*Đánh giá kết quả thực hiện nhiệm vụ học tập',
+              // Từ khóa tiêu đề bước thực tế (không có "Bước X")
+              'Đánh giá kết quả thực hiện nhiệm vụ:', '- Đánh giá kết quả', '* Đánh giá kết quả'
             ];
           } else {
             // Cho TỔ_CHỨC, NỘI_DUNG, SẢN_PHẨM => Luôn ép chèn vào "d. Tổ chức thực hiện"
@@ -141,13 +150,25 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
         else if (marker === 'NỘI_DUNG' || marker === 'SẢN_PHẨM' || marker === 'TỔ_CHỨC') {
           searchPatterns = ['d) Tổ chức thực hiện', 'd. Tổ chức thực hiện', 'd.Tổ chức thực hiện', 'd)Tổ chức'];
         } else if (marker === 'BƯỚC_1') {
-          searchPatterns = ['Bước 1:', 'Chuyển giao nhiệm vụ học tập', 'Chuyển giao nhiệm vụ'];
+          searchPatterns = [
+            'Bước 1:', 'Chuyển giao nhiệm vụ học tập', 'Chuyển giao nhiệm vụ',
+            'Giao nhiệm vụ:', 'Giao nhiệm vụ', '- Giao nhiệm vụ'
+          ];
         } else if (marker === 'BƯỚC_2') {
-          searchPatterns = ['Bước 2:', 'Thực hiện nhiệm vụ học tập', 'Thực hiện nhiệm vụ'];
+          searchPatterns = [
+            'Bước 2:', 'Thực hiện nhiệm vụ học tập', 'Thực hiện nhiệm vụ',
+            'Hướng dẫn HS thực hiện nhiệm vụ', 'Hướng dẫn HS:', '- Hướng dẫn HS'
+          ];
         } else if (marker === 'BƯỚC_3') {
-          searchPatterns = ['Bước 3:', 'Báo cáo kết quả và thảo luận', 'Báo cáo kết quả'];
+          searchPatterns = [
+            'Bước 3:', 'Báo cáo kết quả và thảo luận', 'Báo cáo kết quả',
+            'Báo cáo kết quả:', '- Báo cáo kết quả'
+          ];
         } else if (marker === 'BƯỚC_4') {
-          searchPatterns = ['Bước 4:', 'Đánh giá kết quả thực hiện', 'Kết luận, nhận định'];
+          searchPatterns = [
+            'Bước 4:', 'Đánh giá kết quả thực hiện', 'Kết luận, nhận định',
+            'Đánh giá kết quả thực hiện nhiệm vụ:', '- Đánh giá kết quả'
+          ];
         } else if (marker === 'CỦNG_CỐ' || marker === 'BẢNG_TỔNG_HỢP') {
           searchPatterns = [
             'IV. DẶN DÒ', 'IV. CỦNG CỐ', 'V. HƯỚNG DẪN VỀ NHÀ',

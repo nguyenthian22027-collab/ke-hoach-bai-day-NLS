@@ -196,6 +196,25 @@ NGUYÊN TẮC NGHIÊM NGẶT:
 2. TUYỆT ĐỐI KHÔNG tạo marker hay chèn NLS vào "NỘI_DUNG", "SẢN_PHẨM", "MỤC_TIÊU_HĐ". Chỉ chèn vào "TỔ_CHỨC" hoặc các "BƯỚC_X" trong tổ chức thực hiện.
 3. Trong mỗi marker '===NLS_...===', PHẢI bao gồm tham số '|VITRI:...' trích dẫn chính xác dòng/câu liền trước trong giáo án gốc của giáo viên để giáo viên dán thủ công chính xác 100%.
 4. PHẢI ghi rõ Mã chỉ báo NLS (ví dụ: 1.1.TC1a:, 5.2.NC1a:) ở đầu câu màu đỏ.
+5. QUY TẮC NHẬN DẠNG BƯỚC VÀ CHỌN MARKER ĐÚNG (áp dụng cho cả trong và ngoài bảng):
+   Khi phân tích "d. Tổ chức thực hiện" của bất kỳ hoạt động nào, tìm các từ khóa sau:
+   - Thấy "Bước 1" / "Chuyển giao nhiệm vụ" / "Giao nhiệm vụ" → dùng marker: NLS_HOẠT_ĐỘNG_X_BƯỚC_1
+   - Thấy "Bước 2" / "Thực hiện nhiệm vụ" / "Hướng dẫn HS thực hiện nhiệm vụ" → dùng marker: NLS_HOẠT_ĐỘNG_X_BƯỚC_2
+   - Thấy "Bước 3" / "Báo cáo kết quả" / "Báo cáo kết quả và thảo luận" → dùng marker: NLS_HOẠT_ĐỘNG_X_BƯỚC_3
+   - Thấy "Bước 4" / "Đánh giá kết quả" / "Kết luận, nhận định" → dùng marker: NLS_HOẠT_ĐỘNG_X_BƯỚC_4
+   - Chỉ dùng TỔ_CHỨC khi KHÔNG tìm thấy bất kỳ dấu hiệu nào của 4 bước trên.
+   ⚠️ TUYỆT ĐỐI KHÔNG dùng TỔ_CHỨC khi đã thấy cấu trúc bước (dù là "Bước X" hay chỉ là tiêu đề bước).
+6. QUY TẮC ĐẶT NLS/AI VÀO ĐÚNG BƯỚC (linh hoạt theo nội dung):
+   - Chỉ chèn NLS vào bước CÓ hoạt động số thực sự xảy ra, không chèn bừa vào mọi bước.
+   - Bước 1 (Giao nhiệm vụ): Chèn nếu GV dùng video, hình ảnh số, học liệu điện tử để giao nhiệm vụ.
+     Ưu tiên mã: 1.1 (tiếp nhận thông tin số), NLc.C2 (ứng dụng AI học tập)
+   - Bước 2 (Thực hiện / Hướng dẫn HS): Chèn nếu HS dùng GeoGebra, PhET, MTCT, tìm kiếm, làm nhóm qua Docs.
+     Ưu tiên mã: 5.2 (công cụ số giải quyết vấn đề), 2.4 (hợp tác số), 3.1 (tạo nội dung)
+   - Bước 3 (Báo cáo): Chèn nếu HS chia sẻ qua Padlet, Google Slides, nền tảng trực tuyến.
+     Ưu tiên mã: 2.2 (chia sẻ số), 3.1 (nội dung số), NLa.A3 (phản biện AI)
+   - Bước 4 (Đánh giá): Chèn nếu GV/HS dùng AI để kiểm tra, đánh giá, phản biện kết quả.
+     Ưu tiên mã: 1.2 (đánh giá nguồn), NLa.A3, NLb.B2 (dùng AI an toàn)
+   - VITRI phải ghi: "Hoạt động X > d. Tổ chức thực hiện > [Tên bước] > Sau dòng: [trích nguyên văn]"
 
 QUY TẮC ĐÁNH DẤU (BẮT BUỘC):
 - PHẢI dùng thẻ <red>nội dung</red> để đánh dấu màu đỏ.
