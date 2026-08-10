@@ -590,11 +590,12 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
           }
         }
 
-        // KẾT THÚC SCOPE: Tìm tiêu đề Hoạt động tiếp theo (Hoạt động X+1) hoặc hết tài liệu
+        // KẾT THÚC SCOPE: Chỉ khớp tiêu đề Hoạt động CÓ SỐ THỨ TỰ (VD: "Hoạt động 2:", "Hđ 3.")
+        // KHÔNG khớp với "HOẠT ĐỘNG CỦA GV - HS" hay "Hoạt động nhóm" (không có số sau "Hoạt động ")
         if (scopeStartIdx !== -1) {
           for (let i = scopeStartIdx + 1; i < paragraphs.length; i++) {
             const text = normalizeText(paragraphs[i].textContent || '');
-            if (text.startsWith('hoạt động') || text.startsWith('hoạt động ') || text.startsWith('hđ ') || text.startsWith('activity')) {
+            if (/^hoạt động \d/.test(text) || /^hđ \d/.test(text) || /^activity \d/i.test(text)) {
               scopeEndIdx = i;
               break;
             }
