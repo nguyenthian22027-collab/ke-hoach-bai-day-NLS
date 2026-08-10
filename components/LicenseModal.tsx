@@ -57,10 +57,10 @@ const LicenseModal: React.FC<LicenseModalProps> = ({
     }
   };
 
-  // Xử lý đăng nhập Admin PIN
+  // Xử lý đăng nhập Admin Password
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminPin === '8899' || adminPin === '1984' || adminPin === '0988250112') {
+    if (adminPin === 'Thien12345@') {
       setIsAdminAuthenticated(true);
     } else {
       alert('Mã PIN Admin không đúng!');
@@ -246,14 +246,14 @@ const LicenseModal: React.FC<LicenseModalProps> = ({
                     <Lock size={32} className="mx-auto" />
                   </div>
                   <h4 className="text-sm font-bold text-slate-800">Xác thực Quyền Admin Sinh Mã Pro</h4>
-                  <p className="text-xs text-slate-500">Vui lòng nhập Mã PIN Admin để truy cập công cụ sinh mã.</p>
+                  <p className="text-xs text-slate-500">Vui lòng nhập Mật khẩu Admin để truy cập công cụ sinh mã.</p>
                   
                   <input
                     type="password"
-                    placeholder="Nhập mã PIN Admin..."
+                    placeholder="Nhập Mật khẩu Admin..."
                     value={adminPin}
                     onChange={(e) => setAdminPin(e.target.value)}
-                    className="w-full border border-slate-300 rounded-xl p-3 text-center text-sm font-bold tracking-widest focus:ring-2 focus:ring-purple-200 outline-none"
+                    className="w-full border border-slate-300 rounded-xl p-3 text-center text-sm font-bold focus:ring-2 focus:ring-purple-200 outline-none"
                   />
 
                   <button
