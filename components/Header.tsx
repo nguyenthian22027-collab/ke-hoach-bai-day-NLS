@@ -70,8 +70,8 @@ const Header: React.FC<HeaderProps> = ({
             <GraduationCap size={32} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">SOẠN GIÁO ÁN NĂNG LỰC SỐ</h1>
-            <p className="text-blue-100 text-sm">Hỗ trợ tích hợp Năng lực số toàn cấp theo Thông tư 02 & QĐ 3439</p>
+            <h1 className="text-2xl font-bold tracking-tight">SOẠN GIÁO ÁN NĂNG LỰC SỐ & AI</h1>
+            <p className="text-blue-100 text-sm">Tác giả: GV. NGUYỄN BỈNH KHÔI - ZALO: 0909 461 641 (TT 02 & QĐ 3439)</p>
           </div>
         </div>
         <div className="flex items-center space-x-2 sm:space-x-3">
