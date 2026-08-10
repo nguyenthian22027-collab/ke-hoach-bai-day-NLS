@@ -26,18 +26,21 @@ function cleanString(str: string): string {
   return str.replace(/[^A-Z0-9]/gi, "").toUpperCase();
 }
 
-// 1. Hàm khởi tạo hoặc lấy Mã Thiết Bị độc nhất
+// 1. Hàm khởi tạo hoặc lấy Mã Thiết Bị độc nhất (Cố định theo Phần cứng Máy tính)
 export function getOrCreateDeviceId(): string {
   let deviceId = localStorage.getItem(DEVICE_ID_KEY);
   if (!deviceId) {
-    // Tạo fingerprint từ màn hình, ngôn ngữ, timezone & ngẫu nhiên
+    // Tạo fingerprint cố định từ cấu hình phần cứng thiết bị (Màn hình + Số nhân CPU + Múi giờ + Hệ điều hành)
     const screenInfo = `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}`;
-    const userAgent = navigator.userAgent || "";
-    const randStr = Math.random().toString(36).substring(2, 10);
-    const rawFingerprint = `${screenInfo}-${userAgent}-${randStr}-${Date.now()}`;
-    const hashHex = hashString(rawFingerprint);
-    const randHex = Math.floor(1000 + Math.random() * 9000);
-    deviceId = `DEV-${hashHex.slice(0, 4)}-${hashHex.slice(4, 8)}-${randHex}`;
+    const cores = navigator.hardwareConcurrency || 4;
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Ho_Chi_Minh";
+    const platform = (navigator as any).userAgentData?.platform || navigator.platform || "Win32";
+    
+    const hwFingerprint = `HW-DEVICE-V1:${screenInfo}:${cores}:${tz}:${platform}`;
+    const hashHex1 = hashString(hwFingerprint);
+    const hashHex2 = hashString(`${hashHex1}:${SECRET_SALT}`);
+    
+    deviceId = `DEV-${hashHex1.slice(0, 4)}-${hashHex2.slice(0, 4)}`;
     localStorage.setItem(DEVICE_ID_KEY, deviceId);
   }
   return deviceId;
