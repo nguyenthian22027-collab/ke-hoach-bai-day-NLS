@@ -64,4 +64,15 @@ export interface HistoryItem {
   result: string;
   integrationMode?: IntegrationMode;
 }
+export type ProPackage = 'TRIAL' | '1_YEAR' | '2_YEARS' | 'LIFETIME';
 
+export interface LicenseInfo {
+  deviceId: string;
+  isPro: boolean;
+  packageType: ProPackage;
+  trialStartDate: number;
+  trialDaysRemaining: number;
+  isTrialExpired: boolean;
+  proExpiryDate?: number; // Unix timestamp hết hạn (nếu gói theo năm)
+  licenseKey?: string;
+}

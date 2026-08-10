@@ -3,11 +3,13 @@ import Header from './components/Header';
 import LessonForm from './components/LessonForm';
 import ContentInput from './components/ContentInput';
 import ResultDisplay from './components/ResultDisplay';
-import { Subject, OriginalDocxFile, HistoryItem } from './types';
+import { Subject, OriginalDocxFile, HistoryItem, IntegrationMode, LicenseInfo } from './types';
 import { generateNLSLessonPlan } from './services/geminiService';
+import { getLicenseInfo } from './services/licenseService';
 import { Sparkles, Settings2, Key } from 'lucide-react';
 import ApiKeyModal from './components/ApiKeyModal';
 import HistoryModal from './components/HistoryModal';
+import LicenseModal from './components/LicenseModal';
 
 const App: React.FC = () => {
   // State for Form
@@ -38,10 +40,18 @@ const App: React.FC = () => {
   const [historyList, setHistoryList] = useState<HistoryItem[]>([]);
   const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
 
+  // License & Pro State
+  const [licenseInfo, setLicenseInfo] = useState<LicenseInfo>(() => getLicenseInfo());
+  const [showLicenseModal, setShowLicenseModal] = useState<boolean>(false);
+
   // State lưu trữ file DOCX gốc cho XML Injection
   const [originalDocx, setOriginalDocx] = useState<OriginalDocxFile | null>(null);
 
   useEffect(() => {
+    // Tự động kiểm tra thông tin License & Dùng thử 5 ngày
+    const lic = getLicenseInfo();
+    setLicenseInfo(lic);
+
     const storedKey = localStorage.getItem('GEMINI_API_KEY');
     const storedModel = localStorage.getItem('GEMINI_SELECTED_MODEL');
     const storedMathModel = localStorage.getItem('GEMINI_MATH_MODEL');
@@ -100,6 +110,16 @@ const App: React.FC = () => {
   };
 
   const handleProcess = async () => {
+    // Kiểm tra bản quyền & dùng thử 5 ngày
+    const currentLic = getLicenseInfo();
+    setLicenseInfo(currentLic);
+
+    if (!currentLic.isPro && currentLic.isTrialExpired) {
+      setError("⚠️ Thời gian dùng thử 5 ngày đã hết. Vui lòng kích hoạt Bản Pro để tiếp tục sử dụng!");
+      setShowLicenseModal(true);
+      return;
+    }
+
     if (!lessonContent || lessonContent.trim().length === 0) {
       setError("Vui lòng tải lên file giáo án (Giáo án trống hoặc chưa được tải).");
       return;
@@ -158,7 +178,9 @@ const App: React.FC = () => {
       <Header
         onOpenSettings={() => setShowApiKeyModal(true)}
         onOpenHistory={() => setShowHistoryModal(true)}
+        onOpenLicense={() => setShowLicenseModal(true)}
         historyCount={historyList.length}
+        licenseInfo={licenseInfo}
       />
 
       <main className="max-w-5xl mx-auto px-4 mt-8">
@@ -320,6 +342,13 @@ const App: React.FC = () => {
         }}
         onDeleteHistory={handleDeleteHistoryItem}
         onClearAllHistory={handleClearAllHistory}
+      />
+
+      <LicenseModal
+        isOpen={showLicenseModal}
+        onClose={() => setShowLicenseModal(false)}
+        licenseInfo={licenseInfo}
+        onLicenseUpdated={() => setLicenseInfo(getLicenseInfo())}
       />
     </div>
   );
