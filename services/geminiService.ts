@@ -11,9 +11,16 @@ function getGradeLevelGuidance(grade: number): string {
   - Học sinh cần được hướng dẫn từng bước, thao tác đơn giản
   - Ví dụ phù hợp: Xem video, quan sát hình ảnh, sử dụng phần mềm học tập có hướng dẫn
   - TRÁNH: Các hoạt động yêu cầu tự tìm kiếm, đánh giá phức tạp`;
-  } else if (grade >= 4 && grade <= 6) {
+  } else if (grade >= 4 && grade <= 5) {
     return `
-  🎯 MỨC ĐỘ NLS PHÙ HỢP VỚI LỚP ${grade} (CẤP TIỂU HỌC CUỐI):
+  🎯 MỨC ĐỘ NLS PHÙ HỢP VỚI LỚP ${grade} (CẤP TIỂU HỌC - LỚP 4-5):
+  - SỬ DỤNG mức CB2 (Cơ bản 2) và TC1 (Trung cấp 1)
+  - Học sinh có thể thực hiện tác vụ độc lập với hướng dẫn rõ ràng
+  - Ví dụ phù hợp: Tìm kiếm thông tin đơn giản, sử dụng MTCT, tạo nội dung cơ bản
+  - TRÁNH: Đánh giá độ tin cậy nguồn, lập trình phức tạp`;
+  } else if (grade === 6) {
+    return `
+  🎯 MỨC ĐỘ NLS PHÙ HỢP VỚI LỚP ${grade} (CẤP THCS - LỚP 6 ĐẦU THCS):
   - SỬ DỤNG mức CB2 (Cơ bản 2) và TC1 (Trung cấp 1)
   - Học sinh có thể thực hiện tác vụ độc lập với hướng dẫn rõ ràng
   - Ví dụ phù hợp: Tìm kiếm thông tin đơn giản, sử dụng MTCT, tạo nội dung cơ bản

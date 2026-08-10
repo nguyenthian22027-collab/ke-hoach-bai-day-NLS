@@ -133,6 +133,7 @@ YÊU CẦU CẦN ĐẠT THEO CẤP HỌC (QĐ 3439/QĐ-BGDĐT):
 `;
 
 export const SYSTEM_INSTRUCTION = `
+   - Lớp 1-3: Dùng mức CB1, CB2. Học sinh cần được hướng dẫn từng bước, tác vụ đơn giản.
    - Lớp 4-6: Dùng mức CB2, TC1.
    - Lớp 7-9: Dùng mức TC1, TC2.
    - Lớp 10-12: Dùng mức TC2, NC1.
