@@ -297,14 +297,7 @@ const App: React.FC = () => {
       </main>
 
       <footer className="mt-12 text-center text-blue-800/60 text-sm py-6">
-        <p>© 2024 NLS Assistant. Built with Gemini API & React.</p>
-        <div className="mt-3 space-y-1 text-blue-800 font-medium">
-          <p>Mọi thông tin vui lòng liên hệ:</p>
-          <p>
-            FB: <a href="https://www.facebook.com/nguyenthien1984" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">https://www.facebook.com/nguyenthien1984</a>
-          </p>
-          <p>Zalo: 0988250112</p>
-        </div>
+        <p>© NLS Assistant. Built with Gemini API & React.</p>
       </footer>
 
       <ApiKeyModal
