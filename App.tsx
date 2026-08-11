@@ -16,6 +16,8 @@ const App: React.FC = () => {
   const [subject, setSubject] = useState<Subject>(Subject.TOAN);
   const [grade, setGrade] = useState<number>(7);
   const [integrationMode, setIntegrationMode] = useState<IntegrationMode>('BOTH');
+  const [includeDisabilitySupport, setIncludeDisabilitySupport] = useState<boolean>(false);
+  const [disabilityType, setDisabilityType] = useState<DisabilityType>('GENERAL');
 
   // Content States
   const [lessonContent, setLessonContent] = useState<string>('');
@@ -138,7 +140,17 @@ const App: React.FC = () => {
           content: lessonContent,
           distributionContent: distributionContent
         },
-        { analyzeOnly, detailedReport, comparisonExport: false, apiKey, selectedModel, selectedMathModel, integrationMode }
+        { 
+          analyzeOnly, 
+          detailedReport, 
+          comparisonExport: false, 
+          apiKey, 
+          selectedModel, 
+          selectedMathModel, 
+          integrationMode,
+          includeDisabilitySupport,
+          disabilityType
+        }
       );
 
       if (!generatedText || generatedText.trim().length === 0) {
@@ -162,6 +174,8 @@ const App: React.FC = () => {
         originalFileName: originalDocx?.fileName,
         result: generatedText,
         integrationMode,
+        includeDisabilitySupport,
+        disabilityType,
       };
 
       saveToHistory(historyItem);
@@ -192,6 +206,8 @@ const App: React.FC = () => {
               subject={subject} setSubject={setSubject}
               grade={grade} setGrade={setGrade}
               integrationMode={integrationMode} setIntegrationMode={setIntegrationMode}
+              includeDisabilitySupport={includeDisabilitySupport} setIncludeDisabilitySupport={setIncludeDisabilitySupport}
+              disabilityType={disabilityType} setDisabilityType={setDisabilityType}
             />
 
             <ContentInput

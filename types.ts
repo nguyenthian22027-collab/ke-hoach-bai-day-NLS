@@ -39,6 +39,8 @@ export interface OriginalDocxFile {
 
 export type IntegrationMode = 'NLS' | 'AI' | 'BOTH';
 
+export type DisabilityType = 'GENERAL' | 'INTELLECTUAL' | 'VISUAL' | 'HEARING' | 'MOTOR';
+
 export interface ProcessingOptions {
   analyzeOnly: boolean;
   detailedReport: boolean;
@@ -48,6 +50,8 @@ export interface ProcessingOptions {
   selectedModel?: string;
   selectedMathModel?: string;
   integrationMode?: IntegrationMode;
+  includeDisabilitySupport?: boolean;
+  disabilityType?: DisabilityType;
 }
 
 export interface GeminiResponse {
@@ -63,6 +67,8 @@ export interface HistoryItem {
   originalFileName?: string;
   result: string;
   integrationMode?: IntegrationMode;
+  includeDisabilitySupport?: boolean;
+  disabilityType?: DisabilityType;
 }
 export type ProPackage = 'TRIAL' | '1_YEAR' | '2_YEARS' | 'LIFETIME';
 

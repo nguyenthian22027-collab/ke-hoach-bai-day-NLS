@@ -1,6 +1,6 @@
 import React from 'react';
-import { Subject, IntegrationMode } from '../types';
-import { Bot, Cpu, Sparkles } from 'lucide-react';
+import { Subject, IntegrationMode, DisabilityType } from '../types';
+import { Bot, Cpu, Sparkles, HeartHandshake } from 'lucide-react';
 
 interface LessonFormProps {
   subject: Subject;
@@ -9,6 +9,10 @@ interface LessonFormProps {
   setGrade: (val: number) => void;
   integrationMode: IntegrationMode;
   setIntegrationMode: (val: IntegrationMode) => void;
+  includeDisabilitySupport: boolean;
+  setIncludeDisabilitySupport: (val: boolean) => void;
+  disabilityType: DisabilityType;
+  setDisabilityType: (val: DisabilityType) => void;
 }
 
 const LessonForm: React.FC<LessonFormProps> = ({
@@ -18,6 +22,10 @@ const LessonForm: React.FC<LessonFormProps> = ({
   setGrade,
   integrationMode,
   setIntegrationMode,
+  includeDisabilitySupport,
+  setIncludeDisabilitySupport,
+  disabilityType,
+  setDisabilityType,
 }) => {
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-blue-100 mb-6 space-y-6">
@@ -104,6 +112,41 @@ const LessonForm: React.FC<LessonFormProps> = ({
             <span>Chỉ Năng lực AI (QĐ 3439)</span>
           </button>
         </div>
+      </div>
+
+      {/* Inclusive Education Section */}
+      <div className="space-y-3 text-left pt-3 border-t border-slate-100">
+        <label className="flex items-center space-x-2.5 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={includeDisabilitySupport}
+            onChange={(e) => setIncludeDisabilitySupport(e.target.checked)}
+            className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
+          />
+          <span className="text-sm font-semibold text-slate-800 flex items-center">
+            <HeartHandshake className="text-emerald-600 mr-1.5" size={18} />
+            Tích hợp Giáo dục Hòa nhập (Học sinh Khuyết tật - TT 03/2018/TT-BGDĐT)
+          </span>
+        </label>
+
+        {includeDisabilitySupport && (
+          <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2 text-left animate-fadeIn">
+            <label className="block text-xs font-semibold text-emerald-900">
+              Dạng khuyết tật / Đối tượng học sinh cần hỗ trợ:
+            </label>
+            <select
+              value={disabilityType}
+              onChange={(e) => setDisabilityType(e.target.value as DisabilityType)}
+              className="block w-full rounded-lg border-emerald-300 bg-white p-2 text-xs font-semibold text-emerald-900 focus:border-emerald-500 focus:ring-emerald-500"
+            >
+              <option value="GENERAL">🤝 Hòa nhập tổng hợp (Tất cả học sinh khuyết tật)</option>
+              <option value="INTELLECTUAL">🧠 Khuyết tật Trí tuệ / Khó khăn học tập</option>
+              <option value="VISUAL">👁️ Khuyết tật Thị giác (Nhìn)</option>
+              <option value="HEARING">👂 Khuyết tật Thính giác (Nghe/Nói)</option>
+              <option value="MOTOR">🦽 Khuyết tật Vận động</option>
+            </select>
+          </div>
+        )}
       </div>
     </div>
   );

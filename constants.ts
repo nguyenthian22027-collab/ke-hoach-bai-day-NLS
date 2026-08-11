@@ -338,6 +338,24 @@ RULES WHEN PPCT IS PROVIDED:
 - DO NOT add digital competencies outside the PPCT.
 `;
 
+export const DISABILITY_SUPPORT_INSTRUCTIONS = `
+KHUNG HƯỚNG DẪN GIÁO DỤC HÒA NHẬP HỌC SINH KHUYẾT TẬT (TT 03/2018/TT-BGDĐT):
+YÊU CẦU XỬ LÝ (KHI BẬT CHẾ ĐỘ TÍCH HỢP HÒA NHẬP HSKT):
+1. MỤC I. MỤC TIÊU:
+   - Thêm mục "* Điều chỉnh mục tiêu đối với Học sinh Khuyết tật (HSKT):" ở cuối phần 2. Năng lực (sau phần Năng lực số / AI).
+   - Nội dung mục tiêu HSKT: Nhận biết và thực hiện được các thao tác/nhiệm vụ cơ bản vừa sức dưới sự hướng dẫn của giáo viên và sự hỗ trợ của bạn học; chủ động tham gia hòa nhập cùng các bạn.
+
+2. MỤC II. TIẾN TRÌNH DẠY HỌC (CÁC HOẠT ĐỘNG):
+   - CHỈ CHÈN VÀO PHẦN "d. Tổ chức thực hiện" (hoặc các Bước 1, Bước 2, Bước 3, Bước 4 dưới phần Tổ chức thực hiện) của các hoạt động.
+   - Thêm câu hỗ trợ HSKT được bọc trong thẻ <green>[Hỗ trợ HSKT: ...]</green>.
+   - Hướng dẫn hỗ trợ theo loại khuyết tật:
+     + Trí tuệ / Học tập: GV đơn giản hóa nhiệm vụ, chia nhỏ từng thao tác, tăng cường hình ảnh trực quan, giao bạn học bên cạnh hỗ trợ.
+     + Thị giác (Nhìn): GV thuyết minh rõ bằng lời nói, cung cấp hình ảnh phóng to / tài liệu chữ lớn, nhờ bạn đọc giúp.
+     + Thính giác (Nghe/Nói): GV sử dụng hình ảnh, chữ viết trên bảng, ký hiệu trực quan, phân công bạn giao tiếp hỗ trợ.
+     + Vận động: GV bố trí chỗ ngồi thuận tiện, phân công bạn hỗ trợ chuẩn bị đồ dùng và thực hiện thao tác.
+     + Chung: GV động viên, giao nhiệm vụ vừa sức, phân công "Đôi bạn cùng tiến" giúp đỡ HSKT hòa nhập.
+`;
+
 export const PLACEHOLDER_LESSON = `TÊN BÀI HỌC: THỐNG KÊ MÔ TẢ
 Môn: Toán - Lớp: 7
 

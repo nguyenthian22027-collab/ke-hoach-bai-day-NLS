@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { LessonInfo, ProcessingOptions, Subject } from "../types";
-import { SYSTEM_INSTRUCTION, NLS_FRAMEWORK_DATA, SYSTEM_INSTRUCTION_ENGLISH, NLS_FRAMEWORK_DATA_ENGLISH, AI_FRAMEWORK_DATA_QD3439 } from "../constants";
+import { SYSTEM_INSTRUCTION, NLS_FRAMEWORK_DATA, SYSTEM_INSTRUCTION_ENGLISH, NLS_FRAMEWORK_DATA_ENGLISH, AI_FRAMEWORK_DATA_QD3439, DISABILITY_SUPPORT_INSTRUCTIONS } from "../constants";
 
 // Hàm xác định mức độ NLS phù hợp theo cấp lớp
 function getGradeLevelGuidance(grade: number): string {
@@ -471,11 +471,22 @@ export const generateNLSLessonPlan = async (
     ? `\n    ${AI_FRAMEWORK_DATA_QD3439}\n`
     : "";
 
+  const disabilityPrompt = options.includeDisabilitySupport
+    ? `\n    ${DISABILITY_SUPPORT_INSTRUCTIONS}\n    DẠNG KHUYẾT TẬT CẦN HỖ TRỢ: ${
+        options.disabilityType === 'INTELLECTUAL' ? 'Khuyết tật Trí tuệ / Khó khăn học tập' :
+        options.disabilityType === 'VISUAL' ? 'Khuyết tật Thị giác (Nhìn)' :
+        options.disabilityType === 'HEARING' ? 'Khuyết tật Thính giác (Nghe/Nói)' :
+        options.disabilityType === 'MOTOR' ? 'Khuyết tật Vận động' :
+        'Hòa nhập tổng hợp (Tất cả học sinh khuyết tật)'
+      }\n`
+    : "";
+
   // User prompt
   const userPrompt = isEnglishSubject ? `
     DIGITAL COMPETENCE FRAMEWORK REFERENCE DATA:
     ${frameworkData}
     ${aiFrameworkPrompt}
+    ${disabilityPrompt}
 
     LESSON PLAN INPUT INFORMATION:
     - Subject: ${info.subject}
@@ -495,13 +506,15 @@ export const generateNLSLessonPlan = async (
     1. PRESERVE ORIGINAL FORMATTING: You must keep bold (**text**), italic (*text*) formatting from the original text.
     2. TABLES: Use standard Markdown Table.
     3. DC ADDITIONS: Use <red>...</red> tags to mark digital & AI competence content in red. Include indicator codes (e.g. 1.1.TC1a: or NLa.A1:).
-    4. LOCATION: Insert DC/AI in Objectives under "2. Competence". For activities, ONLY insert into section "d) Organization" (or steps under Organization). DO NOT insert into Content, Outcomes, or Objectives of activities.
+    4. DISABILITY SUPPORT: Use <green>[Hỗ trợ HSKT: ...]</green> to mark inclusive education support.
+    5. LOCATION: Insert DC/AI/Disability in Objectives under "2. Competence". For activities, ONLY insert into section "d) Organization" (or steps under Organization). DO NOT insert into Content, Outcomes, or Objectives of activities.
   ` : `
     ${modeText}
 
     DỮ LIỆU THAM CHIẾU KHUNG NĂNG LỰC SỐ & NĂNG LỰC AI (QĐ 3439 & TT 02):
     ${frameworkData}
     ${aiFrameworkPrompt}
+    ${disabilityPrompt}
 
     THÔNG TIN GIÁO ÁN ĐẦU VÀO:
     - Môn học: ${info.subject}

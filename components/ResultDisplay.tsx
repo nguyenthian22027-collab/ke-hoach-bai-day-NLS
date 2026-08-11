@@ -381,7 +381,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
   const parseTextWithFormatting = (text: string): TextRun[] => {
     // Làm sạch LaTeX và <br> trước khi parse định dạng
     const cleanedText = cleanLatex(text);
-    const parts = cleanedText.split(/(\*\*.*?\*\*|\*.*?\*|<u>.*?<\/u>|<red>.*?<\/red>)/g);
+    const parts = cleanedText.split(/(\*\*.*?\*\*|\*.*?\*|<u>.*?<\/u>|<red>.*?<\/red>|<green>.*?<\/green>)/g);
     return parts.map(part => {
       if (part.startsWith('**') && part.endsWith('**')) {
         return new TextRun({ text: part.slice(2, -2), bold: true });
@@ -394,6 +394,9 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
       }
       if (part.startsWith('<red>') && part.endsWith('</red>')) {
         return new TextRun({ text: cleanLatex(part.replace(/<\/?red>/g, '')), color: "FF0000" });
+      }
+      if (part.startsWith('<green>') && part.endsWith('</green>')) {
+        return new TextRun({ text: cleanLatex(part.replace(/<\/?green>/g, '')), color: "008000", italics: true });
       }
       return new TextRun({ text: part });
     });
@@ -408,7 +411,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
       .replace(/'/g, '&apos;');
   };
 
-  // Chuyển Markdown sang Word XML - CHỈ MÀU ĐỎ
+  // Chuyển Markdown sang Word XML - MÀU ĐỎ NLS/AI VÀ MÀU XANH HSKT
   const convertMarkdownToWordXml = (markdown: string): string => {
     // Bước 1: Thay thế <br> thành ký tự xuống dòng thực sự trước khi split
     const normalizedMarkdown = markdown.replace(/<br\s*\/?>/gi, '\n');
@@ -439,15 +442,18 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
       // Loại bỏ thẻ <u> và </u>
       processedLine = processedLine.replace(/<\/?u>/g, '');
 
+      let isGreenContent = trimmed.includes('<green>') || trimmed.includes('</green>');
       let isRedContent = trimmed.includes('<red>') || trimmed.includes('</red>');
-      processedLine = processedLine.replace(/<\/?red>/g, '');
+      processedLine = processedLine.replace(/<\/?red>/g, '').replace(/<\/?green>/g, '');
 
       // Bước 2: Làm sạch LaTeX → Unicode trước khi escape XML
       processedLine = cleanLatex(processedLine);
 
       const content = escapeXml(processedLine);
 
-      if (isRedContent) {
+      if (isGreenContent) {
+        xml += `<w:p><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:color w:val="008000"/><w:i/></w:rPr><w:t>${content}</w:t></w:r></w:p>`;
+      } else if (isRedContent) {
         xml += `<w:p><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:color w:val="FF0000"/></w:rPr><w:t>${content}</w:t></w:r></w:p>`;
       } else {
         xml += `<w:p><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/></w:rPr><w:t>${content}</w:t></w:r></w:p>`;
@@ -854,6 +860,9 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
   const components = {
     red: ({ children }: { children: React.ReactNode }) => (
       <span style={{ color: 'red' }}>{children}</span>
+    ),
+    green: ({ children }: { children: React.ReactNode }) => (
+      <span style={{ color: '#059669', fontStyle: 'italic', fontWeight: 600 }}>{children}</span>
     ),
   };
 
