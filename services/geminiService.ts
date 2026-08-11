@@ -149,11 +149,28 @@ function getSubjectGuidance(subject: Subject): string {
   switch (subject) {
     case Subject.TOAN:
       return `
-📚 ĐẶC THÙ MÔN TOÁN - HƯỚNG DẪN NLS:
-- ƯU TIÊN: Sử dụng công cụ tính toán số (MTCT, GeoGebra, Excel, Desmos)
-- NLS PHÙ HỢP: 5.2 (Xác định nhu cầu công nghệ), 3.4 (Lập trình), 1.1 (Tìm kiếm dữ liệu)
-- VÍ DỤ: Vẽ đồ thị hàm số bằng GeoGebra, tính toán bằng MTCT, lập bảng tính Excel
-- CHÚ Ý: Công thức toán học cần viết dạng LaTeX ($x^2$)`;
+📚 ĐẶC THÙ MÔN TOÁN - HƯỚNG DẪN NLS (LỚP 1 - 12):
+- ƯU TIÊN CÔNG CỤ THEO MẠCH BÀI:
+  + Mạch Đồ thị / Tập nghiệm / Hình học: GeoGebra / Desmos (Mã 5.3.NC1a hoặc 5.2.NC1a)
+  + Mạch Bài toán thực tế / Mô hình hóa toán học: Google / YouTube (Mã 1.1.NC1b hoặc 1.1.TC1a)
+  + Mạch Ôn tập / Trắc nghiệm củng cố: Quizizz / Kahoot (Mã 2.1.TC1a)
+  + Mạch Tính toán số / Kiểm tra nghiệm: Máy tính cầm tay Casio / Excel (Mã 5.2.NC1a hoặc 5.2.TC1a)
+  + Mạch Kiểm tra lời giải / Phân tích các bước: AI Toán học (Photomath, ChatGPT, Gemini) (Mã NLc.C2 hoặc NLa.A3)
+
+- PHÂN TẦNG CÔNG CỤ THEO KHỐI LỚP:
+  + Lớp 1-3 (CB1, CB2 | AI: NLa.A1-A2, NLc.C1): Slide trình chiếu trực quan, game Toán hình ảnh (Matific, Blooket, Quizizz đơn giản), que tính/hình khối 3D ảo trên màn hình TV, MTCT đơn giản (Lớp 2-3).
+  + Lớp 4-5 (CB2, TC1 | AI: NLa.A1-A3, NLc.C1-C2): MTCT cơ bản, Scratch AI nhận diện hình khối, Quizizz hình ảnh, Google tìm số liệu thực tế đơn giản.
+  + Lớp 6-7 (CB2, TC1 | AI: NLa.A1-A3, NLc.C1-C4): GeoGebra vẽ đường thẳng/hình học phẳng, MTCT Casio, Excel bảng thống kê đơn giản, Google tra cứu ứng dụng thực tế.
+  + Lớp 8-9 (TC1, TC2 | AI: NLa.A1-A3, NLc.C2-C4): GeoGebra biểu diễn hệ phương trình / đường tròn / tam giác đồng dạng, MTCT Casio 580VN X giải phương trình/hệ phương trình, Excel biểu đồ thống kê, Quizizz ôn tập, AI (Photomath/ChatGPT) kiểm tra lời giải.
+  + Lớp 10-12 (TC2, NC1 | AI: NLa, NLb, NLc, NLd): GeoGebra 3D khảo sát hàm số/đạo hàm/tích phân/Oxyz, MTCT Casio 880BTG số phức/ma trận/thống kê nâng cao, Excel/Python quy hoạch tuyến tính, AI Prompting kiểm tra chứng minh toán học và phân tích thiên vị dữ liệu thống kê (NLb.B2).
+
+- QUY TẮC 2 VỊ TRÍ CHÈN ĐẶC THÙ MÔN TOÁN:
+  + VỊ TRÍ 1 (Ngay dưới d. Tổ chức thực hiện, trước Bước 1): Áp dụng khi GV dùng Slide trình chiếu, tổ chức Quizizz/Kahoot tổng kết, hoặc HS hợp tác nhóm trực tuyến. Viết theo VẾ ĐƠN tập trung chủ thể HS.
+  + VỊ TRÍ 2 (Xen kẽ ngay sau từng Ví dụ/Luyện tập/HĐ khám phá CỤ THỂ trong Bước 1 hoặc Cột HĐ GV-HS): Áp dụng khi GV hướng dẫn sử dụng GeoGebra/Desmos/MTCT/AI cho bài tập cụ thể. Viết theo VẾ KÉP: [GV hướng dẫn sử dụng Công cụ + Mã NLS] → [HS thực hiện thao tác / tạo sản phẩm số].
+  + Một hoạt động CÓ THỂ có cả VỊ TRÍ 1 VÀ VỊ TRÍ 2 nếu có cả 2 tình huống trên.
+
+- NLS HÀNG ĐẦU CHO MÔN TOÁN: 5.3 (Sử dụng sáng tạo công cụ số), 5.2 (Xác định nhu cầu & giải pháp công nghệ), 1.1 (Tìm kiếm dữ liệu / Mô hình hóa thực tế), 2.1 (Tương tác trắc nghiệm số), NLc.C2 (Ứng dụng AI hỗ trợ học Toán), NLa.A3 (Phản biện kết quả AI Toán).
+- CHÚ Ý ĐỊNH DẠNG: Công thức toán học PHẢI viết dạng LaTeX trong dấu $ (VD: $x^2 + y = 0$, $\\begin{cases} ax+by=c \\\\ dx+ey=f \\end{cases}$). Không dùng unicode hay ký tự đặc biệt thay LaTeX.`;
 
     case Subject.VAN:
       return `

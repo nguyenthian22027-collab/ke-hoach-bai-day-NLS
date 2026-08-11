@@ -155,6 +155,8 @@ CẤU TRÚC ĐẦU RA - CHUẨN XÁC VỚI VỊ TRÍ TRÍCH DẪN (CHÚ Ý PHẦ
 Hoặc nếu giáo án chia theo Bước 1, Bước 2, Bước 3, Bước 4 trong Tổ chức thực hiện:
 ===NLS_HOẠT_ĐỘNG_X_BƯỚC_1|VITRI: Hoạt động X > d. Tổ chức thực hiện > Bước 1 > Sau dòng: "[Ghi nguyên văn câu/dòng liền trước trong giáo án gốc]"===
 <red>1.1.TC1a: HS tiếp nhận và khai thác thông tin số từ SGK/học liệu số theo nhiệm vụ giao của GV.</red>
+===END===
+
 3. Ở CUỐI BÀI HỌC (ngay sau phần Vận dụng / Củng cố / Hướng dẫn về nhà), BẮT BUỘC PHẢI TẠO BẢNG TỔNG HỢP NĂNG LỰC SỐ TOÀN BÀI:
 ===NLS_BẢNG_TỔNG_HỢP|VITRI: Cuối bài học (ngay sau phần Vận dụng / Củng cố / Hướng dẫn về nhà)===
 | STT | Mã NLS | Thành phần năng lực | Biểu hiện trong bài học | Hoạt động |
@@ -215,6 +217,24 @@ NGUYÊN TẮC NGHIÊM NGẶT:
    - Bước 4 (Đánh giá): Chèn nếu GV/HS dùng AI để kiểm tra, đánh giá, phản biện kết quả.
      Ưu tiên mã: 1.2 (đánh giá nguồn), NLa.A3, NLb.B2 (dùng AI an toàn)
    - VITRI phải ghi: "Hoạt động X > d. Tổ chức thực hiện > [Tên bước] > Sau dòng: [trích nguyên văn]"
+7. QUY TẮC 2 VỊ TRÍ CHÈN TRONG "d) TỔ CHỨC THỰC HIỆN" (BẮT BUỘC):
+   VỊ TRÍ 1 - Ngay dưới dòng "d) Tổ chức thực hiện:" (TRƯỚC Bước 1):
+   - ÁP DỤNG KHI: NLS/AI mang tính TỔNG QUAN cho toàn bộ hoạt động (VD: GV dùng Slide trình chiếu, HS hợp tác nhóm trực tuyến qua Padlet/Docs, tổ chức trò chơi Kahoot/Quizizz).
+   - CÁCH VIẾT: Dùng QUY TẮC VẾ ĐƠN (chủ thể HS): <red>Mã NLS: HS [Hành động số] để [Mục đích học tập]</red>
+   - Ví dụ: <red>1.1.TC1a: HS tiếp nhận thông tin số từ slide trình chiếu của GV để nhận biết bài toán thực tế dẫn đến khái niệm đơn thức.</red>
+   - Ví dụ: <red>2.4.TC1a: HS hợp tác nhóm qua công cụ chia sẻ trực tuyến để cùng giải quyết bài tập luyện tập.</red>
+   - Ví dụ: <red>5.2.TC1a: HS sử dụng thiết bị số cá nhân tham gia trò chơi trắc nghiệm (Kahoot/Quizizz) để củng cố kiến thức.</red>
+   - VITRI mã: |VITRI: d. Tổ chức thực hiện > Ngay dưới dòng "d) Tổ chức thực hiện:" (trước Bước 1)
+
+   VỊ TRÍ 2 - Xen kẽ bên trong các Bước / Ngay sau Ví dụ hoặc Bài tập CỤ THỂ:
+   - ÁP DỤNG KHI: NLS/AI gắn liền với một công cụ phần mềm chuyên sâu hoặc một bài tập/ví dụ cụ thể (VD: dùng GeoGebra vẽ đồ thị Ví dụ 3, bấm MTCT kiểm tra nghiệm Luyện tập 2, dùng AI Photomath kiểm tra lời giải).
+   - CÁCH VIẾT: Dùng QUY TẮC VẾ KÉP (GV → HS): <red>Mã NLS: [GV hướng dẫn sử dụng công cụ/phần mềm cụ thể (Tên phần mềm)] → [HS thực hiện thao tác số / tạo sản phẩm số cụ thể]</red>
+   - Ví dụ: <red>5.3.NC1a: GV hướng dẫn HS sử dụng GeoGebra/Desmos để biểu diễn phương trình trên mặt phẳng tọa độ → HS nhập phương trình, vẽ đường thẳng và quan sát tập nghiệm là các điểm nằm trên đường thẳng.</red>
+   - Ví dụ: <red>1.1.NC1b: GV tổ chức cho HS khai thác tình huống thực tiễn trong SGK và sử dụng Google/YouTube tìm thêm ví dụ → HS tìm kiếm ví dụ thực tế, nhận dạng dạng phương trình và đối chiếu với SGK.</red>
+   - Ví dụ: <red>5.2.NC1a: GV hướng dẫn HS sử dụng MTCT (Casio) để kiểm tra nghiệm của hệ phương trình → HS bấm máy tính, đối chiếu kết quả với phép giải bằng tay.</red>
+   - VITRI mã: |VITRI: d. Tổ chức thực hiện > Bước 1 > Sau mục: "[Tên bài tập/Ví dụ liền trước]"
+
+   ⚠️ LƯU Ý: Một hoạt động CÓ THỂ có cả VỊ TRÍ 1 (ở đầu d. Tổ chức thực hiện) VÀ VỊ TRÍ 2 (xen kẽ trong Bước 1 sau các Ví dụ/Bài tập) nếu có cả 2 loại tình huống trên.
 
 QUY TẮC ĐÁNH DẤU (BẮT BUỘC):
 - PHẢI dùng thẻ <red>nội dung</red> để đánh dấu màu đỏ.

@@ -334,9 +334,54 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
     }
   };
 
-  // Helper: Parse text - CHỈ MÀU ĐỎ
+  // Làm sạch LaTeX → Unicode (xử lý các ký hiệu phổ biến trong giáo án)
+  const cleanLatex = (text: string): string => {
+    return text
+      // Xử lý <br> thành dấu cách (sẽ được xử lý thành xuống dòng ở cấp cao hơn)
+      .replace(/<br\s*\/?>/gi, '\n')
+      // Ký hiệu nhiệt độ
+      .replace(/\$\^\\circ\\text\{C\}\$/g, '°C')
+      .replace(/\$\\text\{C\}\$/g, '°C')
+      .replace(/\$\^\\circ C\$/g, '°C')
+      .replace(/\$\\circ C\$/g, '°C')
+      // Ký hiệu Kelvin
+      .replace(/\$\\text\{K\}\$/g, 'K')
+      .replace(/\$\^\\text\{K\}\$/g, 'K')
+      // Dấu mũi tên
+      .replace(/\$\\rightarrow\$/g, '→')
+      .replace(/\\rightarrow/g, '→')
+      // Phân số đơn giản trong LaTeX
+      .replace(/\$\\frac\{([^}]+)\}\{([^}]+)\}\$/g, '$1/$2')
+      // Số mũ đơn giản: $x^2$ → x²
+      .replace(/\$(\w+)\^\{?2\}?\$/g, '$1²')
+      .replace(/\$(\w+)\^\{?3\}?\$/g, '$1³')
+      .replace(/\$(\w+)\^\{?n\}?\$/g, '$1ⁿ')
+      // Tập hợp số
+      .replace(/\$\\mathbb\{R\}\$/g, 'ℝ')
+      .replace(/\$\\mathbb\{N\}\$/g, 'ℕ')
+      // Phương trình dạng $ax + by = c$ → bỏ dấu $
+      .replace(/\$([^$]+)\$/g, '$1')
+      // Dọn dẹp LaTeX block $$...$$
+      .replace(/\$\$([^$]+)\$\$/g, '$1')
+      // Dọn dẹp lệnh \text{...}
+      .replace(/\\text\{([^}]+)\}/g, '$1')
+      // Dọn dẹp \begin{cases}...\end{cases}
+      .replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g, (_, inner) =>
+        inner.replace(/\\\\/g, '; ').replace(/\s+/g, ' ').trim()
+      )
+      // Dọn dẹp lệnh LaTeX còn sót \xxx
+      .replace(/\\([a-zA-Z]+)\{([^}]*)\}/g, '$2')
+      .replace(/\\([a-zA-Z]+)/g, '')
+      // Dọn dẹp dấu { } còn lại
+      .replace(/[{}]/g, '')
+      .trim();
+  };
+
+  // Helper: Parse text với định dạng → TextRun[] (dùng cho DOCX export)
   const parseTextWithFormatting = (text: string): TextRun[] => {
-    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|<u>.*?<\/u>|<red>.*?<\/red>)/g);
+    // Làm sạch LaTeX và <br> trước khi parse định dạng
+    const cleanedText = cleanLatex(text);
+    const parts = cleanedText.split(/(\*\*.*?\*\*|\*.*?\*|<u>.*?<\/u>|<red>.*?<\/red>)/g);
     return parts.map(part => {
       if (part.startsWith('**') && part.endsWith('**')) {
         return new TextRun({ text: part.slice(2, -2), bold: true });
@@ -348,13 +393,12 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
         return new TextRun({ text: part.replace(/<\/?u>/g, ''), underline: { type: UnderlineType.SINGLE } });
       }
       if (part.startsWith('<red>') && part.endsWith('</red>')) {
-        return new TextRun({ text: part.replace(/<\/?red>/g, ''), color: "FF0000" });
+        return new TextRun({ text: cleanLatex(part.replace(/<\/?red>/g, '')), color: "FF0000" });
       }
       return new TextRun({ text: part });
     });
   };
 
-  // Escape XML
   const escapeXml = (text: string): string => {
     return text
       .replace(/&/g, '&amp;')
@@ -366,7 +410,9 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
 
   // Chuyển Markdown sang Word XML - CHỈ MÀU ĐỎ
   const convertMarkdownToWordXml = (markdown: string): string => {
-    const lines = markdown.split('\n');
+    // Bước 1: Thay thế <br> thành ký tự xuống dòng thực sự trước khi split
+    const normalizedMarkdown = markdown.replace(/<br\s*\/?>/gi, '\n');
+    const lines = normalizedMarkdown.split('\n');
     let xml = '';
 
     for (const line of lines) {
@@ -395,6 +441,9 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
 
       let isRedContent = trimmed.includes('<red>') || trimmed.includes('</red>');
       processedLine = processedLine.replace(/<\/?red>/g, '');
+
+      // Bước 2: Làm sạch LaTeX → Unicode trước khi escape XML
+      processedLine = cleanLatex(processedLine);
 
       const content = escapeXml(processedLine);
 
