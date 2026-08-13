@@ -15,6 +15,7 @@ const App: React.FC = () => {
   // State for Form
   const [subject, setSubject] = useState<Subject>(Subject.TOAN);
   const [grade, setGrade] = useState<number>(7);
+  const [includeNLSAndAI, setIncludeNLSAndAI] = useState<boolean>(true);
   const [integrationMode, setIntegrationMode] = useState<IntegrationMode>('BOTH');
   const [includeDisabilitySupport, setIncludeDisabilitySupport] = useState<boolean>(false);
   const [disabilityType, setDisabilityType] = useState<DisabilityType>('GENERAL');
@@ -149,7 +150,7 @@ const App: React.FC = () => {
           apiKey, 
           selectedModel, 
           selectedMathModel, 
-          integrationMode,
+          integrationMode: includeNLSAndAI ? integrationMode : 'NONE',
           includeDisabilitySupport,
           disabilityType,
           includeEnglishIntegration,
@@ -177,7 +178,7 @@ const App: React.FC = () => {
         lessonTitle,
         originalFileName: originalDocx?.fileName,
         result: generatedText,
-        integrationMode,
+        integrationMode: includeNLSAndAI ? integrationMode : 'NONE',
         includeDisabilitySupport,
         disabilityType,
         englishIntegrationLevel: includeEnglishIntegration ? englishIntegrationLevel : undefined,
@@ -210,6 +211,7 @@ const App: React.FC = () => {
             <LessonForm
               subject={subject} setSubject={setSubject}
               grade={grade} setGrade={setGrade}
+              includeNLSAndAI={includeNLSAndAI} setIncludeNLSAndAI={setIncludeNLSAndAI}
               integrationMode={integrationMode} setIntegrationMode={setIntegrationMode}
               includeDisabilitySupport={includeDisabilitySupport} setIncludeDisabilitySupport={setIncludeDisabilitySupport}
               disabilityType={disabilityType} setDisabilityType={setDisabilityType}

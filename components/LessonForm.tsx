@@ -7,6 +7,8 @@ interface LessonFormProps {
   setSubject: (val: Subject) => void;
   grade: number;
   setGrade: (val: number) => void;
+  includeNLSAndAI: boolean;
+  setIncludeNLSAndAI: (val: boolean) => void;
   integrationMode: IntegrationMode;
   setIntegrationMode: (val: IntegrationMode) => void;
   includeDisabilitySupport: boolean;
@@ -24,6 +26,8 @@ const LessonForm: React.FC<LessonFormProps> = ({
   setSubject,
   grade,
   setGrade,
+  includeNLSAndAI,
+  setIncludeNLSAndAI,
   integrationMode,
   setIntegrationMode,
   includeDisabilitySupport,
@@ -75,51 +79,65 @@ const LessonForm: React.FC<LessonFormProps> = ({
       </div>
 
       {/* Integration Mode Selector */}
-      <div className="space-y-2 text-left pt-2 border-t border-slate-100">
-        <label className="block text-sm font-semibold text-slate-800 flex items-center">
-          <Bot className="text-blue-600 mr-2" size={18} />
-          Chế độ tích hợp năng lực:
+      <div className="space-y-3 text-left pt-3 border-t border-slate-100">
+        <label className="flex items-center space-x-2.5 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={includeNLSAndAI}
+            onChange={(e) => setIncludeNLSAndAI(e.target.checked)}
+            className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+          />
+          <span className="text-sm font-semibold text-slate-800 flex items-center">
+            <Bot className="text-blue-600 mr-1.5" size={18} />
+            Tích hợp Năng lực số & Năng lực AI (TT 02/2025 & QĐ 3439)
+          </span>
         </label>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <button
-            type="button"
-            onClick={() => setIntegrationMode('BOTH')}
-            className={`p-3 rounded-xl border text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 transition-all ${
-              integrationMode === 'BOTH'
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-600 shadow-md'
-                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-            }`}
-          >
-            <Sparkles size={16} />
-            <span>Tích hợp NLS & AI (Khuyên dùng)</span>
-          </button>
 
-          <button
-            type="button"
-            onClick={() => setIntegrationMode('NLS')}
-            className={`p-3 rounded-xl border text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 transition-all ${
-              integrationMode === 'NLS'
-                ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-            }`}
-          >
-            <Cpu size={16} />
-            <span>Chỉ Năng lực số (TT 02/2025)</span>
-          </button>
+        {includeNLSAndAI && (
+          <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-3 animate-fadeIn">
+            <label className="block text-xs font-medium text-slate-500 mb-2">Chọn chế độ chi tiết:</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => setIntegrationMode('BOTH')}
+                className={`p-3 rounded-xl border text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 transition-all ${
+                  integrationMode === 'BOTH'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-600 shadow-md'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <Sparkles size={16} />
+                <span>Tích hợp NLS & AI (Khuyên dùng)</span>
+              </button>
 
-          <button
-            type="button"
-            onClick={() => setIntegrationMode('AI')}
-            className={`p-3 rounded-xl border text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 transition-all ${
-              integrationMode === 'AI'
-                ? 'bg-purple-600 text-white border-purple-600 shadow-md'
-                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-            }`}
-          >
-            <Bot size={16} />
-            <span>Chỉ Năng lực AI (QĐ 3439)</span>
-          </button>
-        </div>
+              <button
+                type="button"
+                onClick={() => setIntegrationMode('NLS')}
+                className={`p-3 rounded-xl border text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 transition-all ${
+                  integrationMode === 'NLS'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <Cpu size={16} />
+                <span>Chỉ Năng lực số</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIntegrationMode('AI')}
+                className={`p-3 rounded-xl border text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 transition-all ${
+                  integrationMode === 'AI'
+                    ? 'bg-purple-600 text-white border-purple-600 shadow-md'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <Bot size={16} />
+                <span>Chỉ Năng lực AI</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Inclusive Education Section */}

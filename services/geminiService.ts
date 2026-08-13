@@ -447,17 +447,19 @@ export const generateNLSLessonPlan = async (
   const isEnglishSubject = info.subject === Subject.ANH;
 
   // Select appropriate framework and instructions based on subject
-  const frameworkData = isEnglishSubject ? NLS_FRAMEWORK_DATA_ENGLISH : NLS_FRAMEWORK_DATA;
+  const frameworkData = (options.integrationMode === 'NONE') ? "" : (isEnglishSubject ? NLS_FRAMEWORK_DATA_ENGLISH : NLS_FRAMEWORK_DATA);
   const systemInstruction = isEnglishSubject ? SYSTEM_INSTRUCTION_ENGLISH : SYSTEM_INSTRUCTION;
 
   // Lấy hướng dẫn mức độ NLS theo cấp lớp
-  const gradeLevelGuidance = getGradeLevelGuidance(info.grade);
+  const gradeLevelGuidance = (options.integrationMode === 'NONE') ? "" : getGradeLevelGuidance(info.grade);
 
   // Lấy hướng dẫn đặc thù môn học
   const subjectGuidance = getSubjectGuidance(info.subject);
 
   // TÍCH HỢP KHUNG NĂNG LỰC AI THEO QĐ 3439/QĐ-BGDĐT
-  const modeText = options.integrationMode === 'AI' 
+  const modeText = options.integrationMode === 'NONE'
+    ? "CHẾ ĐỘ TÍCH HỢP: KHÔNG TÍCH HỢP NĂNG LỰC SỐ HAY AI. CHỈ GIỮ NGUYÊN HOẶC ĐỊNH DẠNG/CHÈN TIẾNG ANH/HSKT."
+    : options.integrationMode === 'AI' 
     ? "CHẾ ĐỘ TÍCH HỢP: CHỈ TÍCH HỢP NĂNG LỰC TRÍ TUỆ NHÂN TẠO (AI) THEO QĐ 3439/QĐ-BGDĐT." 
     : options.integrationMode === 'NLS'
     ? "CHẾ ĐỘ TÍCH HỢP: CHỈ TÍCH HỢP NĂNG LỰC SỐ THEO THÔNG TƯ 02/2025/TT-BGDĐT."
@@ -504,7 +506,7 @@ export const generateNLSLessonPlan = async (
     ${distributionContext}
 
     PROCESSING REQUIREMENTS:
-    ${options.analyzeOnly ? "- Analyze only, do not edit in detail." : "- Edit the lesson plan and INTEGRATE COMPETENCIES into teaching activities."}
+    ${options.analyzeOnly ? "- Analyze only, do not edit in detail." : options.integrationMode === 'NONE' ? "- DO NOT insert Digital Competence or AI Competence." : "- Edit the lesson plan and INTEGRATE COMPETENCIES into teaching activities."}
     ${options.detailedReport ? "- Include a detailed explanation table of selected competence codes at the end." : ""}
     
     FORMAT REQUIREMENTS (MANDATORY):
@@ -533,7 +535,7 @@ export const generateNLSLessonPlan = async (
     ${distributionContext}
 
     YÊU CẦU XỬ LÝ NỘI DUNG:
-    ${options.analyzeOnly ? "- Chỉ phân tích, không chỉnh sửa chi tiết." : "- Chỉnh sửa giáo án và TÍCH HỢP NĂNG LỰC SỐ / AI vào phần d. Tổ chức thực hiện của các hoạt động dạy học."}
+    ${options.analyzeOnly ? "- Chỉ phân tích, không chỉnh sửa chi tiết." : options.integrationMode === 'NONE' ? "- KHÔNG chèn Năng lực số hay Năng lực AI." : "- Chỉnh sửa giáo án và TÍCH HỢP NĂNG LỰC SỐ / AI vào phần d. Tổ chức thực hiện của các hoạt động dạy học."}
     ${options.detailedReport ? "- Kèm theo bảng giải thích chi tiết mã năng lực đã chọn ở cuối bài." : ""}
     
     YÊU CẦU VỀ ĐỊNH DẠNG VÀ VỊ TRÍ TRÍCH DẪN (BẮT BUỘC):

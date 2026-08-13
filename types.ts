@@ -37,7 +37,7 @@ export interface OriginalDocxFile {
   fileName: string;
 }
 
-export type IntegrationMode = 'NLS' | 'AI' | 'BOTH';
+export type IntegrationMode = 'NLS' | 'AI' | 'BOTH' | 'NONE';
 
 export type DisabilityType = 'GENERAL' | 'INTELLECTUAL' | 'VISUAL' | 'HEARING' | 'MOTOR';
 
