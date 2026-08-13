@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { LessonInfo, ProcessingOptions, Subject } from "../types";
-import { SYSTEM_INSTRUCTION, NLS_FRAMEWORK_DATA, SYSTEM_INSTRUCTION_ENGLISH, NLS_FRAMEWORK_DATA_ENGLISH, AI_FRAMEWORK_DATA_QD3439, DISABILITY_SUPPORT_INSTRUCTIONS } from "../constants";
+import { SYSTEM_INSTRUCTION, NLS_FRAMEWORK_DATA, SYSTEM_INSTRUCTION_ENGLISH, NLS_FRAMEWORK_DATA_ENGLISH, AI_FRAMEWORK_DATA_QD3439, DISABILITY_SUPPORT_INSTRUCTIONS, ENGLISH_CLIL_INSTRUCTIONS } from "../constants";
 
 // Hàm xác định mức độ NLS phù hợp theo cấp lớp
 function getGradeLevelGuidance(grade: number): string {
@@ -481,12 +481,17 @@ export const generateNLSLessonPlan = async (
       }\n`
     : "";
 
+  const englishPrompt = options.includeEnglishIntegration
+    ? `\n    ${ENGLISH_CLIL_INSTRUCTIONS}\n    CẤP ĐỘ TÍCH HỢP TIẾNG ANH (CLIL): ${options.englishIntegrationLevel}\n`
+    : "";
+
   // User prompt
   const userPrompt = isEnglishSubject ? `
     DIGITAL COMPETENCE FRAMEWORK REFERENCE DATA:
     ${frameworkData}
     ${aiFrameworkPrompt}
     ${disabilityPrompt}
+    ${englishPrompt}
 
     LESSON PLAN INPUT INFORMATION:
     - Subject: ${info.subject}
@@ -507,7 +512,8 @@ export const generateNLSLessonPlan = async (
     2. TABLES: Use standard Markdown Table.
     3. DC ADDITIONS: Use <red>...</red> tags to mark digital & AI competence content in red. Include indicator codes (e.g. 1.1.TC1a: or NLa.A1:).
     4. DISABILITY SUPPORT: Use <green>[Hỗ trợ HSKT: ...]</green> to mark inclusive education support.
-    5. LOCATION: Insert DC/AI/Disability in Objectives under "2. Competence". For activities, ONLY insert into section "d) Organization" (or steps under Organization). DO NOT insert into Content, Outcomes, or Objectives of activities.
+    5. ENGLISH INTEGRATION: Use <blue>[EN Instruction: ...]</blue> or similar tags based on the level.
+    6. LOCATION: Insert DC/AI/Disability/English in Objectives under "2. Competence". For activities, ONLY insert into section "d) Organization" (or steps under Organization). DO NOT insert into Content, Outcomes, or Objectives of activities.
   ` : `
     ${modeText}
 
@@ -515,6 +521,7 @@ export const generateNLSLessonPlan = async (
     ${frameworkData}
     ${aiFrameworkPrompt}
     ${disabilityPrompt}
+    ${englishPrompt}
 
     THÔNG TIN GIÁO ÁN ĐẦU VÀO:
     - Môn học: ${info.subject}
@@ -534,8 +541,10 @@ export const generateNLSLessonPlan = async (
     2. TOÁN HỌC: Tất cả công thức toán phải viết dạng LaTeX trong dấu $. Ví dụ: $x^2$. Không dùng unicode.
     3. BẢNG: Sử dụng Markdown Table chuẩn.
     4. NLS BỔ SUNG: Dùng thẻ <red>...</red> để đánh dấu màu đỏ nội dung NLS. Giữ nguyên Mã chỉ báo NLS (ví dụ: 1.1.TC1a:) trước mỗi ý.
-    5. CHUẨN MÃ NLS THEO KHỐI LỚP & MÔN HỌC: Lớp 1-3 chỉ chọn mã CB1/CB2; Lớp 4-6 chọn CB2/TC1; Lớp 7-9 chọn TC1/TC2; Lớp 10-12 chọn TC2/NC1.
-    6. VỊ TRÍ CHÈN VÀ TRÍCH DẪN DÒNG LIỀN TRƯỚC:
+    5. HỖ TRỢ HSKT: Dùng thẻ <green>...</green> để đánh dấu hỗ trợ HSKT.
+    6. TÍCH HỢP TIẾNG ANH: Dùng thẻ <blue>...</blue> để đánh dấu nội dung tiếng Anh.
+    7. CHUẨN MÃ NLS THEO KHỐI LỚP & MÔN HỌC: Lớp 1-3 chỉ chọn mã CB1/CB2; Lớp 4-6 chọn CB2/TC1; Lớp 7-9 chọn TC1/TC2; Lớp 10-12 chọn TC2/NC1.
+    8. VỊ TRÍ CHÈN VÀ TRÍCH DẪN DÒNG LIỀN TRƯỚC:
        - Mỗi Marker '===NLS_...===' PHẢI đính kèm thông tin '|VITRI:...' trích dẫn chính xác dòng/câu liền trước trong giáo án gốc của giáo viên.
        - Ví dụ Marker: '===NLS_HOẠT_ĐỘNG_1_TỔ_CHỨC|VITRI: Hoạt động 1 > d. Tổ chức thực hiện > Sau dòng: "GV chiếu hình ảnh/video..."==='
        - Phần I. Mục tiêu: Chèn tiêu đề "* Phát triển năng lực số" kèm danh mục mã NLS ở cuối mục "2. Năng lực" (trước mục 3. Phẩm chất).

@@ -41,6 +41,8 @@ export type IntegrationMode = 'NLS' | 'AI' | 'BOTH';
 
 export type DisabilityType = 'GENERAL' | 'INTELLECTUAL' | 'VISUAL' | 'HEARING' | 'MOTOR';
 
+export type EnglishIntegrationLevel = 'NONE' | 'BASIC' | 'INTER' | 'CLIL';
+
 export interface ProcessingOptions {
   analyzeOnly: boolean;
   detailedReport: boolean;
@@ -52,6 +54,8 @@ export interface ProcessingOptions {
   integrationMode?: IntegrationMode;
   includeDisabilitySupport?: boolean;
   disabilityType?: DisabilityType;
+  includeEnglishIntegration?: boolean;
+  englishIntegrationLevel?: EnglishIntegrationLevel;
 }
 
 export interface GeminiResponse {
@@ -69,6 +73,7 @@ export interface HistoryItem {
   integrationMode?: IntegrationMode;
   includeDisabilitySupport?: boolean;
   disabilityType?: DisabilityType;
+  englishIntegrationLevel?: EnglishIntegrationLevel;
 }
 export type ProPackage = 'TRIAL' | '1_YEAR' | '2_YEARS' | 'LIFETIME';
 

@@ -381,7 +381,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
   const parseTextWithFormatting = (text: string): TextRun[] => {
     // Làm sạch LaTeX và <br> trước khi parse định dạng
     const cleanedText = cleanLatex(text);
-    const parts = cleanedText.split(/(\*\*.*?\*\*|\*.*?\*|<u>.*?<\/u>|<red>.*?<\/red>|<green>.*?<\/green>)/g);
+    const parts = cleanedText.split(/(\*\*.*?\*\*|\*.*?\*|<u>.*?<\/u>|<red>.*?<\/red>|<green>.*?<\/green>|<blue>.*?<\/blue>)/g);
     return parts.map(part => {
       if (part.startsWith('**') && part.endsWith('**')) {
         return new TextRun({ text: part.slice(2, -2), bold: true });
@@ -397,6 +397,9 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
       }
       if (part.startsWith('<green>') && part.endsWith('</green>')) {
         return new TextRun({ text: cleanLatex(part.replace(/<\/?green>/g, '')), color: "008000", italics: true });
+      }
+      if (part.startsWith('<blue>') && part.endsWith('</blue>')) {
+        return new TextRun({ text: cleanLatex(part.replace(/<\/?blue>/g, '')), color: "0000FF", italics: true });
       }
       return new TextRun({ text: part });
     });
@@ -444,7 +447,8 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
 
       let isGreenContent = trimmed.includes('<green>') || trimmed.includes('</green>');
       let isRedContent = trimmed.includes('<red>') || trimmed.includes('</red>');
-      processedLine = processedLine.replace(/<\/?red>/g, '').replace(/<\/?green>/g, '');
+      let isBlueContent = trimmed.includes('<blue>') || trimmed.includes('</blue>');
+      processedLine = processedLine.replace(/<\/?red>/g, '').replace(/<\/?green>/g, '').replace(/<\/?blue>/g, '');
 
       // Bước 2: Làm sạch LaTeX → Unicode trước khi escape XML
       processedLine = cleanLatex(processedLine);
@@ -453,6 +457,8 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
 
       if (isGreenContent) {
         xml += `<w:p><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:color w:val="008000"/><w:i/></w:rPr><w:t>${content}</w:t></w:r></w:p>`;
+      } else if (isBlueContent) {
+        xml += `<w:p><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:color w:val="0000FF"/><w:i/></w:rPr><w:t>${content}</w:t></w:r></w:p>`;
       } else if (isRedContent) {
         xml += `<w:p><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:color w:val="FF0000"/></w:rPr><w:t>${content}</w:t></w:r></w:p>`;
       } else {

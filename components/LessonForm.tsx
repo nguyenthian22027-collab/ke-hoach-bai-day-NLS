@@ -13,6 +13,10 @@ interface LessonFormProps {
   setIncludeDisabilitySupport: (val: boolean) => void;
   disabilityType: DisabilityType;
   setDisabilityType: (val: DisabilityType) => void;
+  includeEnglishIntegration: boolean;
+  setIncludeEnglishIntegration: (val: boolean) => void;
+  englishIntegrationLevel: import('../types').EnglishIntegrationLevel;
+  setEnglishIntegrationLevel: (val: import('../types').EnglishIntegrationLevel) => void;
 }
 
 const LessonForm: React.FC<LessonFormProps> = ({
@@ -26,6 +30,10 @@ const LessonForm: React.FC<LessonFormProps> = ({
   setIncludeDisabilitySupport,
   disabilityType,
   setDisabilityType,
+  includeEnglishIntegration,
+  setIncludeEnglishIntegration,
+  englishIntegrationLevel,
+  setEnglishIntegrationLevel,
 }) => {
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-blue-100 mb-6 space-y-6">
@@ -144,6 +152,39 @@ const LessonForm: React.FC<LessonFormProps> = ({
               <option value="VISUAL">👁️ Khuyết tật Thị giác (Nhìn)</option>
               <option value="HEARING">👂 Khuyết tật Thính giác (Nghe/Nói)</option>
               <option value="MOTOR">🦽 Khuyết tật Vận động</option>
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* English Integration Section */}
+      <div className="space-y-3 text-left pt-3 border-t border-slate-100">
+        <label className="flex items-center space-x-2.5 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={includeEnglishIntegration}
+            onChange={(e) => setIncludeEnglishIntegration(e.target.checked)}
+            className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+          />
+          <span className="text-sm font-semibold text-slate-800 flex items-center">
+            <span className="text-xl mr-1.5">🇬🇧</span>
+            Tích hợp Tiếng Anh (Ngôn ngữ thứ 2 - QĐ 2371/2025)
+          </span>
+        </label>
+
+        {includeEnglishIntegration && (
+          <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl space-y-2 text-left animate-fadeIn">
+            <label className="block text-xs font-semibold text-blue-900">
+              Mức độ tích hợp Tiếng Anh:
+            </label>
+            <select
+              value={englishIntegrationLevel}
+              onChange={(e) => setEnglishIntegrationLevel(e.target.value as import('../types').EnglishIntegrationLevel)}
+              className="block w-full rounded-lg border-blue-300 bg-white p-2 text-xs font-semibold text-blue-900 focus:border-blue-500 focus:ring-blue-500"
+            >
+              <option value="BASIC">🟢 Cấp độ 1 (Cơ bản): Tích hợp từ vựng song ngữ (Key Vocabulary)</option>
+              <option value="INTER">🔵 Cấp độ 2 (Trung cấp): Tích hợp Câu lệnh lớp học (Classroom Instructions)</option>
+              <option value="CLIL">🟣 Cấp độ 3 (Nâng cao): Soạn bài theo chuẩn CLIL toàn diện</option>
             </select>
           </div>
         )}

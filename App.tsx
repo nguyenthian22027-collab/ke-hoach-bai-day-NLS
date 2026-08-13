@@ -18,6 +18,8 @@ const App: React.FC = () => {
   const [integrationMode, setIntegrationMode] = useState<IntegrationMode>('BOTH');
   const [includeDisabilitySupport, setIncludeDisabilitySupport] = useState<boolean>(false);
   const [disabilityType, setDisabilityType] = useState<DisabilityType>('GENERAL');
+  const [includeEnglishIntegration, setIncludeEnglishIntegration] = useState<boolean>(false);
+  const [englishIntegrationLevel, setEnglishIntegrationLevel] = useState<import('./types').EnglishIntegrationLevel>('BASIC');
 
   // Content States
   const [lessonContent, setLessonContent] = useState<string>('');
@@ -149,7 +151,9 @@ const App: React.FC = () => {
           selectedMathModel, 
           integrationMode,
           includeDisabilitySupport,
-          disabilityType
+          disabilityType,
+          includeEnglishIntegration,
+          englishIntegrationLevel
         }
       );
 
@@ -176,6 +180,7 @@ const App: React.FC = () => {
         integrationMode,
         includeDisabilitySupport,
         disabilityType,
+        englishIntegrationLevel: includeEnglishIntegration ? englishIntegrationLevel : undefined,
       };
 
       saveToHistory(historyItem);
@@ -208,6 +213,8 @@ const App: React.FC = () => {
               integrationMode={integrationMode} setIntegrationMode={setIntegrationMode}
               includeDisabilitySupport={includeDisabilitySupport} setIncludeDisabilitySupport={setIncludeDisabilitySupport}
               disabilityType={disabilityType} setDisabilityType={setDisabilityType}
+              includeEnglishIntegration={includeEnglishIntegration} setIncludeEnglishIntegration={setIncludeEnglishIntegration}
+              englishIntegrationLevel={englishIntegrationLevel} setEnglishIntegrationLevel={setEnglishIntegrationLevel}
             />
 
             <ContentInput

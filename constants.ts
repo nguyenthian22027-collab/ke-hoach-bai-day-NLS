@@ -355,6 +355,27 @@ YÊU CẦU XỬ LÝ (KHI BẬT CHẾ ĐỘ TÍCH HỢP HÒA NHẬP HSKT):
      + Vận động: GV bố trí chỗ ngồi thuận tiện, phân công bạn hỗ trợ chuẩn bị đồ dùng và thực hiện thao tác.
      + Chung: GV động viên, giao nhiệm vụ vừa sức, phân công "Đôi bạn cùng tiến" giúp đỡ HSKT hòa nhập.
 `;
+export const ENGLISH_CLIL_INSTRUCTIONS = `
+KHUNG HƯỚNG DẪN TÍCH HỢP TIẾNG ANH (NGÔN NGỮ THỨ 2 - QĐ 2371/2025):
+YÊU CẦU XỬ LÝ (KHI BẬT TÍCH HỢP TIẾNG ANH):
+1. MỤC I. MỤC TIÊU:
+   - Thêm mục "* Năng lực Ngôn ngữ (Language Objectives):" ở cuối phần 2. Năng lực (sau phần Năng lực số / AI / HSKT).
+   - Dựa vào cấp độ được chọn, sinh nội dung mục tiêu tương ứng:
+     + BASIC: Nhận biết và hiểu được một số từ vựng chuyên ngành tiếng Anh liên quan đến bài học.
+     + INTER: Nhận biết từ vựng chuyên ngành và hiểu các câu lệnh, hướng dẫn đơn giản bằng tiếng Anh trong lớp học.
+     + CLIL: Sử dụng tiếng Anh làm công cụ giao tiếp, tiếp nhận kiến thức và thực hiện các nhiệm vụ học tập cơ bản.
+
+2. MỤC II. TIẾN TRÌNH DẠY HỌC (CÁC HOẠT ĐỘNG):
+   - CHỈ CHÈN VÀO PHẦN "d. Tổ chức thực hiện" (hoặc các Bước 1, Bước 2... dưới phần Tổ chức thực hiện) của các hoạt động.
+   - Thêm câu tích hợp tiếng Anh được bọc trong thẻ <blue>...</blue>.
+   - Hướng dẫn hỗ trợ theo cấp độ:
+     + BASIC: Chèn từ vựng tiếng Anh (Key Vocabulary): <blue>[Từ vựng TA: (Liệt kê 2-3 từ vựng khóa tiếng Anh của hoạt động)]</blue>
+     + INTER: Chèn câu lệnh tiếng Anh (Classroom Instructions) thay vì chỉ dùng từ vựng: <blue>[EN Instruction: GV giao nhiệm vụ bằng tiếng Anh: "Look at the picture / Let's work in groups..."]</blue>
+     + CLIL: Chèn hoạt động học tập bằng tiếng Anh (CLIL Task): <blue>[CLIL Activity: HS thảo luận nhóm và báo cáo kết quả bằng tiếng Anh / GV giảng giải khái niệm chính bằng tiếng Anh]</blue>
+
+3. PHỤ LỤC (Cuối bài học):
+   - Tự động thêm phần "BẢNG TỪ VỰNG SONG NGỮ VIỆT - ANH (KEY VOCABULARY)" chứa 5-10 từ vựng quan trọng của toàn bài học để học sinh dễ theo dõi.
+`;
 
 export const PLACEHOLDER_LESSON = `TÊN BÀI HỌC: THỐNG KÊ MÔ TẢ
 Môn: Toán - Lớp: 7
