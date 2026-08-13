@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, GraduationCap, Settings, Clock, Crown, ShieldAlert } from 'lucide-react';
+import { BookOpen, GraduationCap, Settings, Clock, Crown, ShieldAlert, Key } from 'lucide-react';
 import { LicenseInfo } from '../types';
 
 interface HeaderProps {
@@ -104,10 +104,11 @@ const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={onOpenSettings}
-            className="p-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-2xl transition-all text-indigo-200 hover:text-white border border-white/15 active:scale-95 shadow-sm"
-            title="Cài đặt API Key & Model"
+            className="flex items-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-200 hover:text-amber-100 rounded-2xl text-xs sm:text-sm font-extrabold transition-all border border-amber-400/40 shadow-sm active:scale-95 group"
+            title="Bấm để cài đặt Gemini API Key & chọn Model AI"
           >
-            <Settings size={19} />
+            <Key size={16} className="text-amber-300 group-hover:rotate-12 transition-transform" />
+            <span>Cài đặt API Key</span>
           </button>
         </div>
       </div>
