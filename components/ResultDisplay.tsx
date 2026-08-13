@@ -938,17 +938,17 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-blue-200 overflow-hidden animate-fade-in-up">
+    <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl shadow-indigo-900/10 border border-indigo-100/90 overflow-hidden animate-fade-in-up">
       {/* Header status */}
-      <div className="bg-blue-900 text-white px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center space-x-3 text-left">
-          <div className="p-2.5 bg-green-500 text-white rounded-full flex-shrink-0 shadow-md">
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white px-6 sm:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-indigo-500/20">
+        <div className="flex items-center space-x-3.5 text-left">
+          <div className="p-3 bg-emerald-500 text-white rounded-2xl flex-shrink-0 shadow-lg shadow-emerald-500/30">
             <CheckCircle size={28} />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">Phân tích giáo án thành công!</h2>
-            <p className="text-blue-100 text-xs sm:text-sm mt-0.5">
-              Đã trích xuất <strong>{sections.length} phần NLS</strong> để tích hợp vào bài dạy.
+            <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">Phân tích & Tích hợp Giáo án Thành công!</h2>
+            <p className="text-indigo-200/90 text-xs sm:text-sm mt-0.5 font-medium">
+              Đã trích xuất <strong className="text-emerald-400">{sections.length} phần nội dung</strong> để tích hợp vào bài dạy của bạn.
             </p>
           </div>
         </div>
@@ -956,12 +956,12 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
         {/* Status badges */}
         <div className="flex flex-wrap gap-2 text-xs">
           {result.includes("(Nội dung trích xuất nguyên văn từ PPCT)") && (
-            <span className="px-3 py-1 bg-green-600/90 text-white font-medium rounded-full flex items-center">
+            <span className="px-3 py-1.5 bg-emerald-500/20 text-emerald-300 font-bold rounded-full border border-emerald-400/30 flex items-center shadow-xs">
               ✓ Chuẩn PPCT
             </span>
           )}
           {originalDocx && (
-            <span className="px-3 py-1 bg-blue-700 text-blue-100 font-medium rounded-full flex items-center">
+            <span className="px-3 py-1.5 bg-indigo-500/20 text-indigo-200 font-bold rounded-full border border-indigo-400/30 flex items-center shadow-xs">
               ✓ Sẵn sàng xuất Word XML
             </span>
           )}
@@ -969,56 +969,56 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex border-b border-blue-200 bg-blue-50/50">
+      <div className="flex border-b border-slate-200/80 bg-slate-50/80 p-1.5 gap-1.5">
         <button
           onClick={() => setActiveTab('manual')}
-          className={`flex-1 py-4 px-4 sm:px-6 font-bold text-sm sm:text-base flex items-center justify-center space-x-2 border-b-2 transition-all ${
+          className={`flex-1 py-3.5 px-4 sm:px-6 font-bold text-xs sm:text-sm flex items-center justify-center space-x-2 rounded-2xl transition-all ${
             activeTab === 'manual'
-              ? 'border-blue-600 text-blue-900 bg-white shadow-sm'
-              : 'border-transparent text-slate-600 hover:text-blue-600 hover:bg-blue-100/50'
+              ? 'bg-white text-indigo-950 shadow-md shadow-indigo-900/5 text-indigo-600'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
           }`}
         >
-          <ListChecks size={20} className={activeTab === 'manual' ? 'text-blue-600' : 'text-slate-400'} />
+          <ListChecks size={19} className={activeTab === 'manual' ? 'text-indigo-600' : 'text-slate-400'} />
           <span>📋 Hướng dẫn chèn thủ công (Copy nhanh)</span>
-          <span className="ml-1.5 px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+          <span className="ml-1.5 px-2 py-0.5 text-[11px] font-bold rounded-full bg-indigo-100 text-indigo-800">
             {sections.length} mục
           </span>
         </button>
 
         <button
           onClick={() => setActiveTab('word')}
-          className={`flex-1 py-4 px-4 sm:px-6 font-bold text-sm sm:text-base flex items-center justify-center space-x-2 border-b-2 transition-all ${
+          className={`flex-1 py-3.5 px-4 sm:px-6 font-bold text-xs sm:text-sm flex items-center justify-center space-x-2 rounded-2xl transition-all ${
             activeTab === 'word'
-              ? 'border-blue-600 text-blue-900 bg-white shadow-sm'
-              : 'border-transparent text-slate-600 hover:text-blue-600 hover:bg-blue-100/50'
+              ? 'bg-white text-indigo-950 shadow-md shadow-indigo-900/5 text-indigo-600'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
           }`}
         >
-          <FileSpreadsheet size={20} className={activeTab === 'word' ? 'text-blue-600' : 'text-slate-400'} />
+          <FileSpreadsheet size={19} className={activeTab === 'word' ? 'text-indigo-600' : 'text-slate-400'} />
           <span>📁 Xuất file Word tự động (.docx)</span>
         </button>
       </div>
 
       {/* Tab 1: Hướng dẫn chèn thủ công */}
       {activeTab === 'manual' && (
-        <div className="p-6 bg-slate-50/70 space-y-6">
+        <div className="p-6 sm:p-7 bg-slate-50/50 space-y-6">
           {/* Instructions banner */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-gradient-to-r from-blue-50/90 via-indigo-50/90 to-purple-50/90 border border-indigo-100 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1 text-left">
-              <h3 className="font-bold text-blue-950 text-base flex items-center">
-                <MapPin className="text-blue-600 mr-2 flex-shrink-0" size={20} />
+              <h3 className="font-extrabold text-indigo-950 text-base flex items-center">
+                <MapPin className="text-indigo-600 mr-2 flex-shrink-0" size={20} />
                 Hướng dẫn chèn thủ công theo từng dòng/vị trí cụ thể
               </h3>
-              <p className="text-slate-600 text-xs sm:text-sm">
-                AI đã trích xuất {sections.length} phần NLS kèm <strong>trích dẫn câu/dòng liền trước trong giáo án gốc</strong> của thầy/cô. Bấm nút <strong>Copy</strong> để dán trực tiếp vào file Word.
+              <p className="text-slate-600 text-xs sm:text-sm font-medium">
+                AI đã trích xuất {sections.length} phần nội dung kèm <strong>trích dẫn câu/dòng liền trước trong giáo án gốc</strong> của thầy/cô. Bấm nút <strong>Copy</strong> để dán trực tiếp vào file Word.
               </p>
             </div>
             <button
               onClick={handleCopyAllManualGuides}
-              className="flex-shrink-0 flex items-center space-x-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs sm:text-sm font-semibold transition-all shadow-sm"
+              className="flex-shrink-0 flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:brightness-110 text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-md shadow-indigo-500/20 active:scale-95"
             >
               {copiedAll ? (
                 <>
-                  <Check size={16} className="text-green-300" />
+                  <Check size={16} className="text-emerald-300" />
                   <span>Đã copy tất cả!</span>
                 </>
               ) : (
@@ -1041,19 +1041,19 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
               const isCopied = copiedIndex === idx;
 
               return (
-                <div key={idx} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:border-blue-300 transition-all">
+                <div key={idx} className="bg-white rounded-2xl border border-slate-200/90 shadow-md shadow-slate-200/40 overflow-hidden hover:border-indigo-300 transition-all duration-300">
                   {/* Card Header */}
-                  <div className="bg-slate-800 text-white px-5 py-3 flex items-center justify-between">
-                    <span className="font-bold text-sm sm:text-base flex items-center">
-                      <span className="inline-block w-2.5 h-2.5 rounded-full bg-blue-400 mr-2.5"></span>
+                  <div className="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between">
+                    <span className="font-bold text-sm sm:text-base flex items-center tracking-tight">
+                      <span className="inline-block w-2.5 h-2.5 rounded-full bg-indigo-400 mr-2.5"></span>
                       MỤC {idx + 1}: {formattedTitle}
                     </span>
                     <button
                       onClick={() => handleCopySection(section.content, idx)}
-                      className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                      className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
                         isCopied
-                          ? 'bg-green-600 text-white'
-                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                          ? 'bg-emerald-600 text-white shadow-sm'
+                          : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20'
                       }`}
                     >
                       {isCopied ? (
@@ -1064,7 +1064,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
                       ) : (
                         <>
                           <Copy size={14} />
-                          <span>Copy đoạn NLS này</span>
+                          <span>Copy đoạn nội dung này</span>
                         </>
                       )}
                     </button>
@@ -1072,14 +1072,14 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
 
                   <div className="p-5 space-y-4">
                     {/* Location guidance box */}
-                    <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
+                    <div className="bg-amber-50/90 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-2xs">
                       <div className="flex items-start">
-                        <MapPin size={18} className="text-amber-600 mr-2 flex-shrink-0 mt-0.5" />
+                        <MapPin size={18} className="text-amber-600 mr-2.5 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="font-bold text-xs text-amber-900 uppercase tracking-wide">
+                          <p className="font-bold text-xs text-amber-900 uppercase tracking-wider">
                             📍 Vị trí chèn trong giáo án của bạn:
                           </p>
-                          <p className="text-amber-950 font-medium text-xs sm:text-sm mt-1 leading-relaxed">
+                          <p className="text-amber-950 font-semibold text-xs sm:text-sm mt-1 leading-relaxed">
                             {section.marker.includes('BẢNG_TỔNG_HỢP') || section.marker.includes('SUMMARY_TABLE')
                               ? '📍 Vị trí: Dòng cuối cùng của giáo án (Sau khi kết thúc toàn bộ dòng/nội dung cuối cùng của Hoạt động 4 / Vận dụng / Hướng dẫn về nhà)'
                               : (section.locationGuidance || 'Mục I. MỤC TIÊU -> 2. Năng lực (hoặc phần d. Tổ chức thực hiện của Hoạt động)')}
@@ -1090,27 +1090,37 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
 
                     {/* Content Preview (Text hoặc Table) */}
                     {section.content.trim().startsWith('|') || section.marker.includes('BẢNG_TỔNG_HỢP') ? (
-                      <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-xs sm:text-sm overflow-x-auto">
-                        <p className="font-semibold text-xs text-slate-500 uppercase mb-3">
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs sm:text-sm overflow-x-auto">
+                        <p className="font-bold text-xs text-slate-500 uppercase tracking-wider mb-3">
                           📊 BẢNG TỔNG HỢP NĂNG LỰC SỐ TOÀN BÀI (5 CỘT CHUẨN):
                         </p>
-                        <div className="prose prose-sm max-w-none font-serif text-slate-900 border border-slate-300 rounded p-3 bg-white" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                        <div className="prose prose-sm max-w-none font-serif text-slate-900 border border-slate-300 rounded-lg p-3 bg-white shadow-2xs" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                           <ReactMarkdown rehypePlugins={[rehypeRaw]}>
                             {section.content}
                           </ReactMarkdown>
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-xs sm:text-sm text-red-600 space-y-1.5">
-                        <p className="font-semibold text-xs text-slate-500 uppercase mb-2">
-                          📌 Nội dung NLS cần dán (Chữ màu đỏ - Times New Roman):
+                      <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-4 text-xs sm:text-sm space-y-1.5">
+                        <p className="font-bold text-xs text-slate-500 uppercase tracking-wider mb-2">
+                          📌 Nội dung cần dán (Chữ màu chuẩn - Times New Roman):
                         </p>
-                        <div className="whitespace-pre-wrap leading-relaxed text-sm sm:text-base text-red-600" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                        <div className="whitespace-pre-wrap leading-relaxed text-sm sm:text-base" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                           {section.content.split('\n').map((line, lineIdx) => {
-                            const cleanLine = line.replace(/<\/?red>/g, '');
+                            const cleanLine = line.replace(/<\/?red>/g, '').replace(/<\/?green>/g, '').replace(/<\/?blue>/g, '');
                             if (!cleanLine.trim()) return null;
+                            const isGreen = line.includes('<green>');
+                            const isBlue = line.includes('<blue>');
+                            const isRed = line.includes('<red>');
+
                             return (
-                              <div key={lineIdx} className="text-red-600 font-semibold py-0.5" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                              <div
+                                key={lineIdx}
+                                className={`font-semibold py-0.5 ${
+                                  isGreen ? 'text-emerald-700 italic' : isBlue ? 'text-blue-700 italic' : isRed ? 'text-red-600' : 'text-slate-800'
+                                }`}
+                                style={{ fontFamily: "'Times New Roman', Times, serif" }}
+                              >
                                 {cleanLine}
                               </div>
                             );
@@ -1128,19 +1138,19 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
 
       {/* Tab 2: Xuất file Word tự động */}
       {activeTab === 'word' && (
-        <div className="p-8 bg-blue-50/50 flex flex-col items-center justify-center text-center space-y-6">
+        <div className="p-8 sm:p-10 bg-slate-50/50 flex flex-col items-center justify-center text-center space-y-6">
           <div className="max-w-xl space-y-3">
-            <h3 className="text-xl font-bold text-blue-950">Chèn tự động & Xuất file Word (.docx)</h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Hệ thống sẽ sử dụng công nghệ <strong>XML Injection</strong> để chèn thẳng các đoạn NLS màu đỏ vào <strong>đúng vị trí trong file Word gốc của bạn</strong>, giữ nguyên 100% hình ảnh, bảng biểu và công thức MathType.
+            <h3 className="text-xl sm:text-2xl font-extrabold text-indigo-950 tracking-tight">Chèn tự động & Xuất file Word (.docx)</h3>
+            <p className="text-slate-600 text-sm leading-relaxed font-medium">
+              Hệ thống sử dụng công nghệ <strong>XML Injection</strong> để chèn thẳng các đoạn nội dung vào <strong>đúng vị trí trong file Word gốc của bạn</strong>, giữ nguyên 100% hình ảnh, bảng biểu và công thức MathType.
             </p>
             {originalDocx ? (
-              <p className="text-green-700 font-medium text-sm bg-green-100 p-2.5 rounded-lg border border-green-200">
+              <p className="text-emerald-800 font-bold text-sm bg-emerald-100/90 p-3 rounded-2xl border border-emerald-300/80 shadow-2xs">
                 ✓ Đã nhận diện file Word gốc: <strong>{originalDocx.fileName}</strong>
               </p>
             ) : (
-              <p className="text-amber-800 font-medium text-sm bg-amber-100 p-2.5 rounded-lg border border-amber-200">
-                ⚠️ Không có file Word gốc được tải lên. Hệ thống sẽ tạo một file Word mới với các đoạn NLS.
+              <p className="text-amber-800 font-bold text-sm bg-amber-100/90 p-3 rounded-2xl border border-amber-300/80 shadow-2xs">
+                ⚠️ Chưa tải file Word gốc. Hệ thống sẽ xuất file Word mới với các đoạn nội dung đã phân bổ.
               </p>
             )}
           </div>
@@ -1149,29 +1159,29 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
             <button
               onClick={generateDocx}
               disabled={isGeneratingDoc}
-              className="flex-1 flex items-center justify-center space-x-2 px-6 py-4 bg-blue-600 text-white rounded-xl text-lg font-bold hover:bg-blue-700 transition-all shadow-md transform hover:-translate-y-0.5"
+              className="flex-1 flex items-center justify-center space-x-2.5 px-6 py-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-2xl text-lg font-bold hover:brightness-110 transition-all shadow-lg shadow-indigo-500/25 active:scale-95"
             >
               {isGeneratingDoc ? (
                 <span className="animate-pulse">Đang tạo file...</span>
               ) : (
                 <>
-                  <Download size={24} />
+                  <Download size={22} />
                   <span>Tải về .docx</span>
                 </>
               )}
             </button>
             <button
               onClick={handleDownloadTxt}
-              className="flex-none flex items-center justify-center px-4 py-4 bg-white text-slate-600 rounded-xl font-medium border border-slate-300 hover:bg-slate-50 transition-colors"
+              className="flex-none flex items-center justify-center px-4 py-4 bg-white text-slate-700 rounded-2xl font-bold border border-slate-300 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
               title="Tải bản text dự phòng"
             >
-              <FileText size={24} />
+              <FileText size={22} />
             </button>
           </div>
 
           <button
             onClick={() => setShowPreview(!showPreview)}
-            className="flex items-center text-blue-600 text-sm font-medium hover:underline mt-2"
+            className="flex items-center text-indigo-600 text-sm font-bold hover:underline mt-2"
           >
             {showPreview ? (
               <>Thu gọn xem trước Markdown <ChevronUp size={16} className="ml-1" /></>
@@ -1181,7 +1191,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
           </button>
 
           {showPreview && (
-            <div className="w-full text-left p-6 prose prose-blue max-w-none border-t border-slate-200 bg-white rounded-xl shadow-inner mt-4">
+            <div className="w-full text-left p-6 sm:p-8 prose prose-indigo max-w-none border border-slate-200 bg-white rounded-2xl shadow-inner mt-4">
               <ReactMarkdown
                 rehypePlugins={[rehypeRaw]}
                 components={components as any}

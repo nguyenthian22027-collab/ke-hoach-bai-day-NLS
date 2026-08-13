@@ -194,7 +194,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#E3F2FD] font-sans pb-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50/40 to-blue-50/50 font-sans pb-16">
       <Header
         onOpenSettings={() => setShowApiKeyModal(true)}
         onOpenHistory={() => setShowHistoryModal(true)}
@@ -203,8 +203,8 @@ const App: React.FC = () => {
         licenseInfo={licenseInfo}
       />
 
-      <main className="max-w-5xl mx-auto px-4 mt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
 
           {/* Left Column: Inputs */}
           <div className="lg:col-span-2 space-y-6">
@@ -228,69 +228,73 @@ const App: React.FC = () => {
             />
 
             {/* Options Panel */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-blue-100">
+            <div className="bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-xl shadow-indigo-900/5 border border-indigo-100/80">
               <div className="flex items-center mb-4">
-                <Settings2 className="text-blue-600 mr-2" size={20} />
-                <h3 className="font-semibold text-blue-900">Tùy chọn nâng cao</h3>
+                <Settings2 className="text-indigo-600 mr-2.5" size={20} />
+                <h3 className="font-extrabold text-slate-900 tracking-tight">Tùy chọn nâng cao</h3>
               </div>
-              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-6">
-                <label className="flex items-center space-x-2 cursor-pointer">
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-8">
+                <label className="flex items-center space-x-2.5 cursor-pointer group">
                   <input
                     type="checkbox"
                     checked={analyzeOnly}
                     onChange={(e) => setAnalyzeOnly(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                    className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
                   />
-                  <span className="text-sm text-slate-700">Chỉ phân tích, không chỉnh sửa</span>
+                  <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">Chỉ phân tích, không chỉnh sửa</span>
                 </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
+                <label className="flex items-center space-x-2.5 cursor-pointer group">
                   <input
                     type="checkbox"
                     checked={detailedReport}
                     onChange={(e) => setDetailedReport(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                    className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
                   />
-                  <span className="text-sm text-slate-700">Kèm báo cáo chi tiết</span>
+                  <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">Kèm báo cáo giải thích chi tiết</span>
                 </label>
               </div>
             </div>
 
             {/* API Key Config Button */}
-            <div className="flex justify-end items-center space-x-3">
+            <div className="flex justify-between sm:justify-end items-center space-x-3 px-1">
               {!apiKey && (
-                <span className="text-sm text-orange-600 font-medium animate-pulse">
-                  ⚠️ Vui lòng lấy API KEY trước khi sử dụng app
+                <span className="text-xs sm:text-sm text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 font-bold animate-pulse">
+                  ⚠️ Chưa cấu hình API Key Gemini
                 </span>
               )}
               <button
                 onClick={() => setShowApiKeyModal(true)}
-                className="text-sm text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                className="text-xs sm:text-sm text-indigo-600 hover:text-indigo-800 font-bold flex items-center space-x-1.5 px-3 py-1.5 rounded-xl hover:bg-indigo-50 transition-colors"
               >
                 <Key size={16} />
-                <span>Cấu hình API Key</span>
+                <span>Cấu hình API Key & Model</span>
               </button>
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
-                <span className="font-medium mr-2">Lỗi:</span> {error}
+              <div className="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl flex items-center shadow-sm">
+                <span className="font-bold mr-2 text-rose-900">Lỗi:</span> {error}
               </div>
             )}
 
             <button
               onClick={handleProcess}
               disabled={loading}
-              className={`w-full py-4 rounded-xl shadow-lg flex items-center justify-center space-x-2 text-white font-bold text-lg transition-all transform hover:-translate-y-1 ${loading
-                ? 'bg-slate-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:shadow-blue-500/30'
-                }`}
+              className={`w-full py-4 sm:py-5 rounded-2xl shadow-xl flex items-center justify-center space-x-3 text-white font-extrabold text-lg sm:text-xl transition-all duration-300 transform active:scale-[0.99] ${
+                loading
+                  ? 'bg-slate-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:brightness-110 shadow-indigo-500/30 hover:shadow-indigo-500/50'
+              }`}
             >
               {loading ? (
-                <span>Đang xử lý...</span>
+                <span className="flex items-center space-x-2">
+                  <span className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin"></span>
+                  <span>ĐANG XỬ LÝ VÀ SOẠN BÀI...</span>
+                </span>
               ) : (
                 <>
-                  <Sparkles size={24} />
-                  <span>BẮT ĐẦU SOẠN GIÁO ÁN</span>
+                  <Sparkles size={26} className="text-amber-300 animate-pulse" />
+                  <span className="tracking-wide">BẮT ĐẦU SOẠN GIÁO ÁN</span>
                 </>
               )}
             </button>
@@ -298,37 +302,41 @@ const App: React.FC = () => {
 
           {/* Right Column: Info */}
           <div className="hidden lg:block space-y-6">
-            <div className="bg-blue-800 text-white p-6 rounded-xl shadow-md">
-              <h3 className="font-bold text-lg mb-4">Hướng dẫn nhanh</h3>
-              <ul className="space-y-3 text-blue-100 text-sm">
+            <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-6 rounded-3xl shadow-xl shadow-indigo-900/20 border border-indigo-500/20 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+              <h3 className="font-extrabold text-lg mb-4 flex items-center text-indigo-200">
+                <Sparkles size={18} className="mr-2 text-amber-300" />
+                Hướng dẫn nhanh
+              </h3>
+              <ul className="space-y-3.5 text-indigo-100/90 text-sm">
                 <li className="flex items-start">
-                  <span className="bg-blue-600 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2 mt-0.5">1</span>
-                  Chọn môn học và khối lớp.
+                  <span className="bg-gradient-to-br from-blue-500 to-indigo-600 font-bold rounded-full w-5 h-5 flex items-center justify-center text-xs text-white mr-2.5 mt-0.5 shadow-sm shrink-0">1</span>
+                  <span>Chọn <b>Môn học</b> và <b>Khối lớp</b> cần soạn bài.</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="bg-blue-600 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2 mt-0.5">2</span>
-                  <b>Bắt buộc:</b> Tải lên file giáo án (.docx hoặc .pdf).
+                  <span className="bg-gradient-to-br from-blue-500 to-indigo-600 font-bold rounded-full w-5 h-5 flex items-center justify-center text-xs text-white mr-2.5 mt-0.5 shadow-sm shrink-0">2</span>
+                  <span><b className="text-white">Bắt buộc:</b> Tải lên file giáo án gốc của giáo viên (định dạng <b>.docx</b> hoặc .pdf).</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="bg-blue-500/50 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2 mt-0.5">3</span>
-                  <i>Tùy chọn:</i> Tải file PPCT nếu muốn AI tham khảo năng lực cụ thể của trường.
+                  <span className="bg-indigo-700/60 font-bold rounded-full w-5 h-5 flex items-center justify-center text-xs text-white mr-2.5 mt-0.5 shrink-0">3</span>
+                  <span><i>Tùy chọn:</i> Tải file PPCT để AI trích xuất chính xác năng lực số từ chương trình nhà trường.</span>
                 </li>
               </ul>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-blue-100">
-              <h3 className="font-bold text-blue-900 mb-2">Miền năng lực số</h3>
-              <div className="space-y-2">
+            <div className="bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-xl shadow-indigo-900/5 border border-indigo-100/80">
+              <h3 className="font-extrabold text-slate-900 mb-3 text-base">Miền Năng Lực Số (TT 02)</h3>
+              <div className="space-y-2.5">
                 {[
                   "Khai thác dữ liệu và thông tin",
                   "Giao tiếp và Hợp tác",
                   "Sáng tạo nội dung số",
                   "An toàn số",
                   "Giải quyết vấn đề",
-                  "Ứng dụng AI"
+                  "Ứng dụng Trí tuệ Nhân tạo (AI)"
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-center text-sm text-slate-600">
-                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></div>
+                  <div key={idx} className="flex items-center text-sm font-semibold text-slate-700 bg-slate-50/80 px-3 py-2 rounded-xl border border-slate-100">
+                    <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mr-2.5"></div>
                     {item}
                   </div>
                 ))}
@@ -338,14 +346,14 @@ const App: React.FC = () => {
         </div>
 
         {/* Result Section */}
-        <div className="mt-8">
+        <div className="mt-10">
           <ResultDisplay result={result} loading={loading} originalDocx={originalDocx} />
         </div>
       </main>
 
-      <footer className="mt-12 text-center text-blue-800/80 text-sm py-6 space-y-1">
-        <p>© NLS & AI Assistant. Built with Gemini API & React.</p>
-        <p className="font-semibold text-blue-900">Tác giả: GV. NGUYỄN BỈNH KHÔI - ZALO: 0909 461 641</p>
+      <footer className="mt-16 text-center text-slate-500 text-sm py-6 space-y-1.5 border-t border-slate-200/60">
+        <p>© 2026 NLS & AI Assistant. Built with Gemini API & React.</p>
+        <p className="font-bold text-slate-700">Tác giả: GV. NGUYỄN BỈNH KHÔI - ZALO: 0909 461 641</p>
       </footer>
 
       <ApiKeyModal
