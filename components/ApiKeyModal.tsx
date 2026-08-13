@@ -98,18 +98,37 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
         {/* Form Body */}
         <form onSubmit={handleFormSubmit} className="p-6 space-y-5">
 
-          {/* Alert Box / Guideline */}
-          <div className="bg-blue-50/90 border border-blue-200/80 rounded-2xl p-4 text-xs space-y-2 text-slate-700">
-            <div className="font-bold text-blue-900 flex items-center space-x-1.5 text-sm">
-              <span className="text-base">💡</span>
-              <span>Lưu ý về định dạng API Key Google Gemini:</span>
+          {/* Alert Box / Guideline - Attractively styled attention-grabbing banner */}
+          <div className="bg-gradient-to-br from-indigo-900 via-blue-900 to-indigo-950 text-white rounded-2xl p-4 sm:p-5 shadow-lg border border-indigo-500/30 space-y-3 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full blur-xl pointer-events-none"></div>
+            
+            <div className="flex items-center justify-between">
+              <div className="font-extrabold text-amber-300 flex items-center space-x-2 text-sm sm:text-base">
+                <span className="text-lg">🔑</span>
+                <span>HƯỚNG DẪN LẤY GEMINI API KEY MIỄN PHÍ:</span>
+              </div>
+              <a
+                href="https://aistudio.google.com/app/apikey"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-1 px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-xs shadow-md transition-all transform hover:scale-105 active:scale-95 shrink-0"
+              >
+                <span>Lấy Key Ngay</span>
+                <ExternalLink size={12} />
+              </a>
             </div>
-            <p className="leading-relaxed">
-              API Key chính thức từ <a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-700 underline hover:text-blue-900">Google AI Studio (aistudio.google.com)</a> luôn bắt đầu bằng chữ <strong className="text-rose-600 bg-rose-50 px-1 py-0.5 rounded font-mono">AIzaSy...</strong>
-            </p>
-            <p className="text-slate-500 text-[11px] leading-relaxed">
-              (Nếu bạn copy chuỗi bắt đầu <code className="bg-slate-100 px-1 py-0.5 rounded font-mono">AQ...</code> từ trang quản lý dự án Cloud, hãy vào <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-700 underline">Google AI Studio → Get API Key</a> để lấy key chuẩn AIzaSy nhé).
-            </p>
+
+            <ol className="text-xs text-indigo-100/90 space-y-1.5 list-decimal pl-4 font-medium leading-relaxed">
+              <li>
+                Truy cập trang Google AI Studio: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-amber-300 font-bold underline hover:text-amber-200">aistudio.google.com/app/apikey</a> (Miễn phí 100%).
+              </li>
+              <li>
+                Bấm nút <strong className="text-white bg-indigo-700/80 px-1.5 py-0.5 rounded border border-indigo-400/30">Create API Key</strong> và sao chép chuỗi mã có dạng <strong className="text-amber-300 bg-amber-400/20 px-1.5 py-0.5 rounded font-mono">AIzaSy...</strong>
+              </li>
+              <li>
+                Dán mã <code className="text-amber-300 font-mono">AIzaSy...</code> vào ô bên dưới. Bạn có thể dán <strong>nhiều API Key</strong> (mỗi key 1 dòng) để AI tự động xoay vòng khi hết dung lượng trong ngày!
+              </li>
+            </ol>
           </div>
 
           {/* Textarea Multi-Key Input */}

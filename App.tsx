@@ -255,21 +255,45 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* API Key Config Button */}
-            <div className="flex justify-between sm:justify-end items-center space-x-3 px-1">
-              {!apiKey && (
-                <span className="text-xs sm:text-sm text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 font-bold animate-pulse">
-                  ⚠️ Chưa cấu hình API Key Gemini
-                </span>
-              )}
-              <button
-                onClick={() => setShowApiKeyModal(true)}
-                className="text-xs sm:text-sm text-indigo-600 hover:text-indigo-800 font-bold flex items-center space-x-1.5 px-3 py-1.5 rounded-xl hover:bg-indigo-50 transition-colors"
-              >
-                <Key size={16} />
-                <span>Cấu hình API Key & Model</span>
-              </button>
-            </div>
+            {/* API Key Config Attention-Grabbing Banner */}
+            {!apiKey ? (
+              <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-2 border-amber-400/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md animate-pulse">
+                <div className="flex items-center space-x-3 text-left">
+                  <div className="p-2.5 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-xl shadow-md shrink-0">
+                    <Key size={22} className="animate-bounce" />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-amber-950 text-sm sm:text-base flex items-center">
+                      ⚡ YÊU CẦU CẤU HÌNH GEMINI API KEY (MIỄN PHÍ)
+                    </h4>
+                    <p className="text-amber-900/90 text-xs font-medium mt-0.5">
+                      Vui lòng nhập API Key Gemini để AI hoạt động và phân tích bài dạy tự động.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowApiKeyModal(true)}
+                  className="shrink-0 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold rounded-xl text-xs sm:text-sm shadow-md shadow-amber-500/30 transition-all transform hover:scale-105 active:scale-95 flex items-center space-x-1.5"
+                >
+                  <Key size={16} />
+                  <span>Cấu hình API Key Ngay ➔</span>
+                </button>
+              </div>
+            ) : (
+              <div className="bg-white/80 backdrop-blur-md border border-emerald-200/90 rounded-2xl p-3.5 px-4 flex items-center justify-between shadow-sm">
+                <div className="flex items-center space-x-2.5 text-xs font-bold text-emerald-900">
+                  <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
+                  <span>✓ Đã sẵn sàng ({apiKey.split(/[\n,]+/).filter(k => k.trim()).length} Gemini API Key)</span>
+                </div>
+                <button
+                  onClick={() => setShowApiKeyModal(true)}
+                  className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center space-x-1.5 px-3 py-1.5 rounded-xl hover:bg-indigo-50 transition-colors"
+                >
+                  <Key size={15} />
+                  <span>Cấu hình / Thay đổi API Key</span>
+                </button>
+              </div>
+            )}
 
             {error && (
               <div className="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl flex items-center shadow-sm">
