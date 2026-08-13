@@ -65,5 +65,12 @@ AI trả về nội dung theo các section:
   File gốc → JSZip → Tìm vị trí "2. Năng lực" & "d. Tổ chức thực hiện" → Chèn NLS màu đỏ → Đóng gói → File mới
   ```
 
-
-
+### 5.7. Quy tắc Khóa phân bổ Độc lập HSKT, Tiếng Anh & NLS (Feature Isolation Rules)
+- **TẮT Năng lực số & AI (`integrationMode = 'NONE'`)**:
+  - CẤM chèn chữ màu đỏ `<red>...</red>`, CẤM tạo Bảng tổng hợp NLS cuối bài.
+  - NẾU có BẬT HSKT hoặc Tiếng Anh: BẮT BUỘC vẫn sinh các Marker cấu trúc (`===NLS_MỤC_TIÊU===`, `===NLS_HOẠT_ĐỘNG_X_TỔ_CHỨC===`) để phục vụ việc chèn tự động vào file Word DOCX.
+- **TẮT Giáo dục Hòa nhập HSKT (`includeDisabilitySupport = false`)**:
+  - CẤM TUYỆT ĐỐI chèn bất kỳ nội dung hỗ trợ HSKT nào. CẤM DÙNG THẺ `<green>`.
+- **TẮT Tích hợp Tiếng Anh (`includeEnglishIntegration = false`)**:
+  - CẤM TUYỆT ĐỐI chèn bất kỳ nội dung từ vựng hay câu lệnh Tiếng Anh nào. CẤM DÙNG THẺ `<blue>`.
+- **Phân bổ độc lập tuyệt độc**: Mỗi tính năng chỉ xuất hiện khi checkbox tương ứng được bật.

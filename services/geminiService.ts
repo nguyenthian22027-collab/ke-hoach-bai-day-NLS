@@ -487,6 +487,25 @@ export const generateNLSLessonPlan = async (
     ? `\n    ${ENGLISH_CLIL_INSTRUCTIONS}\n    CẤP ĐỘ TÍCH HỢP TIẾNG ANH (CLIL): ${options.englishIntegrationLevel}\n`
     : "";
 
+  // Tạo các câu quy tắc động theo đúng trạng thái Checkbox của người dùng
+  const isNlsActive = options.integrationMode !== 'NONE';
+  const isDisabilityActive = !!options.includeDisabilitySupport;
+  const isEnglishActive = !!options.includeEnglishIntegration;
+
+  const nlsStatusInstruction = isNlsActive
+    ? "1. NĂNG LỰC SỐ & AI (<red>): BẬT -> BẮT BUỘC chèn NLS/AI màu đỏ trong thẻ <red>...</red> và tạo BẢNG TỔNG HỢP NLS ở cuối bài."
+    : "1. NĂNG LỰC SỐ & AI (<red>): TẮT -> CẤM TUYỆT ĐỐI chèn chữ màu đỏ (<red>), CẤM tạo Bảng tổng hợp NLS cuối bài.";
+
+  const disabilityStatusInstruction = isDisabilityActive
+    ? "2. HỖ TRỢ HSKT (<green>): BẬT -> BẮT BUỘC chèn câu hỗ trợ HSKT màu xanh lá trong thẻ <green>[Hỗ trợ HSKT: ...]</green>."
+    : "2. HỖ TRỢ HSKT (<green>): TẮT -> CẤM TUYỆT ĐỐI chèn bất kỳ nội dung HSKT nào, CẤM DÙNG THẺ <green>. Không được tự ý đưa HSKT vào.";
+
+  const englishStatusInstruction = isEnglishActive
+    ? "3. TÍCH HỢP TIẾNG ANH (<blue>): BẬT -> BẮT BUỘC chèn nội dung tiếng Anh màu xanh dương trong thẻ <blue>...</blue>."
+    : "3. TÍCH HỢP TIẾNG ANH (<blue>): TẮT -> CẤM TUYỆT ĐỐI chèn bất kỳ từ vựng hay câu lệnh Tiếng Anh nào, CẤM DÙNG THẺ <blue>. Không được tự ý đưa Tiếng Anh vào.";
+
+  const needMarkersForSubFeatures = !isNlsActive && (isDisabilityActive || isEnglishActive);
+
   // User prompt
   const userPrompt = isEnglishSubject ? `
     DIGITAL COMPETENCE FRAMEWORK REFERENCE DATA:
@@ -505,17 +524,21 @@ export const generateNLSLessonPlan = async (
     
     ${distributionContext}
 
-    PROCESSING REQUIREMENTS:
-    ${options.analyzeOnly ? "- Analyze only, do not edit in detail." : options.integrationMode === 'NONE' ? "- DO NOT insert Digital Competence or AI Competence." : "- Edit the lesson plan and INTEGRATE COMPETENCIES into teaching activities."}
+    PROCESSING REQUIREMENTS & FEATURE ON/OFF STATUS (MANDATORY TO FOLLOW):
+    ${nlsStatusInstruction}
+    ${disabilityStatusInstruction}
+    ${englishStatusInstruction}
+
+    ${options.analyzeOnly ? "- Analyze only, do not edit in detail." : needMarkersForSubFeatures ? "- DO NOT insert Digital Competence or AI Competence in red (<red>). DO NOT generate DC summary tables.\n    - BUT YOU MUST STILL OUTPUT THE STRUCTURED MARKERS ===DC_OBJECTIVES=== AND ===DC_ACTIVITY_X_ORGANIZATION=== to wrap <green>Disability Support</green> and/or <blue>English Integration</blue> content for automated Word DOCX injection." : isNlsActive ? "- Edit the lesson plan and INTEGRATE COMPETENCIES into teaching activities." : "- Keep lesson plan structure and only process enabled items."}
     ${options.detailedReport ? "- Include a detailed explanation table of selected competence codes at the end." : ""}
     
     FORMAT REQUIREMENTS (MANDATORY):
     1. PRESERVE ORIGINAL FORMATTING: You must keep bold (**text**), italic (*text*) formatting from the original text.
     2. TABLES: Use standard Markdown Table.
-    3. DC ADDITIONS: Use <red>...</red> tags to mark digital & AI competence content in red. Include indicator codes (e.g. 1.1.TC1a: or NLa.A1:).
-    4. DISABILITY SUPPORT: Use <green>[Hỗ trợ HSKT: ...]</green> to mark inclusive education support.
-    5. ENGLISH INTEGRATION: Use <blue>[EN Instruction: ...]</blue> or similar tags based on the level.
-    6. LOCATION: Insert DC/AI/Disability/English in Objectives under "2. Competence". For activities, ONLY insert into section "d) Organization" (or steps under Organization). DO NOT insert into Content, Outcomes, or Objectives of activities.
+    ${isNlsActive ? "3. DC ADDITIONS: Use <red>...</red> tags to mark digital & AI competence content in red. Include indicator codes (e.g. 1.1.TC1a: or NLa.A1:)." : "3. DC ADDITIONS: DISABLED. DO NOT use <red> tags."}
+    ${isDisabilityActive ? "4. DISABILITY SUPPORT: Use <green>[Hỗ trợ HSKT: ...]</green> to mark inclusive education support." : "4. DISABILITY SUPPORT: DISABLED. ABSOLUTELY DO NOT use <green> tags or disability support."}
+    ${isEnglishActive ? "5. ENGLISH INTEGRATION: Use <blue>[EN Instruction: ...]</blue> or similar tags based on the level." : "5. ENGLISH INTEGRATION: DISABLED. ABSOLUTELY DO NOT use <blue> tags or English content."}
+    6. LOCATION: Insert in Objectives under "2. Competence". For activities, ONLY insert into section "d) Organization" (or steps under Organization). DO NOT insert into Content, Outcomes, or Objectives of activities.
   ` : `
     ${modeText}
 
@@ -534,23 +557,28 @@ export const generateNLSLessonPlan = async (
     
     ${distributionContext}
 
+    TÌNH TRẠNG BẬT/TẮT CÁC HẠNG MỤC TÍCH HỢP (BẮT BUỘC TUÂN THỦ TUYỆT ĐỐI):
+    ${nlsStatusInstruction}
+    ${disabilityStatusInstruction}
+    ${englishStatusInstruction}
+
     YÊU CẦU XỬ LÝ NỘI DUNG:
-    ${options.analyzeOnly ? "- Chỉ phân tích, không chỉnh sửa chi tiết." : options.integrationMode === 'NONE' ? "- KHÔNG chèn Năng lực số hay Năng lực AI." : "- Chỉnh sửa giáo án và TÍCH HỢP NĂNG LỰC SỐ / AI vào phần d. Tổ chức thực hiện của các hoạt động dạy học."}
+    ${options.analyzeOnly ? "- Chỉ phân tích, không chỉnh sửa chi tiết." : needMarkersForSubFeatures ? "- KHÔNG chèn Năng lực số hay Năng lực AI màu đỏ (<red>), KHÔNG tạo Bảng tổng hợp NLS ở cuối bài.\n    - NHƯNG BẮT BUỘC PHẢI TẠO CÁC MARKER ===NLS_MỤC_TIÊU=== VÀ ===NLS_HOẠT_ĐỘNG_X_TỔ_CHỨC=== (hoặc ===NLS_HOẠT_ĐỘNG_X_BƯỚC_Y===) để bọc nội dung được BẬT (HSKT hoặc Tiếng Anh) phục vụ chèn tự động vào file Word (.docx)." : isNlsActive ? "- Chỉnh sửa giáo án và TÍCH HỢP NĂNG LỰC SỐ / AI vào phần d. Tổ chức thực hiện của các hoạt động dạy học." : "- Giữ nguyên khung bài dạy, chỉ xử lý hạng mục được BẬT."}
     ${options.detailedReport ? "- Kèm theo bảng giải thích chi tiết mã năng lực đã chọn ở cuối bài." : ""}
     
     YÊU CẦU VỀ ĐỊNH DẠNG VÀ VỊ TRÍ TRÍCH DẪN (BẮT BUỘC):
     1. GIỮ NGUYÊN ĐỊNH DẠNG GỐC: Bạn phải giữ nguyên các đoạn in đậm (**text**), in nghiêng (*text*) của văn bản gốc. Không được làm mất định dạng này.
     2. TOÁN HỌC: Tất cả công thức toán phải viết dạng LaTeX trong dấu $. Ví dụ: $x^2$. Không dùng unicode.
     3. BẢNG: Sử dụng Markdown Table chuẩn.
-    4. NLS BỔ SUNG: Dùng thẻ <red>...</red> để đánh dấu màu đỏ nội dung NLS. Giữ nguyên Mã chỉ báo NLS (ví dụ: 1.1.TC1a:) trước mỗi ý.
-    5. HỖ TRỢ HSKT: Dùng thẻ <green>...</green> để đánh dấu hỗ trợ HSKT.
-    6. TÍCH HỢP TIẾNG ANH: Dùng thẻ <blue>...</blue> để đánh dấu nội dung tiếng Anh.
+    ${isNlsActive ? "4. NLS BỔ SUNG: Dùng thẻ <red>...</red> để đánh dấu màu đỏ nội dung NLS. Giữ nguyên Mã chỉ báo NLS (ví dụ: 1.1.TC1a:) trước mỗi ý." : "4. NLS BỔ SUNG: TẮT. KHÔNG DÙNG THẺ <red>."}
+    ${isDisabilityActive ? "5. HỖ TRỢ HSKT: Dùng thẻ <green>...</green> để đánh dấu hỗ trợ HSKT." : "5. HỖ TRỢ HSKT: TẮT. CẤM TUYỆT ĐỐI DÙNG THẺ <green> VÀ CẤM TỰ Ý THÊM HSKT."}
+    ${isEnglishActive ? "6. TÍCH HỢP TIẾNG ANH: Dùng thẻ <blue>...</blue> để đánh dấu nội dung tiếng Anh." : "6. TÍCH HỢP TIẾNG ANH: TẮT. CẤM TUYỆT ĐỐI DÙNG THẺ <blue> VÀ CẤM TỰ Ý THÊM TIẾNG ANH."}
     7. CHUẨN MÃ NLS THEO KHỐI LỚP & MÔN HỌC: Lớp 1-3 chỉ chọn mã CB1/CB2; Lớp 4-6 chọn CB2/TC1; Lớp 7-9 chọn TC1/TC2; Lớp 10-12 chọn TC2/NC1.
     8. VỊ TRÍ CHÈN VÀ TRÍCH DẪN DÒNG LIỀN TRƯỚC:
        - Mỗi Marker '===NLS_...===' PHẢI đính kèm thông tin '|VITRI:...' trích dẫn chính xác dòng/câu liền trước trong giáo án gốc của giáo viên.
        - Ví dụ Marker: '===NLS_HOẠT_ĐỘNG_1_TỔ_CHỨC|VITRI: Hoạt động 1 > d. Tổ chức thực hiện > Sau dòng: "GV chiếu hình ảnh/video..."==='
-       - Phần I. Mục tiêu: Chèn tiêu đề "* Phát triển năng lực số" kèm danh mục mã NLS ở cuối mục "2. Năng lực" (trước mục 3. Phẩm chất).
-       - Các hoạt động dạy học: CHỈ CHÈN NĂNG LỰC SỐ VÀO PHẦN "d. Tổ chức thực hiện" (hoặc các Bước/Nhiệm vụ trong Tổ chức thực hiện). TUYỆT ĐỐI KHÔNG chèn vào phần Mục tiêu, Nội dung, hay Sản phẩm của các hoạt động.
+       - Phần I. Mục tiêu: Chèn ở cuối mục "2. Năng lực" (trước mục 3. Phẩm chất). Nếu không bật NLS thì chèn tiêu đề HSKT (<green>...</green>) và/hoặc Tiếng Anh (<blue>...</blue>).
+       - Các hoạt động dạy học: CHỈ CHÈN VÀO PHẦN "d. Tổ chức thực hiện" (hoặc các Bước/Nhiệm vụ trong Tổ chức thực hiện). TUYỆT ĐỐI KHÔNG chèn vào phần Mục tiêu, Nội dung, hay Sản phẩm của các hoạt động.
     
     LƯU Ý VỀ TÍCH HỢP HOẠT ĐỘNG (KHI CÓ PPCT):
     - Các hoạt động dạy học (trong phần Tiến trình) cũng chỉ được thiết kế xoay quanh các năng lực số đã trích xuất từ PPCT. Không thiết kế hoạt động cho các năng lực nằm ngoài PPCT.
