@@ -295,12 +295,85 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
         }
       }
 
+      // BUG #4 FIX: Cập nhật mô tả standardizedLocation để khớp chính xác với hành vi chèn Word XML thực tế.
+      // Các mô tả phản ánh đúng: BƯỚC_X chèn SAU dòng tiêu đề bước trong "d. Tổ chức thực hiện";
+      // TỔ_CHỨC chèn ngay dưới tiêu đề "d. Tổ chức thực hiện" (trước nội dung đầu tiên của bảng GV-HS).
+      let standardizedLocation = '';
+      if (prefix === 'NLS') {
+        if (marker === 'MỤC_TIÊU') {
+          standardizedLocation = 'Mục I. MỤC TIÊU > Cuối phần "2. Năng lực" (Ngay TRƯỚC mục "3. Phẩm chất")';
+        } else if (marker.startsWith('HOẠT_ĐỘNG_')) {
+          const raw = marker.replace('HOẠT_ĐỘNG_', '');
+          const parts = raw.split('_');
+          let actNum = parts[0];
+          let subPartIndex = 1;
+          if (parts.length > 1 && !isNaN(Number(parts[1]))) {
+            actNum = `${parts[0]}.${parts[1]}`;
+            subPartIndex = 2;
+          }
+          const subPart = parts.slice(subPartIndex).join('_');
+          if (subPart === 'BƯỚC_1') {
+            standardizedLocation = `Hoạt động ${actNum} > d. Tổ chức thực hiện > Ngay SAU dòng "Bước 1: Chuyển giao nhiệm vụ học tập" (hoặc "*Chuyển giao nhiệm vụ học tập" trong bảng GV-HS)`;
+          } else if (subPart === 'BƯỚC_2') {
+            standardizedLocation = `Hoạt động ${actNum} > d. Tổ chức thực hiện > Ngay SAU dòng "Bước 2: Thực hiện nhiệm vụ học tập" (hoặc "*Thực hiện nhiệm vụ học tập" trong bảng GV-HS)`;
+          } else if (subPart === 'BƯỚC_3') {
+            standardizedLocation = `Hoạt động ${actNum} > d. Tổ chức thực hiện > Ngay SAU dòng "Bước 3: Báo cáo kết quả và thảo luận" (hoặc "*Báo cáo kết quả và thảo luận" trong bảng GV-HS)`;
+          } else if (subPart === 'BƯỚC_4' || subPart === 'KẾT_LUẬN') {
+            standardizedLocation = `Hoạt động ${actNum} > d. Tổ chức thực hiện > Ngay SAU dòng "Bước 4: Đánh giá kết quả" (hoặc "*Đánh giá kết quả thực hiện nhiệm vụ" trong bảng GV-HS)`;
+          } else {
+            standardizedLocation = `Hoạt động ${actNum} > d. Tổ chức thực hiện > Ngay dưới dòng "d. Tổ chức thực hiện:" (trước Chuyển giao nhiệm vụ học tập)`;
+          }
+        } else if (marker === 'BƯỚC_1') {
+          standardizedLocation = 'd. Tổ chức thực hiện > Ngay SAU dòng "Bước 1: Chuyển giao nhiệm vụ học tập" (hoặc "*Chuyển giao nhiệm vụ" trong bảng GV-HS)';
+        } else if (marker === 'BƯỚC_2') {
+          standardizedLocation = 'd. Tổ chức thực hiện > Ngay SAU dòng "Bước 2: Thực hiện nhiệm vụ học tập" (hoặc "*Thực hiện nhiệm vụ học tập" trong bảng GV-HS)';
+        } else if (marker === 'BƯỚC_3') {
+          standardizedLocation = 'd. Tổ chức thực hiện > Ngay SAU dòng "Bước 3: Báo cáo kết quả và thảo luận" (hoặc "*Báo cáo kết quả" trong bảng GV-HS)';
+        } else if (marker === 'BƯỚC_4') {
+          standardizedLocation = 'd. Tổ chức thực hiện > Ngay SAU dòng "Bước 4: Đánh giá kết quả" (hoặc "*Đánh giá kết quả thực hiện nhiệm vụ" trong bảng GV-HS)';
+        } else if (marker === 'CỦNG_CỐ' || marker === 'BẢNG_TỔNG_HỢP') {
+          standardizedLocation = 'Cuối cùng của giáo án (Ngay SAU phần Vận dụng / Củng cố / Hướng dẫn về nhà)';
+        } else {
+          standardizedLocation = 'd. Tổ chức thực hiện > Ngay dưới dòng "d. Tổ chức thực hiện:" (trước Chuyển giao nhiệm vụ học tập)';
+        }
+      } else if (prefix === 'DC') {
+        if (marker === 'OBJECTIVES') {
+          standardizedLocation = 'Section I. OBJECTIVES > Under "2. Competence" (Right BEFORE "3. Attitudes")';
+        } else if (marker.startsWith('WARM_UP')) {
+          standardizedLocation = 'Warm-up Activity > Under "d) Organization" (Right AFTER "d) Organization" heading, before first activity row)';
+        } else if (marker.startsWith('ACTIVITY_')) {
+          const parts = marker.replace('ACTIVITY_', '').split('_');
+          const actNum = parts[0];
+          const subPart = parts.slice(1).join('_');
+          if (subPart === 'ORGANIZATION') {
+            standardizedLocation = `Activity ${actNum} > Right AFTER "d) Organization" heading (before first Teacher/Student activity row)`;
+          } else if (subPart === 'CONTENT') {
+            standardizedLocation = `Activity ${actNum} > Right AFTER "b) Content" heading`;
+          } else if (subPart === 'OUTCOMES') {
+            standardizedLocation = `Activity ${actNum} > Right AFTER "c) Outcomes" heading`;
+          } else {
+            standardizedLocation = `Activity ${actNum} > Under "d) Organization" (Right AFTER "d) Organization" heading)`;
+          }
+        } else if (marker.startsWith('CONSOLIDATION') || marker.startsWith('HOMEWORK')) {
+          standardizedLocation = 'End of lesson plan (Right AFTER Consolidation / Homework)';
+        } else {
+          standardizedLocation = 'Under "d) Organization" of the corresponding activity';
+        }
+      }
+
+      // BUG #1 FIX: Ưu tiên locationGuidance từ AI (|VITRI:...) vì nó chứa dòng cụ thể trong giáo án gốc.
+      // standardizedLocation chỉ là fallback khi AI không cung cấp VITRI.
+      // Nếu có cả hai, hiển thị VITRI của AI kèm vị trí chuẩn để người dùng đối chiếu.
+      const finalLocationGuidance = locationGuidance
+        ? `${locationGuidance}\n📌 Vị trí chuẩn: ${standardizedLocation}`
+        : standardizedLocation;
+
       sections.push({
         marker: `${prefix}_${marker}`,
         content: sectionContent,
         activityPatterns,
         searchPatterns,
-        locationGuidance
+        locationGuidance: finalLocationGuidance
       });
     }
 
@@ -414,7 +487,87 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
       .replace(/'/g, '&apos;');
   };
 
-  // Chuyển Markdown sang Word XML - MÀU ĐỎ NLS/AI VÀ MÀU XANH HSKT
+  // Helper: Chuyển đổi một dòng markdown/thẻ màu thành các <w:r> trong Word XML
+  const convertLineToWordRunsXml = (line: string): string => {
+    const cleaned = cleanLatex(line);
+    const tokenRegex = /(<red>[\s\S]*?<\/red>|<green>[\s\S]*?<\/green>|<blue>[\s\S]*?<\/blue>|<u>[\s\S]*?<\/u>|\*\*[\s\S]*?\*\*|\*[\s\S]*?\*)/g;
+    const parts = cleaned.split(tokenRegex);
+    let runsXml = '';
+
+    for (const part of parts) {
+      if (!part) continue;
+      let text = part;
+      let isRed = false;
+      let isGreen = false;
+      let isBlue = false;
+      let isBold = false;
+      let isItalic = false;
+      let isUnderline = false;
+
+      if (part.startsWith('<red>') && part.endsWith('</red>')) {
+        isRed = true;
+        text = part.slice(5, -6);
+      } else if (part.startsWith('<green>') && part.endsWith('</green>')) {
+        isGreen = true;
+        isItalic = true;
+        text = part.slice(7, -8);
+      } else if (part.startsWith('<blue>') && part.endsWith('</blue>')) {
+        isBlue = true;
+        isItalic = true;
+        text = part.slice(6, -7);
+      } else if (part.startsWith('<u>') && part.endsWith('</u>')) {
+        isUnderline = true;
+        text = part.slice(3, -4);
+      } else if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+        isBold = true;
+        text = part.slice(2, -2);
+      } else if (part.startsWith('*') && part.endsWith('*') && part.length >= 2) {
+        isItalic = true;
+        text = part.slice(1, -1);
+      }
+
+      // Xử lý nếu bên trong còn lồng tiếp thẻ
+      if (text.includes('<red>') || text.includes('</red>')) {
+        isRed = true;
+        text = text.replace(/<\/?red>/g, '');
+      }
+      if (text.includes('<green>') || text.includes('</green>')) {
+        isGreen = true;
+        isItalic = true;
+        text = text.replace(/<\/?green>/g, '');
+      }
+      if (text.includes('<blue>') || text.includes('</blue>')) {
+        isBlue = true;
+        isItalic = true;
+        text = text.replace(/<\/?blue>/g, '');
+      }
+      if (text.startsWith('**') && text.endsWith('**') && text.length >= 4) {
+        isBold = true;
+        text = text.slice(2, -2);
+      }
+      if (text.startsWith('*') && text.endsWith('*') && text.length >= 2) {
+        isItalic = true;
+        text = text.slice(1, -1);
+      }
+
+      const escapedText = escapeXml(text);
+      if (!escapedText) continue;
+
+      let rPr = `<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>`;
+      if (isBold) rPr += `<w:b/>`;
+      if (isItalic) rPr += `<w:i/>`;
+      if (isUnderline) rPr += `<w:u w:val="single"/>`;
+      if (isRed) rPr += `<w:color w:val="FF0000"/>`;
+      else if (isGreen) rPr += `<w:color w:val="008000"/>`;
+      else if (isBlue) rPr += `<w:color w:val="0000FF"/>`;
+
+      runsXml += `<w:r><w:rPr>${rPr}</w:rPr><w:t xml:space="preserve">${escapedText}</w:t></w:r>`;
+    }
+
+    return runsXml;
+  };
+
+  // Chuyển Markdown sang Word XML - MÀU ĐỎ NLS/AI, MÀU XANH HSKT & TIẾNG ANH (GIỮ NGUYÊN MÃ NLS)
   const convertMarkdownToWordXml = (markdown: string): string => {
     // Bước 1: Thay thế <br> thành ký tự xuống dòng thực sự trước khi split
     const normalizedMarkdown = markdown.replace(/<br\s*\/?>/gi, '\n');
@@ -429,44 +582,128 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
       if (trimmed.startsWith('[Chèn') || trimmed.startsWith('(Chèn') ||
         trimmed.startsWith('[chèn') || trimmed.startsWith('(chèn') ||
         trimmed.startsWith('(tiếp tục') || trimmed.startsWith('[tiếp tục') ||
-        trimmed.startsWith('...') || trimmed.startsWith('===')) {
+        trimmed.startsWith('...') || (trimmed.startsWith('===') && trimmed.endsWith('==='))) {
         continue;
       }
 
       let processedLine = trimmed;
 
-      // Loại bỏ "* Tích hợp NLS:" hoặc "Tích hợp NLS:"
+      // Loại bỏ "* Tích hợp NLS:" hoặc "Tích hợp NLS:" ở đầu dòng nhưng GIỮ NGUYÊN MÃ NLS (1.1.TC1a:)
       processedLine = processedLine.replace(/^\*?\s*Tích hợp NLS:\s*/i, '- ');
 
-      // Loại bỏ mã năng lực số dạng (1.1NC1a), (5.2.NC1a), (3.4NC1a), etc.
-      processedLine = processedLine.replace(/\s*\(\d+\.\d+\.?[A-Za-z]+\d*[a-z]?\)/g, '');
-      processedLine = processedLine.replace(/\s*\(\d+\.\d+[A-Za-z]+\d*[a-z]?\)/g, '');
-
-      // Loại bỏ thẻ <u> và </u>
-      processedLine = processedLine.replace(/<\/?u>/g, '');
-
-      let isGreenContent = trimmed.includes('<green>') || trimmed.includes('</green>');
-      let isRedContent = trimmed.includes('<red>') || trimmed.includes('</red>');
-      let isBlueContent = trimmed.includes('<blue>') || trimmed.includes('</blue>');
-      processedLine = processedLine.replace(/<\/?red>/g, '').replace(/<\/?green>/g, '').replace(/<\/?blue>/g, '');
-
-      // Bước 2: Làm sạch LaTeX → Unicode trước khi escape XML
-      processedLine = cleanLatex(processedLine);
-
-      const content = escapeXml(processedLine);
-
-      if (isGreenContent) {
-        xml += `<w:p><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:color w:val="008000"/><w:i/></w:rPr><w:t>${content}</w:t></w:r></w:p>`;
-      } else if (isBlueContent) {
-        xml += `<w:p><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:color w:val="0000FF"/><w:i/></w:rPr><w:t>${content}</w:t></w:r></w:p>`;
-      } else if (isRedContent) {
-        xml += `<w:p><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:color w:val="FF0000"/></w:rPr><w:t>${content}</w:t></w:r></w:p>`;
-      } else {
-        xml += `<w:p><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/></w:rPr><w:t>${content}</w:t></w:r></w:p>`;
+      const runsXml = convertLineToWordRunsXml(processedLine);
+      if (runsXml) {
+        xml += `<w:p>${runsXml}</w:p>`;
       }
     }
 
     return xml;
+  };
+
+  // Helper: Chuyển đổi Markdown Table sang HTML Table chuẩn cho Clipboard (Copy vào Word ra bảng thực)
+  const markdownTableToHtmlTable = (markdown: string): string => {
+    const lines = markdown.split('\n').filter(l => l.trim().startsWith('|'));
+    const validLines = lines.filter(line => !line.match(/^\|?\s*[-:]+[-|\s:]*\|?\s*$/));
+    if (validLines.length === 0) return '';
+
+    let html = `<table border="1" style="border-collapse: collapse; width: 100%; font-family: 'Times New Roman', Times, serif; font-size: 13pt; margin-top: 8px; margin-bottom: 8px;">`;
+    validLines.forEach((line, rowIndex) => {
+      const cells = line.split('|');
+      if (line.trim().startsWith('|')) cells.shift();
+      if (line.trim().endsWith('|')) cells.pop();
+
+      const isHeader = rowIndex === 0;
+      html += `<tr>`;
+      cells.forEach(cellText => {
+        const cleanCell = cleanLatex(cellText.trim().replace(/<\/?red>/g, '').replace(/<\/?green>/g, '').replace(/<\/?blue>/g, ''));
+        const tag = isHeader ? 'th' : 'td';
+        const style = isHeader
+          ? 'border: 1px solid #000000; padding: 6px 10px; font-weight: bold; background-color: #f3f4f6; text-align: center;'
+          : 'border: 1px solid #000000; padding: 6px 10px; vertical-align: middle; text-align: left;';
+        html += `<${tag} style="${style}">${cleanCell}</${tag}>`;
+      });
+      html += `</tr>`;
+    });
+    html += `</table>`;
+    return html;
+  };
+
+  // Helper: Chuyển Markdown thành Rich HTML để dán vào Word có màu sắc & font chuẩn
+  const convertMarkdownToHtmlForClipboard = (content: string): string => {
+    if (content.trim().startsWith('|')) {
+      return markdownTableToHtmlTable(content);
+    }
+
+    const lines = content.split('\n');
+    let html = `<div style="font-family: 'Times New Roman', Times, serif; font-size: 13pt; line-height: 1.35;">`;
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || (trimmed.startsWith('===') && trimmed.endsWith('==='))) continue;
+
+      let clean = cleanLatex(trimmed);
+      let isGreen = clean.includes('<green>');
+      let isBlue = clean.includes('<blue>');
+      let isRed = clean.includes('<red>');
+
+      clean = clean.replace(/<\/?red>/g, '').replace(/<\/?green>/g, '').replace(/<\/?blue>/g, '');
+      // Chuyển Markdown **...** thành <b>...</b>
+      clean = clean.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+      clean = clean.replace(/\*(.*?)\*/g, '<i>$1</i>');
+
+      let style = "margin-bottom: 4px; font-family: 'Times New Roman', Times, serif;";
+      if (isRed) {
+        style += " color: #dc2626;";
+      } else if (isGreen) {
+        style += " color: #059669; font-style: italic;";
+      } else if (isBlue) {
+        style += " color: #2563eb; font-style: italic;";
+      }
+
+      html += `<p style="${style}">${clean}</p>`;
+    }
+    html += `</div>`;
+    return html;
+  };
+
+  // Helper: Chuyển Markdown thành Plain Text sạch sẽ không còn thẻ tag
+  const convertMarkdownToCleanPlainText = (content: string): string => {
+    let clean = cleanLatex(content);
+    clean = clean.replace(/<\/?red>/g, '').replace(/<\/?green>/g, '').replace(/<\/?blue>/g, '').replace(/<\/?u>/g, '');
+    clean = clean.replace(/\*\*(.*?)\*\*/g, '$1');
+    clean = clean.replace(/\*(.*?)\*/g, '$1');
+    return clean.trim();
+  };
+
+  // Hàm sao chép thông minh: Ghi cả Rich HTML (giữ màu/bảng cho Word) và Plain Text sạch
+  const copyRichContentToClipboard = async (content: string): Promise<boolean> => {
+    const plainText = convertMarkdownToCleanPlainText(content);
+    const htmlText = convertMarkdownToHtmlForClipboard(content);
+
+    try {
+      if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
+        const htmlBlob = new Blob([htmlText], { type: 'text/html' });
+        const textBlob = new Blob([plainText], { type: 'text/plain' });
+        const item = new ClipboardItem({
+          'text/html': htmlBlob,
+          'text/plain': textBlob
+        });
+        await navigator.clipboard.write([item]);
+        return true;
+      } else {
+        await navigator.clipboard.writeText(plainText);
+        return true;
+      }
+    } catch (e) {
+      console.warn("ClipboardItem write failed, fallback to plain text:", e);
+      try {
+        await navigator.clipboard.writeText(plainText);
+        return true;
+      } catch (err) {
+        console.error("Clipboard copy failed entirely:", err);
+        return false;
+      }
+    }
   };
 
   // Helper: Chuyển đổi Markdown Table sang Word XML Table (<w:tbl>)
@@ -651,12 +888,13 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
           }
         }
 
-        // KẾT THÚC SCOPE: Chỉ khớp tiêu đề Hoạt động CÓ SỐ THỨ TỰ (VD: "Hoạt động 2:", "Hđ 3.")
+        // KẾT THÚC SCOPE: Chỉ khớp tiêu đề Hoạt động CÓ SỐ THỨ TỰ (VD: "Hoạt động 2:", "Hđ 3.", "Hoạt động 2.2")
+        // BUG #3 FIX: Dùng \d[\d.]* thay vì \d để nhận dạng cả Hoạt động 2.1, 2.2 (không chỉ số nguyên)
         // KHÔNG khớp với "HOẠT ĐỘNG CỦA GV - HS" hay "Hoạt động nhóm" (không có số sau "Hoạt động ")
         if (scopeStartIdx !== -1) {
           for (let i = scopeStartIdx + 1; i < paragraphs.length; i++) {
             const text = normalizeText(paragraphs[i].textContent || '');
-            if (/^hoạt động \d/.test(text) || /^hđ \d/.test(text) || /^activity \d/i.test(text)) {
+            if (/^hoạt động \d[\d.]*/.test(text) || /^hđ \d[\d.]*/.test(text) || /^activity \d[\d.]*/i.test(text)) {
               scopeEndIdx = i;
               break;
             }
@@ -668,9 +906,29 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
           ? paragraphs.slice(scopeStartIdx, scopeEndIdx) 
           : paragraphs;
 
+        // BUG #5 FIX: Với BƯỚC markers, thêm sub-scope: chỉ tìm sau "d. Tổ chức thực hiện"
+        // để tránh khớp nhầm với "HS thực hiện nhiệm vụ học tập" trong phần "b. Nội dung"
+        const isBuocMarker = section.marker.includes('BƯỚC_') || section.marker.includes('STEP_');
+        let finalSearchScope = scopedParagraphs;
+
+        if (isBuocMarker) {
+          const tochuNormPatterns = [
+            'd) tổ chức thực hiện', 'd. tổ chức thực hiện', 'd.tổ chức thực hiện',
+            'd)tổ chức', 'd. tổ chức'
+          ];
+          const tochuIdx = scopedParagraphs.findIndex(p =>
+            tochuNormPatterns.some(pat => normalizeText(p.textContent || '').includes(pat))
+          );
+          if (tochuIdx !== -1) {
+            // Giới hạn tìm kiếm từ dòng "d. Tổ chức thực hiện" trở đi
+            finalSearchScope = scopedParagraphs.slice(tochuIdx);
+          }
+          // Nếu không tìm thấy "d. Tổ chức thực hiện", giữ nguyên scopedParagraphs (fallback an toàn)
+        }
+
         for (const pattern of section.searchPatterns) {
           const normPattern = normalizeText(pattern);
-          const targetP = scopedParagraphs.find(p => normalizeText(p.textContent || '').includes(normPattern));
+          const targetP = finalSearchScope.find(p => normalizeText(p.textContent || '').includes(normPattern));
           if (targetP && targetP.parentNode) {
             // Chèn SAU targetP
             const refNode = targetP.nextSibling;
@@ -865,41 +1123,66 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
 
   const components = {
     red: ({ children }: { children: React.ReactNode }) => (
-      <span style={{ color: 'red' }}>{children}</span>
+      <span style={{ color: '#dc2626' }}>{children}</span>
     ),
     green: ({ children }: { children: React.ReactNode }) => (
       <span style={{ color: '#059669', fontStyle: 'italic', fontWeight: 600 }}>{children}</span>
+    ),
+    blue: ({ children }: { children: React.ReactNode }) => (
+      <span style={{ color: '#2563eb', fontStyle: 'italic', fontWeight: 600 }}>{children}</span>
     ),
   };
 
   // Đếm số section NLS
   const sections = parseAllNLSSections(result);
 
-  const handleCopySection = (content: string, index: number) => {
-    // Strips <red> tags when copying to clipboard so text is clean
-    const cleanText = content.replace(/<\/?red>/g, '');
-    navigator.clipboard.writeText(cleanText);
+  const handleCopySection = async (content: string, index: number) => {
+    await copyRichContentToClipboard(content);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const handleCopyAllManualGuides = () => {
-    let fullGuideText = "=== HƯỚNG DẪN CHÈN THỦ CÔNG NĂNG LỰC SỐ VÀO GIÁO ÁN ===\n\n";
+  const handleCopyAllManualGuides = async () => {
+    let fullGuideText = "=== HƯỚNG DẪN CHÈN THỦ CÔNG NĂNG LỰC SỐ VÀO GIÁO ÁN (CHUẨN KHỚP FILE WORD) ===\n\n";
+    let fullGuideHtml = `<div style="font-family: 'Times New Roman', Times, serif; font-size: 13pt; line-height: 1.35;"><h3 style="color: #1e1b4b;">HƯỚNG DẪN CHÈN THỦ CÔNG NĂNG LỰC SỐ VÀO GIÁO ÁN (CHUẨN KHỚP FILE WORD)</h3>`;
+
     sections.forEach((sec, idx) => {
       const markerTitle = sec.marker
         .replace(/^NLS_/, '')
         .replace(/^DC_/, '')
         .replace(/_/g, ' ');
+
       fullGuideText += `[MỤC ${idx + 1}: ${markerTitle}]\n`;
       if (sec.locationGuidance) {
         fullGuideText += `📍 Vị trí chèn: ${sec.locationGuidance}\n`;
       }
-      fullGuideText += `📌 Nội dung NLS màu đỏ:\n${sec.content.replace(/<\/?red>/g, '')}\n\n-----------------------------------\n\n`;
+      fullGuideText += `📌 Nội dung cần chèn:\n${convertMarkdownToCleanPlainText(sec.content)}\n\n-----------------------------------\n\n`;
+
+      fullGuideHtml += `<hr style="margin: 16px 0; border: 1px dashed #cbd5e1;"/><p><b>[MỤC ${idx + 1}: ${markerTitle}]</b></p>`;
+      if (sec.locationGuidance) {
+        fullGuideHtml += `<p style="color: #b45309; background: #fef3c7; padding: 4px 8px; border-left: 4px solid #f59e0b;"><b>📍 Vị trí chèn:</b> ${escapeXml(sec.locationGuidance)}</p>`;
+      }
+      fullGuideHtml += `<p><b>📌 Nội dung cần chèn:</b></p>${convertMarkdownToHtmlForClipboard(sec.content)}`;
     });
 
-    navigator.clipboard.writeText(fullGuideText);
-    setCopiedAll(true);
-    setTimeout(() => setCopiedAll(false), 2500);
+    fullGuideHtml += `</div>`;
+
+    try {
+      if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
+        const htmlBlob = new Blob([fullGuideHtml], { type: 'text/html' });
+        const textBlob = new Blob([fullGuideText], { type: 'text/plain' });
+        const item = new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob });
+        await navigator.clipboard.write([item]);
+      } else {
+        await navigator.clipboard.writeText(fullGuideText);
+      }
+      setCopiedAll(true);
+      setTimeout(() => setCopiedAll(false), 2500);
+    } catch (e) {
+      await navigator.clipboard.writeText(fullGuideText);
+      setCopiedAll(true);
+      setTimeout(() => setCopiedAll(false), 2500);
+    }
   };
 
   // Hiển thị nội dung preview - hỗ trợ tất cả các markers linh hoạt (Vietnamese + English)
@@ -1006,10 +1289,10 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
             <div className="space-y-1 text-left">
               <h3 className="font-extrabold text-indigo-950 text-base flex items-center">
                 <MapPin className="text-indigo-600 mr-2 flex-shrink-0" size={20} />
-                Hướng dẫn chèn thủ công theo từng dòng/vị trí cụ thể
+                Hướng dẫn chèn thủ công (Chuẩn vị trí neo như File Word)
               </h3>
               <p className="text-slate-600 text-xs sm:text-sm font-medium">
-                AI đã trích xuất {sections.length} phần nội dung kèm <strong>trích dẫn câu/dòng liền trước trong giáo án gốc</strong> của thầy/cô. Bấm nút <strong>Copy</strong> để dán trực tiếp vào file Word.
+                Vị trí chèn và nội dung được đồng bộ <strong>100% khớp với Luồng xuất file Word</strong>. Bấm nút <strong>Copy</strong> để dán trực tiếp vào file Word (giữ nguyên màu Đỏ/Xanh và bảng kẻ ô).
               </p>
             </div>
             <button
@@ -1039,15 +1322,41 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
                 .replace(/_/g, ' ');
 
               const isCopied = copiedIndex === idx;
+              const hasRed = section.content.includes('<red>');
+              const hasGreen = section.content.includes('<green>');
+              const hasBlue = section.content.includes('<blue>');
+              const isTable = section.content.trim().startsWith('|') || section.marker.includes('BẢNG_TỔNG_HỢP') || section.marker.includes('SUMMARY_TABLE');
 
               return (
                 <div key={idx} className="bg-white rounded-2xl border border-slate-200/90 shadow-md shadow-slate-200/40 overflow-hidden hover:border-indigo-300 transition-all duration-300">
                   {/* Card Header */}
-                  <div className="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between">
-                    <span className="font-bold text-sm sm:text-base flex items-center tracking-tight">
-                      <span className="inline-block w-2.5 h-2.5 rounded-full bg-indigo-400 mr-2.5"></span>
-                      MỤC {idx + 1}: {formattedTitle}
-                    </span>
+                  <div className="bg-slate-900 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center space-x-2.5 flex-wrap">
+                      <span className="font-bold text-sm sm:text-base flex items-center tracking-tight">
+                        <span className="inline-block w-2.5 h-2.5 rounded-full bg-indigo-400 mr-2.5"></span>
+                        MỤC {idx + 1}: {formattedTitle}
+                      </span>
+                      {hasRed && (
+                        <span className="px-2 py-0.5 text-[11px] font-bold rounded-md bg-red-500/20 text-red-300 border border-red-400/30">
+                          🔴 NLS/AI
+                        </span>
+                      )}
+                      {hasGreen && (
+                        <span className="px-2 py-0.5 text-[11px] font-bold rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                          🟢 HSKT
+                        </span>
+                      )}
+                      {hasBlue && (
+                        <span className="px-2 py-0.5 text-[11px] font-bold rounded-md bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                          🔵 Tiếng Anh
+                        </span>
+                      )}
+                      {isTable && (
+                        <span className="px-2 py-0.5 text-[11px] font-bold rounded-md bg-purple-500/20 text-purple-300 border border-purple-400/30">
+                          📊 Bảng tổng hợp
+                        </span>
+                      )}
+                    </div>
                     <button
                       onClick={() => handleCopySection(section.content, idx)}
                       className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
@@ -1055,6 +1364,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
                           ? 'bg-emerald-600 text-white shadow-sm'
                           : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20'
                       }`}
+                      title="Copy nội dung (Dán vào Word tự động giữ màu sắc & bảng kẻ ô)"
                     >
                       {isCopied ? (
                         <>
@@ -1064,7 +1374,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
                       ) : (
                         <>
                           <Copy size={14} />
-                          <span>Copy đoạn nội dung này</span>
+                          <span>Copy đoạn này (Ctrl+V vào Word)</span>
                         </>
                       )}
                     </button>
@@ -1077,22 +1387,20 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
                         <MapPin size={18} className="text-amber-600 mr-2.5 flex-shrink-0 mt-0.5" />
                         <div>
                           <p className="font-bold text-xs text-amber-900 uppercase tracking-wider">
-                            📍 Vị trí chèn trong giáo án của bạn:
+                            📍 VỊ TRÍ CHÈN TRONG GIÁO ÁN (CHUẨN KHỚP FILE WORD):
                           </p>
-                          <p className="text-amber-950 font-semibold text-xs sm:text-sm mt-1 leading-relaxed">
-                            {section.marker.includes('BẢNG_TỔNG_HỢP') || section.marker.includes('SUMMARY_TABLE')
-                              ? '📍 Vị trí: Dòng cuối cùng của giáo án (Sau khi kết thúc toàn bộ dòng/nội dung cuối cùng của Hoạt động 4 / Vận dụng / Hướng dẫn về nhà)'
-                              : (section.locationGuidance || 'Mục I. MỤC TIÊU -> 2. Năng lực (hoặc phần d. Tổ chức thực hiện của Hoạt động)')}
+                          <p className="text-amber-950 font-bold text-xs sm:text-sm mt-1 leading-relaxed">
+                            {section.locationGuidance || 'Mục I. MỤC TIÊU -> Cuối phần 2. Năng lực (hoặc phần d. Tổ chức thực hiện của Hoạt động)'}
                           </p>
                         </div>
                       </div>
                     </div>
 
                     {/* Content Preview (Text hoặc Table) */}
-                    {section.content.trim().startsWith('|') || section.marker.includes('BẢNG_TỔNG_HỢP') ? (
+                    {isTable ? (
                       <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs sm:text-sm overflow-x-auto">
                         <p className="font-bold text-xs text-slate-500 uppercase tracking-wider mb-3">
-                          📊 BẢNG TỔNG HỢP NĂNG LỰC SỐ TOÀN BÀI (5 CỘT CHUẨN):
+                          📊 BẢNG TỔNG HỢP NĂNG LỰC SỐ TOÀN BÀI (5 CỘT CHUẨN - TỰ ĐỘNG KẺ Ô KHI DÁN VÀO WORD):
                         </p>
                         <div className="prose prose-sm max-w-none font-serif text-slate-900 border border-slate-300 rounded-lg p-3 bg-white shadow-2xs" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                           <ReactMarkdown rehypePlugins={[rehypeRaw]}>
@@ -1107,8 +1415,8 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
                         </p>
                         <div className="whitespace-pre-wrap leading-relaxed text-sm sm:text-base" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                           {section.content.split('\n').map((line, lineIdx) => {
-                            const cleanLine = line.replace(/<\/?red>/g, '').replace(/<\/?green>/g, '').replace(/<\/?blue>/g, '');
-                            if (!cleanLine.trim()) return null;
+                            const cleaned = cleanLatex(line.replace(/<\/?red>/g, '').replace(/<\/?green>/g, '').replace(/<\/?blue>/g, ''));
+                            if (!cleaned.trim() || (cleaned.startsWith('===') && cleaned.endsWith('==='))) return null;
                             const isGreen = line.includes('<green>');
                             const isBlue = line.includes('<blue>');
                             const isRed = line.includes('<red>');
@@ -1121,7 +1429,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
                                 }`}
                                 style={{ fontFamily: "'Times New Roman', Times, serif" }}
                               >
-                                {cleanLine}
+                                {cleaned}
                               </div>
                             );
                           })}
