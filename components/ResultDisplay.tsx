@@ -33,6 +33,7 @@ interface NLSSection {
   activityPatterns?: string[]; // Pattern tiêu đề Hoạt động X để giới hạn phạm vi
   searchPatterns: string[]; // Patterns vị trí chèn trong phạm vi
   locationGuidance?: string; // Vị trí chèn chi tiết trích dẫn dòng/câu từ AI
+  quotedText?: string; // Đoạn trích dẫn nguyên văn câu liền trước từ AI
 }
 
 const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, originalDocx }) => {
@@ -64,6 +65,17 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
         const parts = rawMarker.split('|POSITION:');
         rawMarker = parts[0].trim();
         locationGuidance = parts[1].trim();
+      }
+
+      // Trích xuất đoạn văn bản trích dẫn ("Sau dòng: ...") của AI để dùng cho Smart Matching 2 lớp
+      let quotedText = '';
+      if (locationGuidance) {
+        const quoteMatch = locationGuidance.match(/Sau dòng:\s*["“'‘]([^"”'’]+)["”'’]/i) ||
+                           locationGuidance.match(/After line:\s*["“'‘]([^"”'’]+)["”'’]/i) ||
+                           locationGuidance.match(/["“'‘]([^"”'’]{6,})["”'’]/);
+        if (quoteMatch) {
+          quotedText = quoteMatch[1].trim();
+        }
       }
 
       const marker = rawMarker;
@@ -104,39 +116,35 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
             `Hoạt động ${actNum}`, `HĐ ${actNum}:`, `HĐ${actNum}`
           ];
 
-          // Luôn ép chèn vào "d. Tổ chức thực hiện" hoặc các Bước trong Tổ chức thực hiện
+          // Ưu tiên tiêu đề bảng (*Chuyển giao...) trước Bước X để tránh khớp nhầm vào Phụ lục/Phiếu học tập
           if (subPart === 'BƯỚC_1') {
             searchPatterns = [
-              'Bước 1:', 'Bước 1.', 'bước 1',
-              'Chuyển giao nhiệm vụ học tập', 'Chuyển giao nhiệm vụ', 'Chuyển giao',
-              '*Chuyển giao nhiệm vụ học tập', 'NV1:', 'Nhiệm vụ 1:',
-              // Từ khóa tiêu đề bước thực tế (không có "Bước X")
-              'Giao nhiệm vụ:', '- Giao nhiệm vụ', '* Giao nhiệm vụ', 'Giao nhiệm vụ'
+              '*Chuyển giao nhiệm vụ học tập', '*Chuyển giao nhiệm vụ', '*Chuyển giao',
+              'Chuyển giao nhiệm vụ học tập', 'Chuyển giao nhiệm vụ',
+              'Bước 1:', 'Bước 1.', 'bước 1', 'NV1:', 'Nhiệm vụ 1:',
+              '- Giao nhiệm vụ:', 'Giao nhiệm vụ:', '- Giao nhiệm vụ', '* Giao nhiệm vụ'
             ];
           } else if (subPart === 'BƯỚC_2') {
             searchPatterns = [
-              'Bước 2:', 'Bước 2.', 'bước 2',
-              'Thực hiện nhiệm vụ học tập', 'Thực hiện nhiệm vụ', 'HS thực hiện',
-              '*Thực hiện nhiệm vụ học tập', 'NV2:', 'Nhiệm vụ 2:',
-              // Từ khóa tiêu đề bước thực tế (không có "Bước X")
+              '*Thực hiện nhiệm vụ học tập', '*Thực hiện nhiệm vụ', '*HS thực hiện',
+              'Thực hiện nhiệm vụ học tập', 'Thực hiện nhiệm vụ',
+              'Bước 2:', 'Bước 2.', 'bước 2', 'NV2:', 'Nhiệm vụ 2:',
               'Hướng dẫn HS thực hiện nhiệm vụ', 'Hướng dẫn HS thực hiện',
-              'Hướng dẫn HS:', '- Hướng dẫn HS', '* Hướng dẫn HS'
+              '- Hướng dẫn HS:', 'Hướng dẫn HS:'
             ];
           } else if (subPart === 'BƯỚC_3') {
             searchPatterns = [
+              '*Báo cáo kết quả và thảo luận', '*Báo cáo kết quả', '*Báo cáo',
+              'Báo cáo kết quả và thảo luận', 'Báo cáo kết quả', 'Thảo luận',
               'Bước 3:', 'Bước 3.', 'bước 3',
-              'Báo cáo kết quả và thảo luận', 'Báo cáo kết quả', 'Báo cáo', 'Thảo luận',
-              '*Báo cáo kết quả và thảo luận',
-              // Từ khóa tiêu đề bước thực tế (không có "Bước X")
-              'Báo cáo kết quả:', '- Báo cáo kết quả', '* Báo cáo kết quả'
+              '- Báo cáo kết quả:', 'Báo cáo kết quả:'
             ];
           } else if (subPart === 'BƯỚC_4' || subPart === 'KẾT_LUẬN') {
             searchPatterns = [
+              '*Đánh giá kết quả thực hiện nhiệm vụ', '*Đánh giá kết quả', '*Kết luận',
+              'Đánh giá kết quả thực hiện nhiệm vụ', 'Đánh giá kết quả', 'Kết luận, nhận định',
               'Bước 4:', 'Bước 4.', 'bước 4',
-              'Đánh giá kết quả thực hiện nhiệm vụ', 'Đánh giá kết quả', 'Kết luận, nhận định', 'Kết luận', 'Nhận định',
-              '*Đánh giá kết quả thực hiện nhiệm vụ học tập',
-              // Từ khóa tiêu đề bước thực tế (không có "Bước X")
-              'Đánh giá kết quả thực hiện nhiệm vụ:', '- Đánh giá kết quả', '* Đánh giá kết quả'
+              '- Đánh giá kết quả thực hiện nhiệm vụ:', 'Đánh giá kết quả thực hiện nhiệm vụ:'
             ];
           } else {
             // Cho TỔ_CHỨC, NỘI_DUNG, SẢN_PHẨM => Luôn ép chèn vào "d. Tổ chức thực hiện"
@@ -373,7 +381,8 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
         content: sectionContent,
         activityPatterns,
         searchPatterns,
-        locationGuidance: finalLocationGuidance
+        locationGuidance: finalLocationGuidance,
+        quotedText
       });
     }
 
@@ -888,13 +897,23 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
           }
         }
 
-        // KẾT THÚC SCOPE: Chỉ khớp tiêu đề Hoạt động CÓ SỐ THỨ TỰ (VD: "Hoạt động 2:", "Hđ 3.", "Hoạt động 2.2")
-        // BUG #3 FIX: Dùng \d[\d.]* thay vì \d để nhận dạng cả Hoạt động 2.1, 2.2 (không chỉ số nguyên)
-        // KHÔNG khớp với "HOẠT ĐỘNG CỦA GV - HS" hay "Hoạt động nhóm" (không có số sau "Hoạt động ")
+        // KẾT THÚC SCOPE: Khớp tiêu đề Hoạt động CÓ SỐ THỨ TỰ (VD: "Hoạt động 2:", "1. Hoạt động 1", "Hđ 3.", "Hoạt động 2.2")
+        // hoặc các mục kết thúc như III. Tiến trình, IV. Củng cố, V. Dặn dò, Bảng tổng hợp
         if (scopeStartIdx !== -1) {
           for (let i = scopeStartIdx + 1; i < paragraphs.length; i++) {
             const text = normalizeText(paragraphs[i].textContent || '');
-            if (/^hoạt động \d[\d.]*/.test(text) || /^hđ \d[\d.]*/.test(text) || /^activity \d[\d.]*/i.test(text)) {
+            if (
+              /^hoạt động \d[\d.]*/.test(text) || 
+              /^\d+\.\s*hoạt động \d[\d.]*/.test(text) || 
+              /^hđ \d[\d.]*/.test(text) || 
+              /^activity \d[\d.]*/i.test(text) ||
+              /^\d+\.\s*activity \d[\d.]*/i.test(text) ||
+              text.startsWith('iii. tiến trình dạy học') ||
+              text.startsWith('iv. dặn dò') ||
+              text.startsWith('iv. củng cố') ||
+              text.startsWith('v. hướng dẫn về nhà') ||
+              text.startsWith('bảng tổng hợp')
+            ) {
               scopeEndIdx = i;
               break;
             }
@@ -906,9 +925,8 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
           ? paragraphs.slice(scopeStartIdx, scopeEndIdx) 
           : paragraphs;
 
-        // BUG #5 FIX: Với BƯỚC markers, thêm sub-scope: chỉ tìm sau "d. Tổ chức thực hiện"
-        // để tránh khớp nhầm với "HS thực hiện nhiệm vụ học tập" trong phần "b. Nội dung"
-        const isBuocMarker = section.marker.includes('BƯỚC_') || section.marker.includes('STEP_');
+        // Giới hạn trong phần "d. Tổ chức thực hiện" cho BƯỚC / TỔ_CHỨC markers
+        const isBuocMarker = section.marker.includes('BƯỚC_') || section.marker.includes('STEP_') || section.marker.includes('TỔ_CHỨC') || section.marker.includes('ORGANIZATION');
         let finalSearchScope = scopedParagraphs;
 
         if (isBuocMarker) {
@@ -923,21 +941,51 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
             // Giới hạn tìm kiếm từ dòng "d. Tổ chức thực hiện" trở đi
             finalSearchScope = scopedParagraphs.slice(tochuIdx);
           }
-          // Nếu không tìm thấy "d. Tổ chức thực hiện", giữ nguyên scopedParagraphs (fallback an toàn)
         }
 
-        for (const pattern of section.searchPatterns) {
-          const normPattern = normalizeText(pattern);
-          const targetP = finalSearchScope.find(p => normalizeText(p.textContent || '').includes(normPattern));
-          if (targetP && targetP.parentNode) {
-            // Chèn SAU targetP
-            const refNode = targetP.nextSibling;
-            nlsNodes.forEach(node => {
-              targetP.parentNode?.insertBefore(node, refNode);
-            });
-            inserted = true;
-            break;
+        let targetP: Element | null = null;
+
+        // =========================================================================
+        // TIER 1 (ƯU TIÊN SỐ 1 - EXACT QUOTATION MATCH):
+        // Nếu AI có trích dẫn câu cụ thể ("Sau dòng: ..."), tìm chính xác dòng đó trong finalSearchScope
+        // Giúp file Word khớp 100% từng câu với Tab hướng dẫn thủ công!
+        // =========================================================================
+        if (section.quotedText && section.quotedText.length >= 3) {
+          const normQuote = normalizeText(section.quotedText);
+          const foundByQuote = finalSearchScope.find(p => {
+            const normPText = normalizeText(p.textContent || '');
+            return normPText.includes(normQuote) || (normQuote.length > 15 && normPText.includes(normQuote.substring(0, 15)));
+          });
+
+          if (foundByQuote) {
+            targetP = foundByQuote;
+            console.log(`✓ [Tier 1 Quotation Match] Khớp chính xác câu trích dẫn của AI cho ${section.marker}: "${section.quotedText.substring(0, 50)}..."`);
           }
+        }
+
+        // =========================================================================
+        // TIER 2 (FALLBACK - STEP HEADING MATCH):
+        // Nếu không khớp câu trích dẫn, fallback tìm theo tiêu đề bước trong finalSearchScope
+        // =========================================================================
+        if (!targetP) {
+          for (const pattern of section.searchPatterns) {
+            const normPattern = normalizeText(pattern);
+            const found = finalSearchScope.find(p => normalizeText(p.textContent || '').includes(normPattern));
+            if (found) {
+              targetP = found;
+              console.log(`✓ [Tier 2 Fallback Match] Khớp theo tiêu đề bước cho ${section.marker}: "${pattern}"`);
+              break;
+            }
+          }
+        }
+
+        if (targetP && targetP.parentNode) {
+          // Chèn SAU targetP
+          const refNode = targetP.nextSibling;
+          nlsNodes.forEach(node => {
+            targetP.parentNode?.insertBefore(node, refNode);
+          });
+          inserted = true;
         }
       }
 
@@ -1389,7 +1437,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, loading, original
                           <p className="font-bold text-xs text-amber-900 uppercase tracking-wider">
                             📍 VỊ TRÍ CHÈN TRONG GIÁO ÁN (CHUẨN KHỚP FILE WORD):
                           </p>
-                          <p className="text-amber-950 font-bold text-xs sm:text-sm mt-1 leading-relaxed">
+                          <p className="text-amber-950 font-bold text-xs sm:text-sm mt-1 leading-relaxed whitespace-pre-line">
                             {section.locationGuidance || 'Mục I. MỤC TIÊU -> Cuối phần 2. Năng lực (hoặc phần d. Tổ chức thực hiện của Hoạt động)'}
                           </p>
                         </div>
