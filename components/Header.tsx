@@ -83,7 +83,7 @@ const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
             <p className="text-indigo-200/80 text-xs sm:text-sm font-medium mt-0.5">
-              Tác giả: <span className="text-indigo-100 font-semibold">Nguyễn Thiện</span> • ZALO: <span className="text-amber-300 font-bold">098825012</span> (TT 02 & QĐ 3439)
+              Tác giả: <span className="text-indigo-100 font-semibold">NGUYỄN BỈNH KHÔI</span> • ZALO: <span className="text-amber-300 font-bold">0909 461 641</span> (TT 02 & QĐ 3439)
             </p>
           </div>
         </div>

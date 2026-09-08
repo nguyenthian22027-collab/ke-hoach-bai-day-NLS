@@ -461,7 +461,7 @@ const App: React.FC = () => {
 
       <footer className="mt-16 text-center text-slate-500 text-sm py-6 space-y-1.5 border-t border-slate-200/60">
         <p>© 2026 NLS & AI Assistant. Built with Gemini API & React.</p>
-        <p className="font-bold text-slate-700">Tác giả: Nguyễn Thiện - ZALO: 098825012</p>
+        <p className="font-bold text-slate-700">Tác giả: NGUYỄN BỈNH KHÔI - ZALO: 0909 461 641</p>
       </footer>
 
       <ApiKeyModal
