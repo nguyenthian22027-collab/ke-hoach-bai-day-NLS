@@ -61,6 +61,7 @@ export interface ProcessingOptions {
   aiFrameworkVersion?: AIFrameworkVersion; // Phiên bản Khung NL AI (mặc định: QD2422)
   includeDisabilitySupport?: boolean;
   disabilityType?: DisabilityType;
+  disabilityTypes?: DisabilityType[]; // Danh sách các đối tượng khuyết tật được chọn (hỗ trợ đa chọn)
   includeEnglishIntegration?: boolean;
   englishIntegrationLevel?: EnglishIntegrationLevel;
   hasExistingNLS?: boolean; // File giáo án đã có NLS được chèn sẵn → Chế độ Bổ sung
@@ -91,6 +92,7 @@ export interface HistoryItem {
   integrationMode?: IntegrationMode;
   includeDisabilitySupport?: boolean;
   disabilityType?: DisabilityType;
+  disabilityTypes?: DisabilityType[];
   englishIntegrationLevel?: EnglishIntegrationLevel;
   teachingEnvironment?: TeachingEnvironment;
   includeQPAN?: boolean;

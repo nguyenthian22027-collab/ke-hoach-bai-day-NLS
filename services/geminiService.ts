@@ -514,14 +514,27 @@ export const generateNLSLessonPlan = async (
         : `\n    ${AI_FRAMEWORK_DATA_QD3439}\n`)
     : "";
 
+  // Xử lý danh sách các dạng khuyết tật được chọn (Hỗ trợ đa chọn nhiều đối tượng)
+  const selectedDisabilityTypes = (options.disabilityTypes && options.disabilityTypes.length > 0)
+    ? options.disabilityTypes
+    : (options.disabilityType ? [options.disabilityType] : ['GENERAL']);
+
+  const disabilityLabelMap: Record<string, string> = {
+    INTELLECTUAL: 'Khuyết tật Trí tuệ / Khó khăn học tập (cần đơn giản hóa nhiệm vụ, chia nhỏ từng thao tác, tăng cường trực quan, giao bạn hỗ trợ)',
+    VISUAL: 'Khuyết tật Thị giác / Nhìn kém (cần thuyết minh rõ bằng lời nói, tài liệu chữ lớn / hình ảnh phóng to, nhờ bạn đọc giúp)',
+    HEARING: 'Khuyết tật Thính giác / Nghe kém (cần kênh hình ảnh trực quan, chữ viết trên bảng, ký hiệu, phân công bạn giao tiếp hỗ trợ)',
+    MOTOR: 'Khuyết tật Vận động (cần bố trí chỗ ngồi thuận tiện, phân công bạn hỗ trợ chuẩn bị đồ dùng và thực hiện thao tác)',
+    GENERAL: 'Hòa nhập tổng hợp (động viên, giao nhiệm vụ vừa sức, phân công Đôi bạn cùng tiến giúp đỡ hòa nhập)'
+  };
+
+  const disabilityNames = selectedDisabilityTypes.map(t => disabilityLabelMap[t] || t).join('\n    + ');
+
   const disabilityPrompt = options.includeDisabilitySupport
-    ? `\n    ${DISABILITY_SUPPORT_INSTRUCTIONS}\n    DẠNG KHUYẾT TẬT CẦN HỖ TRỢ: ${
-        options.disabilityType === 'INTELLECTUAL' ? 'Khuyết tật Trí tuệ / Khó khăn học tập' :
-        options.disabilityType === 'VISUAL' ? 'Khuyết tật Thị giác (Nhìn)' :
-        options.disabilityType === 'HEARING' ? 'Khuyết tật Thính giác (Nghe/Nói)' :
-        options.disabilityType === 'MOTOR' ? 'Khuyết tật Vận động' :
-        'Hòa nhập tổng hợp (Tất cả học sinh khuyết tật)'
-      }\n`
+    ? `\n    ${DISABILITY_SUPPORT_INSTRUCTIONS}\n    DẠNG KHUYẾT TẬT CẦN HỖ TRỢ TRONG LỚP (GỒM ${selectedDisabilityTypes.length} ĐỐI TƯỢNG CỤ THỂ):
+    + ${disabilityNames}
+    ⚠️ LƯU Ý BẮT BUỘC KHI LỚP CÓ NHIỀU ĐỐI TƯỢNG HSKT:
+    - Trong mục Mục tiêu: Nêu rõ mục tiêu điều chỉnh vừa sức cho các đối tượng HSKT trong lớp.
+    - Trong các câu <green>[Hỗ trợ HSKT: ...]</green> tại các hoạt động: Đưa ra biện pháp hỗ trợ phối hợp hoặc cụ thể cho từng đối tượng (ví dụ: vừa dùng hình ảnh/chữ viết cho HS khiếm thính, vừa chia nhỏ thao tác cho HS khó khăn học tập; phân công Đôi bạn cùng tiến cho từng em), đảm bảo quan tâm đầy đủ các đối tượng được chọn, không bỏ sót đối tượng nào.\n`
     : "";
 
   const englishPrompt = options.includeEnglishIntegration

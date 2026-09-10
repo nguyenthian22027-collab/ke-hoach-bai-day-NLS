@@ -18,8 +18,10 @@ interface LessonFormProps {
   setAiFrameworkVersion: (val: AIFrameworkVersion) => void;
   includeDisabilitySupport: boolean;
   setIncludeDisabilitySupport: (val: boolean) => void;
-  disabilityType: DisabilityType;
-  setDisabilityType: (val: DisabilityType) => void;
+  disabilityType?: DisabilityType;
+  setDisabilityType?: (val: DisabilityType) => void;
+  disabilityTypes?: DisabilityType[];
+  setDisabilityTypes?: (val: DisabilityType[]) => void;
   includeEnglishIntegration: boolean;
   setIncludeEnglishIntegration: (val: boolean) => void;
   englishIntegrationLevel: import('../types').EnglishIntegrationLevel;
@@ -65,6 +67,8 @@ const LessonForm: React.FC<LessonFormProps> = ({
   setIncludeDisabilitySupport,
   disabilityType,
   setDisabilityType,
+  disabilityTypes,
+  setDisabilityTypes,
   includeEnglishIntegration,
   setIncludeEnglishIntegration,
   englishIntegrationLevel,
@@ -90,6 +94,71 @@ const LessonForm: React.FC<LessonFormProps> = ({
   setNextLessonSummary,
 }) => {
   const nextLessonFileRef = useRef<HTMLInputElement>(null);
+
+  const DISABILITY_OPTIONS: { id: DisabilityType; label: string; icon: string; desc: string }[] = [
+    {
+      id: 'INTELLECTUAL',
+      label: 'Khuyết tật Trí tuệ / Khó khăn học tập',
+      icon: '🧠',
+      desc: 'Tiếp thu chậm, khó tập trung, cần đơn giản hóa & chia nhỏ nhiệm vụ',
+    },
+    {
+      id: 'HEARING',
+      label: 'Khuyết tật Thính giác (Nghe/Nói)',
+      icon: '👂',
+      desc: 'Khiếm thính, cần kênh hình ảnh trực quan, chữ viết bảng, ký hiệu',
+    },
+    {
+      id: 'VISUAL',
+      label: 'Khuyết tật Thị giác (Nhìn)',
+      icon: '👁️',
+      desc: 'Nhìn kém, khiếm thị, cần tài liệu chữ lớn, hình ảnh phóng to, đọc to',
+    },
+    {
+      id: 'MOTOR',
+      label: 'Khuyết tật Vận động',
+      icon: '🦽',
+      desc: 'Khó khăn vận động, cầm bút, cần vị trí ngồi thuận tiện, bạn hỗ trợ đồ dùng',
+    },
+    {
+      id: 'GENERAL',
+      label: 'Hòa nhập chung / Dạng tật khác',
+      icon: '🤝',
+      desc: 'Động viên, giao nhiệm vụ vừa sức, phân công Đôi bạn cùng tiến',
+    },
+  ];
+
+  const currentDisabilityTypes = disabilityTypes || (disabilityType ? [disabilityType] : ['GENERAL']);
+
+  const handleToggleDisabilityType = (typeId: DisabilityType) => {
+    if (!setDisabilityTypes) return;
+    let updated: DisabilityType[];
+    if (typeId === 'GENERAL') {
+      if (currentDisabilityTypes.includes('GENERAL') && currentDisabilityTypes.length > 1) {
+        updated = currentDisabilityTypes.filter(t => t !== 'GENERAL');
+      } else if (currentDisabilityTypes.includes('GENERAL')) {
+        updated = [];
+      } else {
+        updated = ['GENERAL'];
+      }
+    } else {
+      const withoutGeneral = currentDisabilityTypes.filter(t => t !== 'GENERAL');
+      if (withoutGeneral.includes(typeId)) {
+        updated = withoutGeneral.filter(t => t !== typeId);
+      } else {
+        updated = [...withoutGeneral, typeId];
+      }
+    }
+
+    if (updated.length === 0) {
+      updated = ['GENERAL'];
+    }
+
+    setDisabilityTypes(updated);
+    if (setDisabilityType) {
+      setDisabilityType(updated[0] || 'GENERAL');
+    }
+  };
 
   const handleNextLessonFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -352,21 +421,52 @@ const LessonForm: React.FC<LessonFormProps> = ({
         </label>
 
         {includeDisabilitySupport && (
-          <div className="p-4 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl space-y-2.5 text-left animate-fadeIn shadow-sm">
-            <label className="block text-xs font-bold uppercase tracking-wider text-emerald-950">
-              Dạng khuyết tật / Đối tượng học sinh cần hỗ trợ:
-            </label>
-            <select
-              value={disabilityType}
-              onChange={(e) => setDisabilityType(e.target.value as DisabilityType)}
-              className="block w-full rounded-xl border-emerald-300 bg-white p-3 text-xs sm:text-sm font-bold text-emerald-950 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 cursor-pointer shadow-sm"
-            >
-              <option value="GENERAL">🤝 Hòa nhập tổng hợp (Tất cả học sinh khuyết tật)</option>
-              <option value="INTELLECTUAL">🧠 Khuyết tật Trí tuệ / Khó khăn học tập</option>
-              <option value="VISUAL">👁️ Khuyết tật Thị giác (Nhìn)</option>
-              <option value="HEARING">👂 Khuyết tật Thính giác (Nghe/Nói)</option>
-              <option value="MOTOR">🦽 Khuyết tật Vận động</option>
-            </select>
+          <div className="p-4 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl space-y-3 text-left animate-fadeIn shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-emerald-950">
+                Đối tượng học sinh khuyết tật trong lớp (Tích chọn 1 hoặc nhiều):
+              </label>
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 w-fit">
+                Đã chọn: {currentDisabilityTypes.includes('GENERAL') && currentDisabilityTypes.length === 1 ? 'Hòa nhập chung' : `${currentDisabilityTypes.length} đối tượng`}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {DISABILITY_OPTIONS.map((opt) => {
+                const isSelected = currentDisabilityTypes.includes(opt.id);
+                return (
+                  <div
+                    key={opt.id}
+                    onClick={() => handleToggleDisabilityType(opt.id)}
+                    className={`flex items-start p-3 rounded-xl border cursor-pointer transition-all select-none ${
+                      isSelected
+                        ? 'bg-white border-emerald-500 shadow-sm ring-2 ring-emerald-400/30'
+                        : 'bg-white/70 border-slate-200/80 hover:bg-white hover:border-emerald-300'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => {}}
+                      className="mt-0.5 w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer"
+                    />
+                    <div className="ml-2.5">
+                      <span className="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                        <span>{opt.icon}</span>
+                        <span>{opt.label}</span>
+                      </span>
+                      <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                        {opt.desc}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <p className="text-[11px] text-emerald-800 italic pt-1 leading-relaxed">
+              💡 <strong>Gợi ý:</strong> Thầy/Cô có thể tích chọn cùng lúc 2 hoặc 3 dạng tật (ví dụ: vừa có HS khiếm thính vừa có HS khó khăn học tập). AI sẽ tự động điều chỉnh mục tiêu và phối hợp biện pháp hỗ trợ đồng thời trong từng bước học.
+            </p>
           </div>
         )}
       </div>
