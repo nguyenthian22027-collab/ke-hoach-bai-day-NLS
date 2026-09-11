@@ -580,9 +580,9 @@ export const generateNLSLessonPlan = async (
   let nextLessonInfo = '';
   if (isFlipped) {
     if (options.nextLessonContent && options.nextLessonContent.trim().length > 50) {
-      // Cấp 1: Đã có nội dung file bài sau (trích đoạn đầu đủ để AI đọc)
-      const snippet = options.nextLessonContent.trim().slice(0, 2000);
-      nextLessonInfo = `\n    THÔNG TIN BÀI HỌC TIẾP THEO (Đọc từ file giáo án bài sau — Dùng để viết Dặn dò):\n    ${snippet}\n`;
+      // Cấp 1: Đã có nội dung file bài sau (5000 ký tự để bao trọn I. Mục tiêu gồm cả mục Năng lực số)
+      const snippet = options.nextLessonContent.trim().slice(0, 5000);
+      nextLessonInfo = `\n    THÔNG TIN BÀI HỌC TIẾP THEO (Đọc từ file giáo án bài sau — Dùng để viết Dặn dò):\n    ${snippet}\n    📌 CHỈ THỊ TRÍCH XUẤT MÃ NĂNG LỰC TỪ BÀI SAU (BẮT BUỘC):\n    - Hãy quét KỸ mục "2. Năng lực" (hoặc "2. Về năng lực") trong phần I. MỤC TIÊU của file bài sau nêu trên.\n    - Đặc biệt chú ý tìm mục "Năng lực số" hoặc "Năng lực AI" nằm ngay trước "3. Phẩm chất" (hoặc "3. Về phẩm chất").\n    - Nếu tìm thấy: Trích xuất CHÍNH XÁC NGUYÊN VĂN các mã NLS (vd: 1.1.TC1a, 2.1.TC1b...) và mã AI (vd: 7.A1.1, 8.A1.2...) cùng nội dung yêu cầu tương ứng.\n    - Câu Dặn dò ===NLS_DẶN_DÒ_TIẾT_SAU=== BẮT BUỘC phải gọi TÊN ĐÚNG các mã này và giao nhiệm vụ chuẩn bị ở nhà BÁM SÁT chính xác yêu cầu của từng mã đó (không tự ý bịa thêm mã khác).\n    - Nếu KHÔNG tìm thấy mã NLS/AI trong file bài sau: Giao nhiệm vụ tra cứu kiến thức tổng quát của bài sau theo đúng môn học và khối lớp.\n`;
     } else if (options.nextLessonTitle || options.nextLessonSummary) {
       // Cấp 2: Giáo viên nhập tay tên bài + tóm tắt
       nextLessonInfo = `\n    THÔNG TIN BÀI HỌC TIẾP THEO (Nhập thủ công — Dùng để viết Dặn dò):\n    - Tên bài: ${options.nextLessonTitle || '(chưa cung cấp)'}\n    - Nội dung chính: ${options.nextLessonSummary || '(chưa cung cấp)'}\n`;
@@ -612,7 +612,9 @@ export const generateNLSLessonPlan = async (
   } else if (isAINLActive) {
     nlsStatusInstruction = "1. NĂNG LỰC AI (<purple>): CHỈ BẬT AI -> BẮT BUỘC chèn Năng lực AI màu tím trong thẻ <purple>...</purple> và tạo BẢNG TỔNG HỢP AI ở cuối bài. CẤM TUYỆT ĐỐI dùng thẻ <blue> (màu xanh dương), CẤM chèn các mã NLS thông thường (1.x, 2.x, 3.x, 4.x, 5.x).";
   } else {
-    nlsStatusInstruction = "1. NĂNG LỰC SỐ & AI: TẮT -> CẤM TUYỆT ĐỐI chèn chữ màu xanh dương (<blue>) hoặc màu tím (<purple>), CẤM tạo Bảng tổng hợp NLS cuối bài.";
+    nlsStatusInstruction = isFlipped
+      ? "1. NĂNG LỰC SỐ & AI: TẮT (BÀI HIỆN TẠI KHÔNG TÍCH HỢP NLS/AI) -> CẤM TUYỆT ĐỐI chèn chữ màu xanh dương (<blue>) hoặc màu tím (<purple>) vào các hoạt động HĐ 1, 2, 3, 4 của bài học này. CẤM tạo Bảng tổng hợp NLS cuối bài. NGOẠI LỆ DUY NHẤT: Vì đang dùng Lớp học đảo ngược, BẮT BUỘC vẫn tạo Marker ===NLS_DẶN_DÒ_TIẾT_SAU=== chứa câu dặn dò chuẩn bị bài tiếp theo bằng các nhiệm vụ số/AI phù hợp (chèn vào cuối phần Dặn dò của bài này, không chèn vào phần nội dung các hoạt động)."
+      : "1. NĂNG LỰC SỐ & AI: TẮT -> CẤM TUYỆT ĐỐI chèn chữ màu xanh dương (<blue>) hoặc màu tím (<purple>), CẤM tạo Bảng tổng hợp NLS cuối bài.";
   }
 
   if (isEnglishActive) {
