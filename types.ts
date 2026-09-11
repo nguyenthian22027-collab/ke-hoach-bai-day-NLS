@@ -62,6 +62,7 @@ export interface ProcessingOptions {
   includeDisabilitySupport?: boolean;
   disabilityType?: DisabilityType;
   disabilityTypes?: DisabilityType[]; // Danh sách các đối tượng khuyết tật được chọn (hỗ trợ đa chọn)
+  disabilityCustomTarget?: string; // Yêu cầu cần đạt đối với HSKT (nhập tay hoặc trích từ PPCT)
   includeEnglishIntegration?: boolean;
   englishIntegrationLevel?: EnglishIntegrationLevel;
   hasExistingNLS?: boolean; // File giáo án đã có NLS được chèn sẵn → Chế độ Bổ sung
@@ -93,6 +94,7 @@ export interface HistoryItem {
   includeDisabilitySupport?: boolean;
   disabilityType?: DisabilityType;
   disabilityTypes?: DisabilityType[];
+  disabilityCustomTarget?: string;
   englishIntegrationLevel?: EnglishIntegrationLevel;
   teachingEnvironment?: TeachingEnvironment;
   includeQPAN?: boolean;

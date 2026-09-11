@@ -22,6 +22,8 @@ interface LessonFormProps {
   setDisabilityType?: (val: DisabilityType) => void;
   disabilityTypes?: DisabilityType[];
   setDisabilityTypes?: (val: DisabilityType[]) => void;
+  disabilityCustomTarget?: string;
+  setDisabilityCustomTarget?: (val: string) => void;
   includeEnglishIntegration: boolean;
   setIncludeEnglishIntegration: (val: boolean) => void;
   englishIntegrationLevel: import('../types').EnglishIntegrationLevel;
@@ -69,6 +71,8 @@ const LessonForm: React.FC<LessonFormProps> = ({
   setDisabilityType,
   disabilityTypes,
   setDisabilityTypes,
+  disabilityCustomTarget,
+  setDisabilityCustomTarget,
   includeEnglishIntegration,
   setIncludeEnglishIntegration,
   englishIntegrationLevel,
@@ -467,6 +471,29 @@ const LessonForm: React.FC<LessonFormProps> = ({
             <p className="text-[11px] text-emerald-800 italic pt-1 leading-relaxed">
               💡 <strong>Gợi ý:</strong> Thầy/Cô có thể tích chọn cùng lúc 2 hoặc 3 dạng tật (ví dụ: vừa có HS khiếm thính vừa có HS khó khăn học tập). AI sẽ tự động điều chỉnh mục tiêu và phối hợp biện pháp hỗ trợ đồng thời trong từng bước học.
             </p>
+
+            {/* Nhập hoặc trích xuất YCCĐ đối với HSKT */}
+            <div className="pt-3 border-t border-emerald-200/60 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+                  <span>🎯</span>
+                  <span>Yêu cầu cần đạt đối với HSKT của bài học (Tùy chọn):</span>
+                </label>
+                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-200">
+                  Ưu tiên số 1
+                </span>
+              </div>
+              <textarea
+                value={disabilityCustomTarget || ''}
+                onChange={(e) => setDisabilityCustomTarget && setDisabilityCustomTarget(e.target.value)}
+                placeholder="Dán YCCĐ đối với HSKT vào đây nếu có... (Nếu để trống và Thầy/Cô có tải file PPCT, AI sẽ tự động tìm trích xuất từ cột HSKT trong bảng PPCT)"
+                rows={2}
+                className="w-full rounded-xl border border-emerald-300 bg-white p-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20 resize-none shadow-2xs transition-all"
+              />
+              <p className="text-[11px] text-emerald-800/90 leading-relaxed">
+                📌 <em>Ghi chú:</em> Nếu Thầy/Cô nhập vào ô này hoặc có trong bảng PPCT tải lên, AI sẽ đưa nguyên văn vào phần Mục tiêu HSKT và thiết kế các hoạt động hỗ trợ bám sát chính xác yêu cầu này.
+              </p>
+            </div>
           </div>
         )}
       </div>

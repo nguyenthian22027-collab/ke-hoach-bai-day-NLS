@@ -20,6 +20,7 @@ const App: React.FC = () => {
   const [includeDisabilitySupport, setIncludeDisabilitySupport] = useState<boolean>(false);
   const [disabilityTypes, setDisabilityTypes] = useState<DisabilityType[]>(['GENERAL']);
   const disabilityType = disabilityTypes[0] || 'GENERAL';
+  const [disabilityCustomTarget, setDisabilityCustomTarget] = useState<string>('');
   const [includeEnglishIntegration, setIncludeEnglishIntegration] = useState<boolean>(false);
   const [englishIntegrationLevel, setEnglishIntegrationLevel] = useState<EnglishIntegrationLevel>('BASIC');
   const [aiFrameworkVersion, setAiFrameworkVersion] = useState<AIFrameworkVersion>('QD2422'); // Mặc định QĐ 2422 (chính thức 2026-2027)
@@ -172,6 +173,7 @@ const App: React.FC = () => {
           includeDisabilitySupport,
           disabilityType,
           disabilityTypes,
+          disabilityCustomTarget: disabilityCustomTarget || undefined,
           includeEnglishIntegration,
           englishIntegrationLevel,
           hasExistingNLS: isSupplementMode, // Truyền trạng thái Chế độ Bổ sung
@@ -209,6 +211,7 @@ const App: React.FC = () => {
         includeDisabilitySupport,
         disabilityType,
         disabilityTypes,
+        disabilityCustomTarget: disabilityCustomTarget || undefined,
         englishIntegrationLevel: includeEnglishIntegration ? englishIntegrationLevel : undefined,
         teachingEnvironment,
         includeQPAN,
@@ -246,6 +249,7 @@ const App: React.FC = () => {
               aiFrameworkVersion={aiFrameworkVersion} setAiFrameworkVersion={setAiFrameworkVersion}
               includeDisabilitySupport={includeDisabilitySupport} setIncludeDisabilitySupport={setIncludeDisabilitySupport}
               disabilityTypes={disabilityTypes} setDisabilityTypes={setDisabilityTypes} disabilityType={disabilityType}
+              disabilityCustomTarget={disabilityCustomTarget} setDisabilityCustomTarget={setDisabilityCustomTarget}
               includeEnglishIntegration={includeEnglishIntegration} setIncludeEnglishIntegration={setIncludeEnglishIntegration}
               englishIntegrationLevel={englishIntegrationLevel} setEnglishIntegrationLevel={setEnglishIntegrationLevel}
               hasExistingNLS={hasExistingNLS}

@@ -449,6 +449,12 @@ export const generateNLSLessonPlan = async (
       BƯỚC 2: Tìm ĐÚNG HÀNG của bài học đó trong bảng PPCT.
       BƯỚC 3: Trích xuất NGUYÊN VĂN, CHÍNH XÁC nội dung từ cột "Năng lực số phát triển" (hoặc "YCCĐ năng lực số", "Năng lực số") của hàng đó.
       BƯỚC 4: Đưa nội dung trích xuất vào phần Mục tiêu Năng lực số - GIỮ NGUYÊN MÃ SỐ VÀ NỘI DUNG.
+      BƯỚC 5 (ĐỐI VỚI HỌC SINH KHUYẾT TẬT - NẾU BẬT CHẾ ĐỘ HSKT):
+      - Kiểm tra xem trong hàng của bài học đó trên bảng PPCT có cột liên quan đến HSKT hay không (tiêu đề cột thường chứa: "Yêu cầu cần đạt đối với học sinh khuyết tật", "YCCĐ HSKT", "Điều chỉnh cho HSKT", "Học sinh khuyết tật", "Mục tiêu hòa nhập", "HSKT"...).
+      - Nếu tìm thấy nội dung: Trích xuất NGUYÊN VĂN, CHÍNH XÁC nội dung đó và đưa vào mục Mục tiêu:
+        <green>* Điều chỉnh mục tiêu đối với Học sinh Khuyết tật (HSKT) (theo PPCT):</green>
+        <green>- [Nội dung nguyên văn trích từ cột HSKT trong bảng PPCT]</green>
+      - ĐỒNG THỜI: Các câu <green>[Hỗ trợ HSKT: ...]</green> trong các hoạt động dạy học BẮT BUỘC PHẢI BÁM SÁT đúng YCCĐ này để hỗ trợ HSKT đạt được yêu cầu của nhà trường.
 
       📋 VÍ DỤ TRÍCH XUẤT ĐÚNG:
       Nếu trong PPCT có:
@@ -528,10 +534,20 @@ export const generateNLSLessonPlan = async (
   };
 
   const disabilityNames = selectedDisabilityTypes.map(t => disabilityLabelMap[t] || t).join('\n    + ');
+  // Yêu cầu cần đạt HSKT nhập tay hoặc chỉ định riêng (Ưu tiên số 1)
+  const customTargetInstruction = (options.disabilityCustomTarget && options.disabilityCustomTarget.trim().length > 0)
+    ? `\n    🎯 YÊU CẦU CẦN ĐẠT ĐỐI VỚI HỌC SINH KHUYẾT TẬT ĐƯỢC CHỈ ĐỊNH (ƯU TIÊN TUYỆT ĐỐI SỐ 1):
+    "${options.disabilityCustomTarget.trim()}"
+    -> BẮT BUỘC ghi nguyên văn vào mục Mục tiêu:
+       <green>* Điều chỉnh mục tiêu đối với Học sinh Khuyết tật (HSKT):</green>
+       <green>- ${options.disabilityCustomTarget.trim()}</green>
+    -> BẮT BUỘC: Mọi biện pháp hỗ trợ trong thẻ <green>[Hỗ trợ HSKT: ...]</green> tại các bước dạy học PHẢI BÁM SÁT VÀ HỖ TRỢ HSKT ĐẠT ĐƯỢC ĐÚNG YÊU CẦU TRÊN.\n`
+    : "";
+
 
   const disabilityPrompt = options.includeDisabilitySupport
     ? `\n    ${DISABILITY_SUPPORT_INSTRUCTIONS}\n    DẠNG KHUYẾT TẬT CẦN HỖ TRỢ TRONG LỚP (GỒM ${selectedDisabilityTypes.length} ĐỐI TƯỢNG CỤ THỂ):
-    + ${disabilityNames}
+    + ${disabilityNames}${customTargetInstruction}
     ⚠️ LƯU Ý BẮT BUỘC KHI LỚP CÓ NHIỀU ĐỐI TƯỢNG HSKT:
     - Trong mục Mục tiêu: Nêu rõ mục tiêu điều chỉnh vừa sức cho các đối tượng HSKT trong lớp.
     - Trong các câu <green>[Hỗ trợ HSKT: ...]</green> tại các hoạt động: Đưa ra biện pháp hỗ trợ phối hợp hoặc cụ thể cho từng đối tượng (ví dụ: vừa dùng hình ảnh/chữ viết cho HS khiếm thính, vừa chia nhỏ thao tác cho HS khó khăn học tập; phân công Đôi bạn cùng tiến cho từng em), đảm bảo quan tâm đầy đủ các đối tượng được chọn, không bỏ sót đối tượng nào.\n`
