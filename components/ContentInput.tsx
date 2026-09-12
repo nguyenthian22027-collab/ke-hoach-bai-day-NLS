@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { UploadCloud, Loader2, CheckCircle, FileText, FileUp, AlertCircle, FolderUp, ClipboardPaste } from 'lucide-react';
+import { UploadCloud, Loader2, CheckCircle, FileText, FileUp, AlertCircle, FolderUp, ClipboardPaste, Globe } from 'lucide-react';
 import { OriginalDocxFile, Subject } from '../types';
+import { TranslationModal } from './TranslationModal';
 
 // Tự động nhận diện Môn học & Khối lớp từ tên file và nội dung giáo án
 export function detectSubjectAndGrade(text: string, fileName: string): { subject?: Subject; grade?: number } {
@@ -107,6 +108,13 @@ interface ContentInputProps {
   onNLSDetected?: (hasNLS: boolean) => void;
   // Callback tự động nhận diện Môn học & Khối lớp từ file
   onMetaDetected?: (meta: { subject?: Subject; grade?: number }) => void;
+  // Dành cho tính năng Dịch sang Tiếng Anh
+  originalDocx?: OriginalDocxFile | null;
+  apiKey?: string;
+  apiKeys?: string[];
+  selectedModel?: string;
+  subject?: Subject;
+  grade?: number;
 }
 
 // Khai báo thư viện ngoại
@@ -122,7 +130,13 @@ const ContentInput: React.FC<ContentInputProps> = ({
   setDistributionContent,
   onOriginalDocxLoaded,
   onNLSDetected,
-  onMetaDetected
+  onMetaDetected,
+  originalDocx,
+  apiKey,
+  apiKeys,
+  selectedModel,
+  subject,
+  grade,
 }) => {
 
   const lessonInputRef = useRef<HTMLInputElement>(null);
@@ -131,6 +145,7 @@ const ContentInput: React.FC<ContentInputProps> = ({
   const [processingLesson, setProcessingLesson] = useState(false);
   const [processingDist, setProcessingDist] = useState(false);
   const [ppctTab, setPpctTab] = useState<PpctTab>('file');
+  const [showTranslateModal, setShowTranslateModal] = useState(false);
 
 
   const [lessonFileName, setLessonFileName] = useState<string | null>(null);
@@ -308,6 +323,16 @@ const ContentInput: React.FC<ContentInputProps> = ({
             isLesson={true}
             hasContent={!!lessonContent}
           />
+          {originalDocx && (
+            <button
+              type="button"
+              onClick={() => setShowTranslateModal(true)}
+              className="w-full mt-2 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-500/15 hover:shadow-lg transition-all active:scale-[0.99]"
+            >
+              <Globe size={15} />
+              <span>🌐 Chuyển toàn bộ Giáo án gốc sang Tiếng Anh (Giữ nguyên Word)</span>
+            </button>
+          )}
           {/* Cảnh báo khuyến nghị dùng .docx */}
           <div className="flex items-start gap-1.5 px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl mt-1">
             <AlertCircle size={13} className="text-amber-500 mt-0.5 shrink-0" />
@@ -405,6 +430,18 @@ const ContentInput: React.FC<ContentInputProps> = ({
           <p className="text-xs font-medium text-slate-400 mt-1">Giúp AI trích xuất chính xác mã NLS từ chương trình nhà trường.</p>
         </div>
       </div>
+
+      <TranslationModal
+        isOpen={showTranslateModal}
+        onClose={() => setShowTranslateModal(false)}
+        originalDocx={originalDocx}
+        apiKey={apiKey}
+        apiKeys={apiKeys}
+        selectedModel={selectedModel}
+        subject={subject}
+        grade={grade}
+        initialMode="ORIGINAL"
+      />
     </div>
   );
 };

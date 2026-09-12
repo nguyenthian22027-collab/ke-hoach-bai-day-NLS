@@ -320,6 +320,11 @@ const App: React.FC = () => {
                   setAutoDetectedMsg(`✨ Đã tự động nhận diện từ file: ${parts.join(' - ')}`);
                 }
               }}
+              apiKey={apiKey}
+              selectedModel={selectedModel}
+              subject={subject}
+              grade={grade}
+              originalDocx={originalDocx}
             />
 
 
@@ -474,6 +479,10 @@ const App: React.FC = () => {
             licenseInfo={licenseInfo}
             onOpenLicense={() => setShowLicenseModal(true)}
             onDownloadSuccess={() => setLicenseInfo(getLicenseInfo())}
+            apiKey={apiKey}
+            selectedModel={selectedModel}
+            subject={subject}
+            grade={grade}
           />
         </div>
       </main>

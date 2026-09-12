@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, CheckCircle, FileText, ChevronDown, ChevronUp, Copy, Check, MapPin, ListChecks, FileSpreadsheet } from 'lucide-react';
+import { Download, CheckCircle, FileText, ChevronDown, ChevronUp, Copy, Check, MapPin, ListChecks, FileSpreadsheet, Globe } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import {
@@ -18,8 +18,9 @@ import {
 } from 'docx';
 import FileSaver from 'file-saver';
 import JSZip from 'jszip';
-import { OriginalDocxFile, LicenseInfo } from '../types';
+import { OriginalDocxFile, LicenseInfo, Subject } from '../types';
 import { recordTrialDownload } from '../services/licenseService';
+import { TranslationModal } from './TranslationModal';
 
 interface ResultDisplayProps {
   result: string | null;
@@ -28,6 +29,11 @@ interface ResultDisplayProps {
   licenseInfo?: LicenseInfo;
   onOpenLicense?: () => void;
   onDownloadSuccess?: () => void;
+  apiKey?: string;
+  apiKeys?: string[];
+  selectedModel?: string;
+  subject?: Subject;
+  grade?: number;
 }
 
 // Interface cho các section NLS đã parse
@@ -47,10 +53,16 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
   licenseInfo,
   onOpenLicense,
   onDownloadSuccess,
+  apiKey,
+  apiKeys,
+  selectedModel,
+  subject,
+  grade,
 }) => {
   const isPro = licenseInfo?.isPro ?? false;
   const [showPreview, setShowPreview] = useState(false);
   const [isGeneratingDoc, setIsGeneratingDoc] = useState(false);
+  const [showTranslateModal, setShowTranslateModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'manual' | 'word'>('word');
   const effectiveTab = isPro ? activeTab : 'word';
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -1961,6 +1973,17 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
             </button>
           </div>
 
+          {originalDocx && (
+            <button
+              type="button"
+              onClick={() => setShowTranslateModal(true)}
+              className="w-full max-w-md flex items-center justify-center space-x-2 py-3.5 px-6 bg-gradient-to-r from-teal-600 via-indigo-600 to-purple-600 hover:brightness-110 text-white rounded-2xl text-sm sm:text-base font-bold transition-all shadow-lg shadow-indigo-500/20 active:scale-95"
+            >
+              <Globe size={20} />
+              <span>🌐 Chuyển toàn bộ sang Tiếng Anh (Giữ nguyên Word gốc)</span>
+            </button>
+          )}
+
           <button
             onClick={() => setShowPreview(!showPreview)}
             className="flex items-center text-indigo-600 text-sm font-bold hover:underline mt-2"
@@ -1984,6 +2007,21 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
           )}
         </div>
       )}
+
+      {/* Modal Chuyển toàn bộ sang Tiếng Anh */}
+      <TranslationModal
+        isOpen={showTranslateModal}
+        onClose={() => setShowTranslateModal(false)}
+        originalDocx={originalDocx}
+        result={result}
+        injectContentToDocx={injectContentToDocx}
+        apiKey={apiKey}
+        apiKeys={apiKeys}
+        selectedModel={selectedModel}
+        subject={subject}
+        grade={grade}
+        initialMode="INTEGRATED"
+      />
     </div>
   );
 };
