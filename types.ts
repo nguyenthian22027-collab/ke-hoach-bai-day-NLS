@@ -68,8 +68,10 @@ export interface ProcessingOptions {
   englishCustomTarget?: string; // Yêu cầu cần đạt / Thuật ngữ Tiếng Anh nhập tay hoặc trích từ PPCT (Ưu tiên số 1)
   hasExistingNLS?: boolean; // File giáo án đã có NLS được chèn sẵn → Chế độ Bổ sung
   enableStem?: boolean; // Tích hợp STEM vào Hoạt động Vận dụng (mặc định: false)
+  stemCustomTarget?: string; // YCCĐ STEM nhập tay từ phụ lục đầu năm (Ưu tiên số 1)
   enableSummaryTable?: boolean; // Bảng Tổng hợp Hoạt động NLS & AI cuối giáo án (mặc định: false)
   includeQPAN?: boolean; // Lồng ghép Giáo dục Quốc phòng và An ninh (Thông tư 08/2024/TT-BGDĐT)
+  qpanCustomTarget?: string; // Nội dung lồng ghép QPAN nhập tay từ phụ lục đầu năm (Ưu tiên số 1)
   // Lớp học đảo ngược (Flipped Classroom)
   teachingEnvironment?: TeachingEnvironment; // Mặc định: IN_CLASS_DEVICES (giữ nguyên luồng cũ)
   nextLessonContent?: string;  // Nội dung file giáo án bài tiếp theo (text đã đọc từ docx)
@@ -98,6 +100,8 @@ export interface HistoryItem {
   disabilityCustomTarget?: string;
   englishIntegrationLevel?: EnglishIntegrationLevel;
   englishCustomTarget?: string;
+  stemCustomTarget?: string;
+  qpanCustomTarget?: string;
   teachingEnvironment?: TeachingEnvironment;
   includeQPAN?: boolean;
 }

@@ -459,6 +459,12 @@ export const generateNLSLessonPlan = async (
       - Kiểm tra xem trong hàng của bài học đó trên bảng PPCT có cột liên quan đến Tiếng Anh hay không (tiêu đề cột thường chứa: "Năng lực tiếng Anh", "Tiếng Anh", "YCCĐ tiếng Anh", "Từ vựng tiếng Anh", "Thuật ngữ tiếng Anh", "English"...).
       - Nếu tìm thấy nội dung: Trích xuất NGUYÊN VĂN danh sách thuật ngữ / YCCĐ đó và BẮT BUỘC sử dụng chính xác các thuật ngữ này khi chèn từ vựng song ngữ hoặc mục tiêu tiếng Anh vào giáo án.
       - ĐỒNG THỜI: Tuyệt đối tuân thủ, không tự ý bịa thêm các thuật ngữ tiếng Anh xa lạ không có trong bài học.
+      BƯỚC 7 (ĐỐI VỚI TÍCH HỢP STEM - NẾU BẬT CHẾ ĐỘ STEM):
+      - Nếu người dùng KHÔNG nhập tay YCCĐ STEM, hãy kiểm tra xem trong hàng của bài học đó trên bảng PPCT có cột liên quan đến STEM hay không (tiêu đề cột thường chứa: "Giáo dục STEM", "STEM", "YCCĐ STEM", "Nhiệm vụ STEM"...).
+      - Nếu tìm thấy nội dung: Trích xuất NGUYÊN VĂN nội dung đó đưa vào mục Mục tiêu STEM và bám sát để thiết kế Hoạt động Vận dụng STEM.
+      BƯỚC 8 (ĐỐI VỚI LỒNG GHÉP QPAN - NẾU BẬT CHẾ ĐỘ QPAN):
+      - Nếu người dùng KHÔNG nhập tay nội dung QPAN, hãy kiểm tra xem trong hàng của bài học đó trên bảng PPCT có cột liên quan đến QPAN hay không (tiêu đề cột thường chứa: "Giáo dục Quốc phòng và An ninh", "QPAN", "Nội dung QPAN", "Lồng ghép QPAN"...).
+      - Nếu tìm thấy nội dung: Trích xuất NGUYÊN VĂN nội dung đó đưa vào mục Phẩm chất và lồng ghép vào hoạt động dạy học theo đúng quy định.
 
       📋 VÍ DỤ TRÍCH XUẤT ĐÚNG:
       Nếu trong PPCT có:
@@ -569,9 +575,18 @@ export const generateNLSLessonPlan = async (
     ? `\n    ${ENGLISH_CLIL_INSTRUCTIONS}\n    CẤP ĐỘ TÍCH HỢP TIẾNG ANH (CLIL): ${options.englishIntegrationLevel}${customEnglishTargetInstruction}\n`
     : "";
 
+  // YCCĐ STEM nhập tay từ phụ lục đầu năm (Ưu tiên số 1)
+  const customStemTargetInstruction = (options.stemCustomTarget && options.stemCustomTarget.trim().length > 0)
+    ? `\n    🎯 YÊU CẦU CẦN ĐẠT STEM ĐƯỢC CHỈ ĐỊNH (ƯU TIÊN TUYỆT ĐỐI SỐ 1):
+    "${options.stemCustomTarget.trim()}"
+    -> BẮT BUỘC: Đưa nguyên văn YCCĐ trên vào mục Mục tiêu STEM thay vì tự sinh.
+    -> BẮT BUỘC: Nội dung Hoạt động Vận dụng STEM phải bám sát đúng YCCĐ này.
+    -> TUYỆT ĐỐI KHÔNG tự ý thay đổi hoặc bỏ qua YCCĐ này.\n`
+    : "";
+
   // TÍCH HỢP STEM VÀO HOẠT ĐỘNG VẬN DỤNG (MÔ HÌNH A)
   const stemPrompt = options.enableStem
-    ? `\n    === TÍCH HỢP GIÁO DỤC STEM (BẬT) ===\n    ${STEM_INTEGRATION_GUIDANCE}\n    TRẠNG THÁI STEM: BẬT → BẮT BUỘC đồng bộ hóa STEM vào 3 vị trí:\\n    (1) PHẦN I. MỤC TIÊU: Bổ sung chỉ báo Năng lực Giáo dục STEM với yêu cầu đề xuất ≥2 phương án và cải tiến.\\n    (2) PHẦN II. THIẾT BỊ DẠY HỌC: BẮT BUỘC tạo 2 khối Marker riêng biệt: ===NLS_THIẾT_BỊ_GV=== (chèn trước dòng 2. Học sinh:) và ===NLS_THIẾT_BỊ_HS=== (chèn trước dòng III. Tiến trình dạy học) với nội dung bọc trong thẻ <blue>...</blue> theo đúng hướng dẫn.\\n    (3) PHẦN III. HOẠT ĐỘNG VẬN DỤNG: BẮT BUỘC tạo ĐỦ 4 KHỐI MARKER (BƯỚC 1, 2, 3, 4) cho Hoạt động 4: ===NLS_HOẠT_ĐỘNG_4_BƯỚC_1=== (giao nhiệm vụ STEM mini tiếp nối câu hỏi gốc + công bố Rubric), ===NLS_HOẠT_ĐỘNG_4_BƯỚC_2=== (HS thực hiện, đo đạc >=3 lần), ===NLS_HOẠT_ĐỘNG_4_BƯỚC_3=== (báo cáo Padlet/Zalo + KWLH), ===NLS_HOẠT_ĐỘNG_4_BƯỚC_4=== (đánh giá theo Rubric 3 tiêu chí). Giữ nguyên 100% cấu trúc và nội dung tất cả các hoạt động còn lại.\n\n    (4) PHẦN CUỐI GIÁO ÁN (TRƯỚC DẶN DÒ): BẮT BUỘC tạo marker ===NLS_RUBRIC_STEM=== chứa toàn bộ Bảng Rubric 3 tiêu chí dạng bảng Markdown (4 hàng × 4 cột) để hệ thống tự động chèn bảng kẻ ô Word ngay TRƯỚC phần Dặn dò / Hướng dẫn về nhà của giáo án.`
+    ? `\n    === TÍCH HỢP GIÁO DỤC STEM (BẬT) ===\n    ${STEM_INTEGRATION_GUIDANCE}\n    TRẠNG THÁI STEM: BẬT → BẮT BUỘC đồng bộ hóa STEM vào 3 vị trí:\\n    (1) PHẦN I. MỤC TIÊU: Bổ sung chỉ báo Năng lực Giáo dục STEM với yêu cầu đề xuất ≥2 phương án và cải tiến.\\n    (2) PHẦN II. THIẾT BỊ DẠY HỌC: BẮT BUỘC tạo 2 khối Marker riêng biệt: ===NLS_THIẾT_BỊ_GV=== (chèn trước dòng 2. Học sinh:) và ===NLS_THIẾT_BỊ_HS=== (chèn trước dòng III. Tiến trình dạy học) với nội dung bọc trong thẻ <blue>...</blue> theo đúng hướng dẫn.\\n    (3) PHẦN III. HOẠT ĐỘNG VẬN DỤNG: BẮT BUỘC tạo ĐỦ 4 KHỐI MARKER (BƯỚC 1, 2, 3, 4) cho Hoạt động 4: ===NLS_HOẠT_ĐỘNG_4_BƯỚC_1=== (giao nhiệm vụ STEM mini tiếp nối câu hỏi gốc + công bố Rubric), ===NLS_HOẠT_ĐỘNG_4_BƯỚC_2=== (HS thực hiện, đo đạc >=3 lần), ===NLS_HOẠT_ĐỘNG_4_BƯỚC_3=== (báo cáo Padlet/Zalo + KWLH), ===NLS_HOẠT_ĐỘNG_4_BƯỚC_4=== (đánh giá theo Rubric 3 tiêu chí). Giữ nguyên 100% cấu trúc và nội dung tất cả các hoạt động còn lại.\\n\\n    (4) PHẦN CUỐI GIÁO ÁN (TRƯỚC DẶN DÒ): BẮT BUỘC tạo marker ===NLS_RUBRIC_STEM=== chứa toàn bộ Bảng Rubric 3 tiêu chí dạng bảng Markdown (4 hàng × 4 cột) để hệ thống tự động chèn bảng kẻ ô Word ngay TRƯỚC phần Dặn dò / Hướng dẫn về nhà của giáo án.${customStemTargetInstruction}`
     : `\n    TRẠNG THÁI STEM: TẮT → TUYỆT ĐỐI KHÔNG thêm bất kỳ nội dung STEM nào vào giáo án.\n`;
 
   // BẢNG TỔNG HỢP HOẠT ĐỘNG NLS & AI (TÙY CHỌN)
@@ -579,10 +594,18 @@ export const generateNLSLessonPlan = async (
     ? `\n    === BẢNG TỔNG HỢP HOẠT ĐỘNG NLS & AI (BẬT) ===\n    BẮT BUỘC tạo marker sau ở CUỐI BÀI (NGAY SAU phần Dặn dò / Hướng dẫn về nhà):\n    ===NLS_BẢNG_TỔNG_HỢP_HĐ|VITRI: Cuối giáo án > Sau phần Dặn dò / Hướng dẫn về nhà===\n    | Hoạt động | NLS/AI tích hợp | Công cụ | Sản phẩm/minh chứng |\n    |:--|:--|:--|:--|\n    | Hoạt động 1: [Tên HĐ 1] | [Mã NLS/AI đã chèn vào HĐ1] | [Công cụ từ câu chỉ báo HĐ1] | [Sản phẩm từ câu chỉ báo HĐ1] |\n    | Hoạt động 2: [Tên HĐ 2] | [Mã NLS/AI đã chèn vào HĐ2] | [Công cụ từ câu chỉ báo HĐ2] | [Sản phẩm từ câu chỉ báo HĐ2] |\n    | Hoạt động 3: [Tên HĐ 3] | [Mã NLS/AI đã chèn vào HĐ3] | [Công cụ từ câu chỉ báo HĐ3] | [Sản phẩm từ câu chỉ báo HĐ3] |\n    | Hoạt động 4: [Tên HĐ 4] | [Mã NLS/AI đã chèn vào HĐ4] | [Công cụ từ câu chỉ báo HĐ4] | [Sản phẩm từ câu chỉ báo HĐ4] |\n    ===END===\n\n    NGUYÊN TẮC KHỚP CHÍNH XÁC — BẮT BUỘC TUYỆT ĐỐI:\n    1. DUYỆT LẠI toàn bộ nội dung vừa sinh ở HĐ 1 → HĐ 4. Với mỗi hoạt động:\n       Liệt kê CHÍNH XÁC các mã NLS (x.x.TCxa) và AI ([7.X.x]) đã xuất hiện trong phần d. Tổ chức thực hiện.\n    2. CHỈ đưa vào bảng các mã ĐÃ THỰC SỰ XUẤT HIỆN — TUYỆT ĐỐI CẤM thêm mã mới không có trong giáo án.\n    3. TUYỆT ĐỐI CẤM gộp mã của hoạt động này sang hoạt động khác.\n    4. Cột Công cụ và Sản phẩm/minh chứng PHẢI BÁM SÁT câu chỉ báo NLS/AI đã viết.\n    5. Nếu một hoạt động không có NLS/AI → ghi Không có vào cột NLS/AI tích hợp.\n    6. Tên hoạt động trong cột Hoạt động PHẢI KHỚP với tên thực tế trong giáo án.\n`
     : `\n    BẢNG TỔNG HỢP NLS & AI: TẮT → Không tạo marker ===NLS_BẢNG_TỔNG_HỢP_HĐ===.\n`;
 
+  // Nội dung QPAN nhập tay từ phụ lục đầu năm (Ưu tiên số 1)
+  const customQpanTargetInstruction = (options.qpanCustomTarget && options.qpanCustomTarget.trim().length > 0)
+    ? `\n    🎯 NỘI DUNG LỒNG GHÉP QPAN ĐƯỢC CHỈ ĐỊNH (ƯU TIÊN TUYỆT ĐỐI SỐ 1):
+    "${options.qpanCustomTarget.trim()}"
+    -> BẮT BUỘC: Sử dụng đúng nội dung trên khi lồng ghép vào phần Phẩm chất (Mục tiêu) và d. Tổ chức thực hiện.
+    -> TUYỆT ĐỐI KHÔNG tự ý thay đổi hoặc sinh nội dung QPAN khác ngoài nội dung trên.\n`
+    : "";
+
   // LỒNG GHÉP GIÁO DỤC QUỐC PHÒNG VÀ AN NINH (THÔNG TƯ 08/2024/TT-BGDĐT)
   const isQpanActive = !!options.includeQPAN;
   const qpanPrompt = isQpanActive
-    ? `\n    === LỒNG GHÉP GIÁO DỤC QUỐC PHÒNG VÀ AN NINH (BẬT) ===\n    ${QPAN_INTEGRATION_GUIDANCE}\n    TRẠNG THÁI GIÁO DỤC QPAN: BẬT → BẮT BUỘC thực hiện đúng 2 vị trí:\n    (1) PHẦN I. MỤC TIÊU (trong ===NLS_MỤC_TIÊU===): Thêm 1 gạch đầu dòng vào mục Phẩm chất trong thẻ <red>...</red>:\n        <red>- Giáo dục Quốc phòng và An ninh (TT 08/2024/TT-BGDĐT): Bồi dưỡng lòng yêu nước, niềm tự hào dân tộc, ý thức [chủ đề cụ thể phù hợp với lớp ${info.grade} và bài học].</red>\n    (2) PHẦN III. TIẾN TRÌNH DẠY HỌC (d. Tổ chức thực hiện): Chọn đúng 1-2 hoạt động phù hợp nhất trong bài (thường ở Hoạt động 1 Khởi động khi liên hệ hình ảnh/tư liệu thực tế, hoặc Hoạt động 2/3/4 khi liên hệ thực tiễn/trách nhiệm công dân/chủ quyền/an toàn mạng). Chèn câu lồng ghép trên DÒNG RIÊNG bọc trong thẻ <red>[Lồng ghép QPAN - TT 08/2024]: ...</red>. Lồng ghép ngắn gọn, truyền cảm, có trọng tâm; tuyệt đối không gượng ép dàn trải.\n`
+    ? `\n    === LỒNG GHÉP GIÁO DỤC QUỐC PHÒNG VÀ AN NINH (BẬT) ===\n    ${QPAN_INTEGRATION_GUIDANCE}\n    TRẠNG THÁI GIÁO DỤC QPAN: BẬT → BẮT BUỘC thực hiện đúng 2 vị trí:\n    (1) PHẦN I. MỤC TIÊU (trong ===NLS_MỤC_TIÊU===): Thêm 1 gạch đầu dòng vào mục Phẩm chất trong thẻ <red>...</red>:\n        <red>- Giáo dục Quốc phòng và An ninh (TT 08/2024/TT-BGDĐT): Bồi dưỡng lòng yêu nước, niềm tự hào dân tộc, ý thức [chủ đề cụ thể phù hợp với lớp ${info.grade} và bài học].</red>\n    (2) PHẦN III. TIẾN TRÌNH DẠY HỌC (d. Tổ chức thực hiện): Chọn đúng 1-2 hoạt động phù hợp nhất trong bài (thường ở Hoạt động 1 Khởi động khi liên hệ hình ảnh/tư liệu thực tế, hoặc Hoạt động 2/3/4 khi liên hệ thực tiễn/trách nhiệm công dân/chủ quyền/an toàn mạng). Chèn câu lồng ghép trên DÒNG RIÊNG bọc trong thẻ <red>[Lồng ghép QPAN - TT 08/2024]: ...</red>. Lồng ghép ngắn gọn, truyền cảm, có trọng tâm; tuyệt đối không gượng ép dàn trải.\n${customQpanTargetInstruction}`
     : `\n    GIÁO DỤC QUỐC PHÒNG VÀ AN NINH: TẮT → CẤM TUYỆT ĐỐI chèn nội dung QPAN, CẤM DÙNG THẺ <red>.\n`;
 
   // MÔ HÌNH LỚP HỌC ĐẢO NGƯỢC (FLIPPED CLASSROOM)

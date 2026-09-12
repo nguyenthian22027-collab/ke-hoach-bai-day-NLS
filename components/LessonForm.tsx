@@ -38,12 +38,16 @@ interface LessonFormProps {
   // Tích hợp STEM vào Hoạt động Vận dụng
   enableStem: boolean;
   setEnableStem: (val: boolean) => void;
+  stemCustomTarget?: string;
+  setStemCustomTarget?: (val: string) => void;
   // Bảng Tổng hợp Hoạt động NLS & AI cuối giáo án
   enableSummaryTable: boolean;
   setEnableSummaryTable: (val: boolean) => void;
   // Lồng ghép Giáo dục Quốc phòng & An ninh (TT 08/2024)
   includeQPAN: boolean;
   setIncludeQPAN: (val: boolean) => void;
+  qpanCustomTarget?: string;
+  setQpanCustomTarget?: (val: string) => void;
   // Môi trường thiết bị dạy học (Flipped Classroom)
   teachingEnvironment: TeachingEnvironment;
   setTeachingEnvironment: (val: TeachingEnvironment) => void;
@@ -87,10 +91,14 @@ const LessonForm: React.FC<LessonFormProps> = ({
   autoDetectedMsg,
   enableStem,
   setEnableStem,
+  stemCustomTarget,
+  setStemCustomTarget,
   enableSummaryTable,
   setEnableSummaryTable,
   includeQPAN,
   setIncludeQPAN,
+  qpanCustomTarget,
+  setQpanCustomTarget,
   teachingEnvironment,
   setTeachingEnvironment,
   nextLessonFileName,
@@ -587,6 +595,29 @@ const LessonForm: React.FC<LessonFormProps> = ({
               giao nhiệm vụ chế tạo/thiết kế/quan trắc thực tế, có sản phẩm cụ thể và rubric đánh giá 3 tiêu chí.
               Toàn bộ cấu trúc 4 hoạt động theo CV 5512 được giữ nguyên 100%.
             </p>
+
+            {/* YCCĐ STEM nhập tay từ phụ lục đầu năm */}
+            <div className="pt-3 border-t border-teal-200/60 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-teal-950 flex items-center gap-1.5">
+                  <span>🎯</span>
+                  <span>Yêu cầu cần đạt STEM của bài học (Tùy chọn):</span>
+                </label>
+                <span className="text-[10px] font-semibold text-teal-700 bg-teal-100/90 px-2 py-0.5 rounded-full border border-teal-200">
+                  Ưu tiên số 1
+                </span>
+              </div>
+              <textarea
+                value={stemCustomTarget || ''}
+                onChange={(e) => setStemCustomTarget && setStemCustomTarget(e.target.value)}
+                placeholder="Dán YCCĐ STEM từ phụ lục đầu năm của Thầy/Cô vào đây... (Nếu để trống, AI tự sinh YCCĐ STEM phù hợp với bài)"
+                rows={2}
+                className="w-full rounded-xl border border-teal-300 bg-white p-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-400/20 resize-none shadow-sm transition-all"
+              />
+              <p className="text-[11px] text-teal-800/90 leading-relaxed">
+                📌 <em>Ghi chú:</em> AI sẽ đưa nguyên văn YCCĐ này vào mục Mục tiêu STEM và bám sát khi thiết kế Hoạt động Vận dụng.
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -621,6 +652,29 @@ const LessonForm: React.FC<LessonFormProps> = ({
             <p className="text-[10px] text-rose-700 italic">
               📌 Nội dung lồng ghép ngắn gọn, truyền cảm, tô màu đỏ cờ chuẩn mực trong giáo án.
             </p>
+
+            {/* Nội dung QPAN nhập tay từ phụ lục đầu năm */}
+            <div className="pt-3 border-t border-rose-200/60 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-rose-950 flex items-center gap-1.5">
+                  <span>🎯</span>
+                  <span>Nội dung / YCCĐ lồng ghép QPAN của bài học (Tùy chọn):</span>
+                </label>
+                <span className="text-[10px] font-semibold text-rose-700 bg-rose-100/90 px-2 py-0.5 rounded-full border border-rose-200">
+                  Ưu tiên số 1
+                </span>
+              </div>
+              <textarea
+                value={qpanCustomTarget || ''}
+                onChange={(e) => setQpanCustomTarget && setQpanCustomTarget(e.target.value)}
+                placeholder="Dán nội dung QPAN từ phụ lục đầu năm của Thầy/Cô vào đây... (Nếu để trống, AI tự sinh nội dung phù hợp theo TT 08/2024 và khối lớp)"
+                rows={2}
+                className="w-full rounded-xl border border-rose-300 bg-white p-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-400/20 resize-none shadow-sm transition-all"
+              />
+              <p className="text-[11px] text-rose-800/90 leading-relaxed">
+                📌 <em>Ghi chú:</em> AI sẽ đưa nguyên văn nội dung này vào phần Phẩm chất (Mục tiêu) và lồng ghép đúng vào hoạt động dạy học của giáo án.
+              </p>
+            </div>
           </div>
         )}
       </div>
