@@ -31,6 +31,18 @@ export function detectSubjectAndGrade(text: string, fileName: string): { subject
   }
 
   // 2. Nhận diện Môn học
+  // Ưu tiên nhận diện các môn khoa học tự nhiên TRƯỚC khi kiểm tra Tiếng Anh
+  // để tránh nhầm lẫn khi giáo án KHTN/Sinh có dòng "Năng lực Tiếng Anh" hay thuật ngữ khoa học tiếng Anh
+
+  // Nhận diện nhanh: Nếu có các dấu hiệu môn khoa học tự nhiên rõ ràng → KHÔNG phải Tiếng Anh
+  const isScienceSubject =
+    sample.includes('nucleic acid') || sample.includes('dna') || sample.includes('rna') ||
+    sample.includes('atp') || sample.includes('glucose') || sample.includes('nguyên tử') ||
+    sample.includes('phân tử') || sample.includes('tế bào') || sample.includes('gen ') ||
+    sample.includes('gene ') || sample.includes('nhiễm sắc thể') || sample.includes('quang hợp') ||
+    sample.includes('hô hấp tế bào') || sample.includes('điện trở') || sample.includes('lực hút') ||
+    sample.includes('phương trình hóa') || sample.includes('nguyên tố hóa') || sample.includes('phản ứng hóa');
+
   if (sample.includes('khoa học tự nhiên') || sample.includes('khtn')) {
     detectedSubject = Subject.KHTN;
   } else if (sample.includes('lịch sử và địa lí') || sample.includes('lịch sử & địa lí') || sample.includes('ls&đl') || sample.includes('ls và đl') || sample.includes('ls&dl') || sample.includes('ls-dl')) {
@@ -41,8 +53,6 @@ export function detectSubjectAndGrade(text: string, fileName: string): { subject
     detectedSubject = Subject.VAN;
   } else if (sample.includes('tin học') || sample.includes('tin hoc') || sample.includes('scratch') || sample.includes('python') || sample.includes('lập trình')) {
     detectedSubject = Subject.TIN;
-  } else if (sample.includes('tiếng anh') || sample.includes('tieng anh') || sample.includes('english') || sample.includes('unit ')) {
-    detectedSubject = Subject.ANH;
   } else if (sample.includes('vật lí') || sample.includes('vật lý') || sample.includes('vat li') || sample.includes('vat ly')) {
     detectedSubject = Subject.LY;
   } else if (sample.includes('hóa học') || sample.includes('hoa hoc')) {
@@ -67,6 +77,11 @@ export function detectSubjectAndGrade(text: string, fileName: string): { subject
     detectedSubject = Subject.TNXH;
   } else if (sample.includes('khoa học') && !sample.includes('khoa học tự nhiên') && !sample.includes('khoa học xã hội')) {
     detectedSubject = Subject.KHOA_HOC;
+  } else if (!isScienceSubject && (sample.includes('tiếng anh') || sample.includes('tieng anh') || sample.includes('english') || sample.includes('unit '))) {
+    // CHỈ nhận diện Tiếng Anh khi KHÔNG có dấu hiệu môn khoa học tự nhiên nào
+    // Điều kiện: "năng lực tiếng anh" hoặc "tích hợp tiếng anh" trong giáo án KHTN không được xét ở đây
+    // vì các môn KHTN/Sinh đã được xử lý ở trên rồi → chỉ còn lại giáo án Tiếng Anh thực sự
+    detectedSubject = Subject.ANH;
   }
 
   return { subject: detectedSubject, grade: detectedGrade };

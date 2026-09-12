@@ -134,7 +134,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
             searchPatterns = [
               '*Chuyển giao nhiệm vụ học tập', '*Chuyển giao nhiệm vụ', '*Chuyển giao',
               'Chuyển giao nhiệm vụ học tập', 'Chuyển giao nhiệm vụ', 'Chuyển giao',
-              'B1.', 'B1:', 'B1 ', 'B1', '*B1', '* B1',
+              'B1.', 'B1:', 'B1 .', 'B1 ', 'B1', '*B1', '* B1',
               'Bước 1:', 'Bước 1.', 'Bước 1', 'bước 1', 'NV1:', 'NV1.', 'Nhiệm vụ 1:', 'Nhiệm vụ 1',
               '- Giao nhiệm vụ:', 'Giao nhiệm vụ:', '- Giao nhiệm vụ', '* Giao nhiệm vụ', '*GV giao nhiệm vụ',
               '1. Chuyển giao', 'a. Chuyển giao', 'a) Chuyển giao'
@@ -143,12 +143,13 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
             searchPatterns = [
               '*Thực hiện nhiệm vụ học tập', '*Thực hiện nhiệm vụ', '*HS thực hiện',
               'Thực hiện nhiệm vụ học tập', 'Thực hiện nhiệm vụ', 'Thực hiện',
-              'B2.', 'B2:', 'B2 ', 'B2', '*B2', '* B2',
+              'B2.', 'B2:', 'B2 .', 'B2 ', 'B2', '*B2', '* B2',
               'Bước 2:', 'Bước 2.', 'Bước 2', 'bước 2', 'NV2:', 'NV2.', 'Nhiệm vụ 2:', 'Nhiệm vụ 2',
               'Hướng dẫn HS thực hiện nhiệm vụ', 'Hướng dẫn HS thực hiện', '*Hướng dẫn HS',
               '- Hướng dẫn HS:', 'Hướng dẫn HS:',
               '2. Thực hiện', 'b. Thực hiện', 'b) Thực hiện'
             ];
+
           } else if (subPart === 'BƯỚC_3') {
             searchPatterns = [
               '*Báo cáo kết quả và thảo luận', '*Báo cáo kết quả', '*Báo cáo', '*Thảo luận',
@@ -277,9 +278,16 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
       else if (prefix === 'DC') {
         if (marker === 'OBJECTIVES') {
           searchPatterns = [
+            // Tiếng Anh (môn Tiếng Anh)
             '3. Attitudes', 'Attitudes', 'attitudes', 'ATTITUDES',
-            '3. Character', 'II. TEACHING AIDS', 'II. EQUIPMENT'
+            '3. Character', 'II. TEACHING AIDS', 'II. EQUIPMENT',
+            // Tiếng Việt (tương thích 2 chiều — khi AI lỡ sinh DC_ cho giáo án tiếng Việt)
+            '3. Phẩm chất', '3.Phẩm chất', '3. Phẩm chất:', '3. Về phẩm chất',
+            'c) Phẩm chất', 'c. Phẩm chất', 'Phẩm chất:', 'Phẩm chất',
+            'III. TIẾN TRÌNH DẠY HỌC', 'III. Tiến trình', 'III. TIẾN TRÌNH',
+            'II. THIẾT BỊ DẠY HỌC', 'II. Thiết bị', 'II. THIẾT BỊ'
           ];
+
         } else if (marker.startsWith('WARM_UP')) {
           const parts = marker.replace('WARM_UP_', '').split('_');
           const subPart = parts.join('_');
@@ -311,8 +319,8 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
           const actNum = parts[0]; // Activity number
           const subPart = parts.slice(1).join('_'); // POSITION: CONTENT, OUTCOMES, ORGANIZATION...
 
-          // Search patterns for Activity X
-          const actPatterns = [
+          // Search patterns for Activity X (English)
+          const actPatternsEn = [
             `Activity ${actNum}:`, `Activity ${actNum}.`, `Activity ${actNum} `,
             `**Activity ${actNum}`, `ACTIVITY ${actNum}`, `Activity${actNum}`,
             `Activity ${actNum}`, `activity ${actNum}`,
@@ -322,7 +330,21 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
             ...(actNum === '3' ? ['Production', 'production', 'PRODUCTION'] : [])
           ];
 
+          // Tương thích 2 chiều: Bổ sung các mẫu Hoạt động tiếng Việt
+          // để DC_ marker cũng tìm được khi áp dụng cho giáo án tiếng Việt
+          const actPatternsVi = [
+            `Hoạt động ${actNum}:`, `Hoạt động ${actNum}.`, `Hoạt động ${actNum} .`, `Hoạt động ${actNum} `,
+            `HOẠT ĐỘNG ${actNum}:`, `HOẠT ĐỘNG ${actNum}.`, `HOẠT ĐỘNG ${actNum}`,
+            `Hoạt động ${actNum}`, `HĐ ${actNum}:`, `HĐ ${actNum}.`, `HĐ${actNum}`
+          ];
+
+          const actPatterns = [...actPatternsEn, ...actPatternsVi];
+
+          // Set activityPatterns để injectNLSWithDOMParser có thể khoanh vùng đúng Hoạt động X
+          activityPatterns = actPatterns;
+
           if (subPart === 'CONTENT') {
+
             searchPatterns = [
               ...actPatterns,
               'b) Content', 'b. Content', 'Content:', 'b)Content',
@@ -337,10 +359,20 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
           } else if (subPart === 'ORGANIZATION') {
             searchPatterns = [
               ...actPatterns,
+              // Tiếng Anh
               'd) Organization', 'd. Organization', 'd)Organization',
-              'Organization:', 'd) Organization', 'd. Organization',
-              '* Organization', 'ORGANIZATION',
-              "TEACHER'S ACTIVITIES", "STUDENTS' ACTIVITIES"
+              'Organization:', '* Organization', 'ORGANIZATION',
+              "TEACHER'S ACTIVITIES", "STUDENTS' ACTIVITIES",
+              // Tiếng Việt — tương thích 2 chiều (giáo án KHTN/Sinh/Toán...)
+              'd. Tổ chức thực hiện:', 'd. Tổ chức thực hiện', 'd) Tổ chức thực hiện',
+              'd.Tổ chức thực hiện', 'd)Tổ chức thực hiện',
+              'b. Tổ chức thực hiện:', 'b. Tổ chức thực hiện', 'b) Tổ chức thực hiện',
+              'b.Tổ chức thực hiện', 'b)Tổ chức thực hiện',
+              'B. Tổ chức thực hiện:', 'b. Tổ chức hoạt động:', 'Tổ chức thực hiện:',
+              'Tổ chức thực hiện', 'HOẠT ĐỘNG CỦA GV - HS', 'HOẠT ĐỘNG CỦA GV VÀ HS',
+              'B1. Chuyển giao nhiệm vụ học tập', 'B1. Chuyển giao',
+              'B1 . Chuyển giao nhiệm vụ học tập', 'B1 . Chuyển giao',
+              'Bước 1:', 'Bước 1.', 'Bước 1 :', '*Chuyển giao nhiệm vụ học tập'
             ];
           } else if (subPart === 'OBJECTIVE') {
             searchPatterns = [
@@ -1232,8 +1264,16 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
 
         if (isBuocMarker) {
           const tochuNormPatterns = [
+            // Mẫu chuẩn CV 5512
             'd) tổ chức thực hiện', 'd. tổ chức thực hiện', 'd.tổ chức thực hiện',
-            'd)tổ chức', 'd. tổ chức'
+            'd)tổ chức', 'd. tổ chức',
+            // Mẫu thực tế của nhiều GV (b. thay vì d.)
+            'b. tổ chức thực hiện', 'b) tổ chức thực hiện', 'b.tổ chức thực hiện',
+            'b)tổ chức', 'b. tổ chức', 'b. tổ chức hoạt động',
+            'tổ chức thực hiện',
+            // Tiêu đề bảng 2 cột
+            'hoạt động của gv - hs', 'hoạt động của gv và hs',
+            'hoat dong cua gv', 'hoạt động của giáo viên'
           ];
           const tochuIdx = scopedParagraphs.findIndex(p =>
             tochuNormPatterns.some(pat => normalizeText(p.textContent || '').includes(pat))
@@ -1243,6 +1283,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
             finalSearchScope = scopedParagraphs.slice(tochuIdx);
           }
         }
+
 
         let targetP: Element | null = null;
 

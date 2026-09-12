@@ -65,6 +65,7 @@ export interface ProcessingOptions {
   disabilityCustomTarget?: string; // Yêu cầu cần đạt đối với HSKT (nhập tay hoặc trích từ PPCT)
   includeEnglishIntegration?: boolean;
   englishIntegrationLevel?: EnglishIntegrationLevel;
+  englishCustomTarget?: string; // Yêu cầu cần đạt / Thuật ngữ Tiếng Anh nhập tay hoặc trích từ PPCT (Ưu tiên số 1)
   hasExistingNLS?: boolean; // File giáo án đã có NLS được chèn sẵn → Chế độ Bổ sung
   enableStem?: boolean; // Tích hợp STEM vào Hoạt động Vận dụng (mặc định: false)
   enableSummaryTable?: boolean; // Bảng Tổng hợp Hoạt động NLS & AI cuối giáo án (mặc định: false)
@@ -96,6 +97,7 @@ export interface HistoryItem {
   disabilityTypes?: DisabilityType[];
   disabilityCustomTarget?: string;
   englishIntegrationLevel?: EnglishIntegrationLevel;
+  englishCustomTarget?: string;
   teachingEnvironment?: TeachingEnvironment;
   includeQPAN?: boolean;
 }

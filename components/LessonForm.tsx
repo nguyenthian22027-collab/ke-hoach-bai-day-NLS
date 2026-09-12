@@ -28,6 +28,8 @@ interface LessonFormProps {
   setIncludeEnglishIntegration: (val: boolean) => void;
   englishIntegrationLevel: import('../types').EnglishIntegrationLevel;
   setEnglishIntegrationLevel: (val: import('../types').EnglishIntegrationLevel) => void;
+  englishCustomTarget?: string;
+  setEnglishCustomTarget?: (val: string) => void;
   // Chế độ bổ sung: phát hiện tự động + cho phép bật/tắt thủ công
   hasExistingNLS: boolean;       // Kết quả tự động phát hiện từ ContentInput
   isSupplementMode: boolean;     // Trạng thái người dùng bật/tắt thủ công
@@ -77,6 +79,8 @@ const LessonForm: React.FC<LessonFormProps> = ({
   setIncludeEnglishIntegration,
   englishIntegrationLevel,
   setEnglishIntegrationLevel,
+  englishCustomTarget,
+  setEnglishCustomTarget,
   hasExistingNLS,
   isSupplementMode,
   setIsSupplementMode,
@@ -527,9 +531,33 @@ const LessonForm: React.FC<LessonFormProps> = ({
               <option value="INTER">🔶 Cấp độ 2 (Trung cấp): Tích hợp Câu lệnh lớp học (Classroom Instructions)</option>
               <option value="CLIL">🌐 Cấp độ 3 (Nâng cao): Soạn bài theo chuẩn CLIL toàn diện</option>
             </select>
+
+            {/* Nhập hoặc trích xuất Thuật ngữ/YCCĐ Tiếng Anh từ PPCT */}
+            <div className="pt-3 border-t border-amber-200/60 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-amber-950 flex items-center gap-1.5">
+                  <span>🎯</span>
+                  <span>Yêu cầu cần đạt / Thuật ngữ Tiếng Anh của bài học (Tùy chọn):</span>
+                </label>
+                <span className="text-[10px] font-semibold text-amber-700 bg-amber-100/90 px-2 py-0.5 rounded-full border border-amber-200">
+                  Ưu tiên số 1
+                </span>
+              </div>
+              <textarea
+                value={englishCustomTarget || ''}
+                onChange={(e) => setEnglishCustomTarget && setEnglishCustomTarget(e.target.value)}
+                placeholder="Dán YCCĐ hoặc danh sách thuật ngữ tiếng Anh vào đây... (Nếu để trống và có tải PPCT, AI sẽ tự trích từ cột Tiếng Anh trong bảng PPCT)"
+                rows={2}
+                className="w-full rounded-xl border border-amber-300 bg-white p-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-400/20 resize-none shadow-sm transition-all"
+              />
+              <p className="text-[11px] text-amber-800/90 leading-relaxed">
+                📌 <em>Ghi chú:</em> Nếu Thầy/Cô nhập thuật ngữ/YCCĐ vào đây hoặc có trong cột Tiếng Anh của PPCT tải lên, AI sẽ dùng đúng nội dung đó. Nếu để trống, AI tự gợi ý theo cấp độ đã chọn.
+              </p>
+            </div>
           </div>
         )}
       </div>
+
 
       {/* STEM Integration Section */}
       <div className="space-y-3.5 text-left pt-5 border-t border-slate-100">

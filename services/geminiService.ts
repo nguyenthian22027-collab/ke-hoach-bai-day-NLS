@@ -455,6 +455,10 @@ export const generateNLSLessonPlan = async (
         <green>* Điều chỉnh mục tiêu đối với Học sinh Khuyết tật (HSKT) (theo PPCT):</green>
         <green>- [Nội dung nguyên văn trích từ cột HSKT trong bảng PPCT]</green>
       - ĐỒNG THỜI: Các câu <green>[Hỗ trợ HSKT: ...]</green> trong các hoạt động dạy học BẮT BUỘC PHẢI BÁM SÁT đúng YCCĐ này để hỗ trợ HSKT đạt được yêu cầu của nhà trường.
+      BƯỚC 6 (ĐỐI VỚI TÍCH HỢP TIẾNG ANH - NẾU BẬT CHẾ ĐỘ TÍCH HỢP TIẾNG ANH):
+      - Kiểm tra xem trong hàng của bài học đó trên bảng PPCT có cột liên quan đến Tiếng Anh hay không (tiêu đề cột thường chứa: "Năng lực tiếng Anh", "Tiếng Anh", "YCCĐ tiếng Anh", "Từ vựng tiếng Anh", "Thuật ngữ tiếng Anh", "English"...).
+      - Nếu tìm thấy nội dung: Trích xuất NGUYÊN VĂN danh sách thuật ngữ / YCCĐ đó và BẮT BUỘC sử dụng chính xác các thuật ngữ này khi chèn từ vựng song ngữ hoặc mục tiêu tiếng Anh vào giáo án.
+      - ĐỒNG THỜI: Tuyệt đối tuân thủ, không tự ý bịa thêm các thuật ngữ tiếng Anh xa lạ không có trong bài học.
 
       📋 VÍ DỤ TRÍCH XUẤT ĐÚNG:
       Nếu trong PPCT có:
@@ -553,8 +557,16 @@ export const generateNLSLessonPlan = async (
     - Trong các câu <green>[Hỗ trợ HSKT: ...]</green> tại các hoạt động: Đưa ra biện pháp hỗ trợ phối hợp hoặc cụ thể cho từng đối tượng (ví dụ: vừa dùng hình ảnh/chữ viết cho HS khiếm thính, vừa chia nhỏ thao tác cho HS khó khăn học tập; phân công Đôi bạn cùng tiến cho từng em), đảm bảo quan tâm đầy đủ các đối tượng được chọn, không bỏ sót đối tượng nào.\n`
     : "";
 
+  // Yêu cầu cần đạt / Thuật ngữ Tiếng Anh nhập tay hoặc chỉ định riêng (Ưu tiên số 1)
+  const customEnglishTargetInstruction = (options.englishCustomTarget && options.englishCustomTarget.trim().length > 0)
+    ? `\n    🎯 DANH SÁCH THUẬT NGỮ / YÊU CẦU CẦN ĐẠT TIẾNG ANH ĐƯỢC CHỈ ĐỊNH (ƯU TIÊN TUYỆT ĐỐI SỐ 1):
+    "${options.englishCustomTarget.trim()}"
+    -> BẮT BUỘC: Sử dụng đúng các thuật ngữ / YCCĐ trên để tích hợp vào phần Mục tiêu Năng lực và các Hoạt động dạy học.
+    -> TUYỆT ĐỐI KHÔNG tự ý thay đổi hoặc bỏ qua các thuật ngữ này.\n`
+    : "";
+
   const englishPrompt = options.includeEnglishIntegration
-    ? `\n    ${ENGLISH_CLIL_INSTRUCTIONS}\n    CẤP ĐỘ TÍCH HỢP TIẾNG ANH (CLIL): ${options.englishIntegrationLevel}\n`
+    ? `\n    ${ENGLISH_CLIL_INSTRUCTIONS}\n    CẤP ĐỘ TÍCH HỢP TIẾNG ANH (CLIL): ${options.englishIntegrationLevel}${customEnglishTargetInstruction}\n`
     : "";
 
   // TÍCH HỢP STEM VÀO HOẠT ĐỘNG VẬN DỤNG (MÔ HÌNH A)

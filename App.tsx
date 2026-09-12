@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const [disabilityCustomTarget, setDisabilityCustomTarget] = useState<string>('');
   const [includeEnglishIntegration, setIncludeEnglishIntegration] = useState<boolean>(false);
   const [englishIntegrationLevel, setEnglishIntegrationLevel] = useState<EnglishIntegrationLevel>('BASIC');
+  const [englishCustomTarget, setEnglishCustomTarget] = useState<string>('');
   const [aiFrameworkVersion, setAiFrameworkVersion] = useState<AIFrameworkVersion>('QD2422'); // Mặc định QĐ 2422 (chính thức 2026-2027)
   const [enableStem, setEnableStem] = useState<boolean>(false); // Tích hợp STEM vào HĐ Vận dụng (mặc định: TẮT)
   const [enableSummaryTable, setEnableSummaryTable] = useState<boolean>(false); // Bảng Tổng hợp Hoạt động NLS & AI (mặc định: TẮT)
@@ -176,6 +177,7 @@ const App: React.FC = () => {
           disabilityCustomTarget: disabilityCustomTarget || undefined,
           includeEnglishIntegration,
           englishIntegrationLevel,
+          englishCustomTarget: englishCustomTarget || undefined,
           hasExistingNLS: isSupplementMode, // Truyền trạng thái Chế độ Bổ sung
           enableStem, // Tích hợp STEM vào HĐ Vận dụng
           enableSummaryTable, // Bảng Tổng hợp Hoạt động NLS & AI cuối giáo án
@@ -213,6 +215,7 @@ const App: React.FC = () => {
         disabilityTypes,
         disabilityCustomTarget: disabilityCustomTarget || undefined,
         englishIntegrationLevel: includeEnglishIntegration ? englishIntegrationLevel : undefined,
+        englishCustomTarget: includeEnglishIntegration ? (englishCustomTarget || undefined) : undefined,
         teachingEnvironment,
         includeQPAN,
       };
@@ -252,6 +255,7 @@ const App: React.FC = () => {
               disabilityCustomTarget={disabilityCustomTarget} setDisabilityCustomTarget={setDisabilityCustomTarget}
               includeEnglishIntegration={includeEnglishIntegration} setIncludeEnglishIntegration={setIncludeEnglishIntegration}
               englishIntegrationLevel={englishIntegrationLevel} setEnglishIntegrationLevel={setEnglishIntegrationLevel}
+              englishCustomTarget={englishCustomTarget} setEnglishCustomTarget={setEnglishCustomTarget}
               hasExistingNLS={hasExistingNLS}
               isSupplementMode={isSupplementMode}
               setIsSupplementMode={setIsSupplementMode}
