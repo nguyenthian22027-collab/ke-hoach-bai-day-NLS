@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { UploadCloud, Loader2, CheckCircle, FileText, FileUp, AlertCircle, FolderUp, ClipboardPaste, Globe } from 'lucide-react';
+import JSZip from 'jszip';
 import { OriginalDocxFile, Subject } from '../types';
 import { TranslationModal } from './TranslationModal';
 
@@ -206,6 +207,57 @@ const ContentInput: React.FC<ContentInputProps> = ({
   };
 
   const extractTextFromDOCX = async (arrayBuffer: ArrayBuffer): Promise<string> => {
+    try {
+      // Ưu tiên đọc cấu trúc bảng biểu qua JSZip để chuyển đổi bảng PPCT/Phụ lục thành Markdown Table chuẩn
+      const zip = await JSZip.loadAsync(arrayBuffer);
+      const documentXmlFile = zip.file('word/document.xml');
+      if (documentXmlFile) {
+        const docXml = await documentXmlFile.async('string');
+        const bodyMatch = docXml.match(/<w:body>(.*?)<\/w:body>/s);
+        if (bodyMatch) {
+          const bodyContent = bodyMatch[1];
+          const blockRegex = /<(w:p|w:tbl)[\s>].*?<\/\1>/gs;
+          let block;
+          const result: string[] = [];
+          let hasTable = false;
+
+          while ((block = blockRegex.exec(bodyContent)) !== null) {
+            const tag = block[1];
+            const raw = block[0];
+            if (tag === 'w:p') {
+              const ts = raw.match(/<w:t[^>]*>(.*?)<\/w:t>/gs) || [];
+              const text = ts.map(t => t.replace(/<[^>]+>/g, '')).join('').trim();
+              if (text) result.push(text);
+            } else if (tag === 'w:tbl') {
+              hasTable = true;
+              const rows = raw.match(/<w:tr[\s>].*?<\/w:tr>/gs) || [];
+              if (rows.length > 0) {
+                result.push('\n');
+                rows.forEach((r, rIdx) => {
+                  const cells = r.match(/<w:tc[\s>].*?<\/w:tc>/gs) || [];
+                  const cellTexts = cells.map(c => {
+                    const ts = c.match(/<w:t[^>]*>(.*?)<\/w:t>/gs) || [];
+                    return ts.map(t => t.replace(/<[^>]+>/g, '')).join('').replace(/[\r\n|]+/g, ' ').trim();
+                  });
+                  result.push('| ' + cellTexts.join(' | ') + ' |');
+                  if (rIdx === 0) {
+                    result.push('|' + cellTexts.map(() => ':---|').join(''));
+                  }
+                });
+                result.push('\n');
+              }
+            }
+          }
+          if (hasTable && result.length > 0) {
+            return result.join('\n');
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Table extraction with JSZip failed, falling back to mammoth:", e);
+    }
+
+    // Fallback sang mammoth nếu không có bảng hoặc có lỗi
     if (typeof mammoth === 'undefined') return "";
     const result = await mammoth.extractRawText({ arrayBuffer });
     return result.value;

@@ -441,47 +441,79 @@ export const generateNLSLessonPlan = async (
   if (info.distributionContent && info.distributionContent.trim().length > 0) {
     distributionContext = `
       =========================================================
-      🚨 QUY TẮC TỐI THƯỢNG (KHI CÓ PPCT - STRICT MODE):
-      Người dùng ĐÃ CUNG CẤP nội dung Phân phối chương trình (PPCT).
-      Đây là văn bản pháp quy, bạn phải tuân thủ TUYỆT ĐỐI các yêu cầu sau:
+      🚨 QUY TẮC TỐI THƯỢNG (KHI CÓ BẢNG PHỤ LỤC / PPCT - STRICT MODE):
+      Người dùng ĐÃ CUNG CẤP nội dung Phụ lục / Kế hoạch dạy học / Phân phối chương trình (PPCT).
+      Đây là văn bản kế hoạch giáo dục chính thức của nhà trường, bạn phải tuân thủ TUYỆT ĐỐI các quy tắc trích xuất sau:
 
-      BƯỚC 1: Đọc tên bài học trong "NỘI DUNG GIÁO ÁN GỐC".
-      BƯỚC 2: Tìm ĐÚNG HÀNG của bài học đó trong bảng PPCT.
-      BƯỚC 3: Trích xuất NGUYÊN VĂN, CHÍNH XÁC nội dung từ cột "Năng lực số phát triển" (hoặc "YCCĐ năng lực số", "Năng lực số") của hàng đó.
-      BƯỚC 4: Đưa nội dung trích xuất vào phần Mục tiêu Năng lực số - GIỮ NGUYÊN MÃ SỐ VÀ NỘI DUNG.
-      BƯỚC 5 (ĐỐI VỚI HỌC SINH KHUYẾT TẬT - NẾU BẬT CHẾ ĐỘ HSKT):
-      - Kiểm tra xem trong hàng của bài học đó trên bảng PPCT có cột liên quan đến HSKT hay không (tiêu đề cột thường chứa: "Yêu cầu cần đạt đối với học sinh khuyết tật", "YCCĐ HSKT", "Điều chỉnh cho HSKT", "Học sinh khuyết tật", "Mục tiêu hòa nhập", "HSKT"...).
-      - Nếu tìm thấy nội dung: Trích xuất NGUYÊN VĂN, CHÍNH XÁC nội dung đó và đưa vào mục Mục tiêu:
+      BƯỚC 1: Đọc tên bài học trong "NỘI DUNG GIÁO ÁN GỐC" (ví dụ: "Bài 1: Thiết bị vào - ra").
+      BƯỚC 2: Tìm ĐÚNG HÀNG của bài học đó trong bảng Phụ lục / PPCT.
+      ⚠️ LƯU Ý SO KHỚP TÊN BÀI HỌC: Tên bài trong PPCT có thể có thêm số tiết, chữ 'Bài', 'Chủ đề', số La Mã, hoặc cách viết tắt (vd: "Bài 1. Thiết bị vào và ra (2 tiết)", "Chủ đề 1: Bài 1..."). Bạn PHẢI đối chiếu linh hoạt để tìm đúng hàng của bài học này!
+
+      BƯỚC 3 (NĂNG LỰC SỐ & AI):
+      - Tìm cột có tiêu đề chứa: "Năng lực số", "NLS", "YCCĐ năng lực số", "Phát triển NLS", "Ứng dụng CNTT", "Chuyển đổi số", "AI", "Năng lực AI", "Trí tuệ nhân tạo"...
+      - Trích xuất NGUYÊN VĂN mã và nội dung từ cột đó đưa vào mục Mục tiêu Năng lực số - GIỮ NGUYÊN MÃ SỐ VÀ NỘI DUNG.
+
+      BƯỚC 4 (HỌC SINH KHUYẾT TẬT - NẾU BẬT CHẾ ĐỘ HSKT):
+      - Tìm cột có tiêu đề chứa: "Học sinh khuyết tật", "HSKT", "Yêu cầu cần đạt đối với học sinh khuyết tật", "YCCĐ HSKT", "Điều chỉnh cho HSKT", "Mục tiêu hòa nhập", "Hòa nhập", "Hỗ trợ HSKT"...
+      - Nếu người dùng KHÔNG nhập tay ở trên: Trích xuất NGUYÊN VĂN nội dung đó và đưa vào mục Mục tiêu:
         <green>* Điều chỉnh mục tiêu đối với Học sinh Khuyết tật (HSKT) (theo PPCT):</green>
         <green>- [Nội dung nguyên văn trích từ cột HSKT trong bảng PPCT]</green>
-      - ĐỒNG THỜI: Các câu <green>[Hỗ trợ HSKT: ...]</green> trong các hoạt động dạy học BẮT BUỘC PHẢI BÁM SÁT đúng YCCĐ này để hỗ trợ HSKT đạt được yêu cầu của nhà trường.
-      BƯỚC 6 (ĐỐI VỚI TÍCH HỢP TIẾNG ANH - NẾU BẬT CHẾ ĐỘ TÍCH HỢP TIẾNG ANH):
-      - Kiểm tra xem trong hàng của bài học đó trên bảng PPCT có cột liên quan đến Tiếng Anh hay không (tiêu đề cột thường chứa: "Năng lực tiếng Anh", "Tiếng Anh", "YCCĐ tiếng Anh", "Từ vựng tiếng Anh", "Thuật ngữ tiếng Anh", "English"...).
-      - Nếu tìm thấy nội dung: Trích xuất NGUYÊN VĂN danh sách thuật ngữ / YCCĐ đó và BẮT BUỘC sử dụng chính xác các thuật ngữ này khi chèn từ vựng song ngữ hoặc mục tiêu tiếng Anh vào giáo án.
-      - ĐỒNG THỜI: Tuyệt đối tuân thủ, không tự ý bịa thêm các thuật ngữ tiếng Anh xa lạ không có trong bài học.
-      BƯỚC 7 (ĐỐI VỚI TÍCH HỢP STEM - NẾU BẬT CHẾ ĐỘ STEM):
-      - Nếu người dùng KHÔNG nhập tay YCCĐ STEM, hãy kiểm tra xem trong hàng của bài học đó trên bảng PPCT có cột liên quan đến STEM hay không (tiêu đề cột thường chứa: "Giáo dục STEM", "STEM", "YCCĐ STEM", "Nhiệm vụ STEM"...).
-      - Nếu tìm thấy nội dung: Trích xuất NGUYÊN VĂN nội dung đó đưa vào mục Mục tiêu STEM và bám sát để thiết kế Hoạt động Vận dụng STEM.
-      BƯỚC 8 (ĐỐI VỚI LỒNG GHÉP QPAN - NẾU BẬT CHẾ ĐỘ QPAN):
-      - Nếu người dùng KHÔNG nhập tay nội dung QPAN, hãy kiểm tra xem trong hàng của bài học đó trên bảng PPCT có cột liên quan đến QPAN hay không (tiêu đề cột thường chứa: "Giáo dục Quốc phòng và An ninh", "QPAN", "Nội dung QPAN", "Lồng ghép QPAN"...).
-      - Nếu tìm thấy nội dung: Trích xuất NGUYÊN VĂN nội dung đó đưa vào mục Phẩm chất và lồng ghép vào hoạt động dạy học theo đúng quy định.
+      - ĐỒNG THỜI: Các câu <green>[Hỗ trợ HSKT: ...]</green> trong các hoạt động dạy học BẮT BUỘC PHẢI BÁM SÁT đúng YCCĐ này để hỗ trợ HSKT.
 
-      📋 VÍ DỤ TRÍCH XUẤT ĐÚNG:
-      Nếu trong PPCT có:
-      | Bài 17 | ... | 1.1.TC1a: Tìm kiếm thông tin, quy tắc. 3.4.NC1a: Sử dụng MTCT để giải |
+      BƯỚC 5 (TÍCH HỢP TIẾNG ANH - NẾU BẬT CHẾ ĐỘ TÍCH HỢP TIẾNG ANH):
+      - Tìm cột có tiêu đề chứa: "Tiếng Anh", "Năng lực tiếng Anh", "Tích hợp tiếng Anh", "YCCĐ tiếng Anh", "Từ vựng tiếng Anh", "Thuật ngữ tiếng Anh", "English", "CLIL", "Song ngữ", "Thuật ngữ chuyên ngành"...
+      - Nếu người dùng KHÔNG nhập tay ở trên: Trích xuất NGUYÊN VĂN danh sách thuật ngữ / YCCĐ đưa vào mục Mục tiêu:
+        <orange>* Tích hợp Tiếng Anh (theo PPCT):</orange>
+        <orange>- Thuật ngữ / YCCĐ: [Nội dung nguyên văn trích từ cột Tiếng Anh trong PPCT]</orange>
+      - ĐỒNG THỜI: BẮT BUỘC sử dụng CHÍNH XÁC các thuật ngữ tiếng Anh này khi chèn các câu lệnh song ngữ <orange>...</orange> vào phần d. Tổ chức thực hiện (tuyệt đối không tự ý bịa thêm từ tiếng Anh xa lạ).
+
+      BƯỚC 6 (TÍCH HỢP STEM - NẾU BẬT CHẾ ĐỘ STEM):
+      - Tìm cột có tiêu đề chứa: "Giáo dục STEM", "STEM", "Bài học STEM", "Chủ đề STEM", "Dự án STEM", "Nhiệm vụ STEM", "YCCĐ STEM", "Tích hợp STEM", "Mô hình STEM", "Hoạt động STEM"...
+      - Nếu người dùng KHÔNG nhập tay YCCĐ STEM:
+        (1) Trích xuất NGUYÊN VĂN nội dung đó đưa vào mục Mục tiêu:
+            <blue>* Năng lực Giáo dục STEM (theo PPCT):</blue>
+            <blue>- [Nội dung nguyên văn trích từ cột STEM trong PPCT]</blue>
+        (2) Thiết kế Hoạt động 4 (Vận dụng / STEM mini) và Bảng Rubric 3 tiêu chí BÁM SÁT 100% đúng chủ đề / sản phẩm / mô hình STEM này từ PPCT. TUYỆT ĐỐI KHÔNG tự ý bịa ra nhiệm vụ STEM khác!
+
+      BƯỚC 7 (LỒNG GHÉP QPAN - NẾU BẬT CHẾ ĐỘ QPAN):
+      - Tìm cột có tiêu đề chứa: "Giáo dục Quốc phòng và An ninh", "QPAN", "Lồng ghép QPAN", "Quốc phòng an ninh", "TT 08/2024", "GDQPAN", "GDQP&AN", "Nội dung QPAN", "Nội dung lồng ghép QPAN"...
+      - Nếu người dùng KHÔNG nhập tay nội dung QPAN:
+        (1) Trích xuất NGUYÊN VĂN nội dung đó đưa vào mục Phẩm chất:
+            <red>- Giáo dục Quốc phòng và An ninh (TT 08/2024/TT-BGDĐT) (theo PPCT): [Nội dung nguyên văn trích từ cột QPAN trong PPCT].</red>
+        (2) Sử dụng CHÍNH XÁC nội dung này để chèn câu <red>[Lồng ghép QPAN - TT 08/2024]: ...</red> vào 1-2 hoạt động phù hợp nhất trong tiến trình dạy học.
+
+      📋 VÍ DỤ TRÍCH XUẤT ĐẦY ĐỦ ĐA CỘT TỪ BẢNG PHỤ LỤC / PPCT:
+      Giả sử hàng của bài học trong bảng PPCT có dạng:
+      | STT | Tên bài học | Số tiết | Năng lực số & AI | Học sinh khuyết tật | Tiếng Anh | Giáo dục STEM | Quốc phòng & An ninh |
+      | 1 | Bài 1: Thiết bị vào - ra | 2 | 1.1.TC1a: Tìm kiếm thông tin; [7.A1.2]: Ứng dụng AI | Hỗ trợ HS khiếm thính quan sát hình ảnh | Input device, Output device | Thiết kế mô hình sơ đồ khối thiết bị vào ra | Nâng cao ý thức bảo vệ an ninh mạng |
       
-      Thì phần Mục tiêu phải ghi:
+      Thì phần Mục tiêu (===NLS_MỤC_TIÊU===) BẮT BUỘC phải trích xuất:
       ===NLS_MỤC_TIÊU===
       <blue>* Năng lực số</blue>
-      <blue>- 1.1.TC1a: Tìm kiếm thông tin, quy tắc.</blue>
-      <blue>- 3.4.NC1a: Sử dụng MTCT để giải.</blue>
+      <blue>- 1.1.TC1a: Tìm kiếm thông tin thiết bị vào ra.</blue>
+      <blue>* Năng lực Trí tuệ nhân tạo (AI)</blue>
+      <purple>- [7.A1.2]: Sử dụng AI nhận diện thiết bị thông minh.</purple>
+      <green>* Điều chỉnh mục tiêu đối với Học sinh Khuyết tật (HSKT) (theo PPCT):</green>
+      <green>- Hỗ trợ HS khiếm thính quan sát hình ảnh minh họa thiết bị.</green>
+      <orange>* Tích hợp Tiếng Anh (theo PPCT):</orange>
+      <orange>- Thuật ngữ: Input device (Thiết bị vào), Output device (Thiết bị ra).</orange>
+      <blue>* Năng lực Giáo dục STEM (theo PPCT):</blue>
+      <blue>- Thiết kế mô hình sơ đồ khối thiết bị vào ra.</blue>
+      <red>* Lồng ghép Giáo dục Quốc phòng và An ninh (TT 08/2024/TT-BGDĐT) (theo PPCT):</red>
+      <red>- Nâng cao ý thức bảo vệ an ninh mạng và an toàn thông tin quốc gia.</red>
       ===END===
       
+      Và trong phần d. Tổ chức thực hiện:
+      - Các câu tiếng Anh: Dùng đúng các thuật ngữ "Input device", "Output device".
+      - Hoạt động 4 Vận dụng STEM: Giao nhiệm vụ chế tạo / thiết kế mô hình sơ đồ khối thiết bị vào ra theo đúng cột STEM của PPCT.
+      - Câu lồng ghép QPAN: Nhắc đến ý thức an toàn thông tin và bảo vệ an ninh mạng theo đúng cột QPAN của PPCT.
+      - Câu hỗ trợ HSKT: Bám sát việc hỗ trợ HS khiếm thính quan sát hình ảnh.
+      
       ⛔️ CÁC ĐIỀU CẤM (STRICTLY PROHIBITED):
-      - CẤM TUYỆT ĐỐI việc tự ý thêm bất kỳ năng lực số nào khác không có trong PPCT của bài học này.
+      - CẤM TUYỆT ĐỐI việc tự ý thêm bất kỳ năng lực hay nhiệm vụ nào khác mâu thuẫn với nội dung trong PPCT của bài học này.
       - CẤM thay đổi mã số hay nội dung. VD: 1.1.TC1a phải giữ nguyên.
       - CẤM chèn Năng lực số vào các mục "a) Mục tiêu", "b) Nội dung", "c) Sản phẩm" của các hoạt động. CHỈ CHÈN VÀO "d) Tổ chức thực hiện".
-      - Nếu cột năng lực số trong PPCT để trống, thì mục tiêu NLS ghi là: "* Năng lực số: Không có (theo PPCT)".
+      - Nếu cột nào trong PPCT để trống, thì mục tiêu tương ứng mới ghi không có hoặc tự sinh vừa sức.
 
       NỘI DUNG PPCT:
       ${info.distributionContent}
@@ -544,7 +576,9 @@ export const generateNLSLessonPlan = async (
   };
 
   const disabilityNames = selectedDisabilityTypes.map(t => disabilityLabelMap[t] || t).join('\n    + ');
-  // Yêu cầu cần đạt HSKT nhập tay hoặc chỉ định riêng (Ưu tiên số 1)
+  const hasPPCT = !!(info.distributionContent && info.distributionContent.trim().length > 0);
+
+  // Yêu cầu cần đạt HSKT: Ưu tiên 1 (nhập tay) -> Ưu tiên 2 (trích từ PPCT)
   const customTargetInstruction = (options.disabilityCustomTarget && options.disabilityCustomTarget.trim().length > 0)
     ? `\n    🎯 YÊU CẦU CẦN ĐẠT ĐỐI VỚI HỌC SINH KHUYẾT TẬT ĐƯỢC CHỈ ĐỊNH (ƯU TIÊN TUYỆT ĐỐI SỐ 1):
     "${options.disabilityCustomTarget.trim()}"
@@ -552,7 +586,14 @@ export const generateNLSLessonPlan = async (
        <green>* Điều chỉnh mục tiêu đối với Học sinh Khuyết tật (HSKT):</green>
        <green>- ${options.disabilityCustomTarget.trim()}</green>
     -> BẮT BUỘC: Mọi biện pháp hỗ trợ trong thẻ <green>[Hỗ trợ HSKT: ...]</green> tại các bước dạy học PHẢI BÁM SÁT VÀ HỖ TRỢ HSKT ĐẠT ĐƯỢC ĐÚNG YÊU CẦU TRÊN.\n`
-    : "";
+    : hasPPCT
+      ? `\n    🎯 NGUỒN YCCĐ HSKT TỰ ĐỘNG TỪ BẢNG PHỤ LỤC / PPCT (ƯU TIÊN SỐ 2):
+    -> BẮT BUỘC: Quét tìm hàng của bài học này trên bảng PPCT để lấy nội dung từ cột HSKT / Học sinh khuyết tật / YCCĐ HSKT / Điều chỉnh cho HSKT / Mục tiêu hòa nhập.
+    -> BẮT BUỘC ghi nguyên văn vào mục Mục tiêu:
+       <green>* Điều chỉnh mục tiêu đối với Học sinh Khuyết tật (HSKT) (theo PPCT):</green>
+       <green>- [Nội dung nguyên văn trích từ cột HSKT trong bảng PPCT]</green>
+    -> BẮT BUỘC: Các câu <green>[Hỗ trợ HSKT: ...]</green> trong các hoạt động dạy học PHẢI BÁM SÁT ĐÚNG YCCĐ này từ PPCT.\n`
+      : "";
 
 
   const disabilityPrompt = options.includeDisabilitySupport
@@ -563,26 +604,40 @@ export const generateNLSLessonPlan = async (
     - Trong các câu <green>[Hỗ trợ HSKT: ...]</green> tại các hoạt động: Đưa ra biện pháp hỗ trợ phối hợp hoặc cụ thể cho từng đối tượng (ví dụ: vừa dùng hình ảnh/chữ viết cho HS khiếm thính, vừa chia nhỏ thao tác cho HS khó khăn học tập; phân công Đôi bạn cùng tiến cho từng em), đảm bảo quan tâm đầy đủ các đối tượng được chọn, không bỏ sót đối tượng nào.\n`
     : "";
 
-  // Yêu cầu cần đạt / Thuật ngữ Tiếng Anh nhập tay hoặc chỉ định riêng (Ưu tiên số 1)
+  // Yêu cầu cần đạt / Thuật ngữ Tiếng Anh: Ưu tiên 1 (nhập tay) -> Ưu tiên 2 (trích từ PPCT)
   const customEnglishTargetInstruction = (options.englishCustomTarget && options.englishCustomTarget.trim().length > 0)
     ? `\n    🎯 DANH SÁCH THUẬT NGỮ / YÊU CẦU CẦN ĐẠT TIẾNG ANH ĐƯỢC CHỈ ĐỊNH (ƯU TIÊN TUYỆT ĐỐI SỐ 1):
     "${options.englishCustomTarget.trim()}"
     -> BẮT BUỘC: Sử dụng đúng các thuật ngữ / YCCĐ trên để tích hợp vào phần Mục tiêu Năng lực và các Hoạt động dạy học.
     -> TUYỆT ĐỐI KHÔNG tự ý thay đổi hoặc bỏ qua các thuật ngữ này.\n`
-    : "";
+    : hasPPCT
+      ? `\n    🎯 NGUỒN TIẾNG ANH TỰ ĐỘNG TỪ BẢNG PHỤ LỤC / PPCT (ƯU TIÊN SỐ 2):
+    -> BẮT BUỘC: Quét tìm hàng của bài học này trên bảng PPCT để lấy nội dung từ cột Tiếng Anh / Thuật ngữ / YCCĐ Tiếng Anh / English / CLIL / Song ngữ.
+    -> BẮT BUỘC: Đưa nguyên văn danh sách thuật ngữ / YCCĐ vào mục Mục tiêu:
+       <orange>* Tích hợp Tiếng Anh (theo PPCT):</orange>
+       <orange>- Thuật ngữ / YCCĐ: [Nội dung nguyên văn trích từ cột Tiếng Anh trong PPCT]</orange>
+    -> BẮT BUỘC: Sử dụng đúng các thuật ngữ tiếng Anh này khi chèn các câu lệnh song ngữ <orange>...</orange> trong phần d. Tổ chức thực hiện. Tuyệt đối không tự ý bịa thêm từ tiếng Anh xa lạ.\n`
+      : "";
 
   const englishPrompt = options.includeEnglishIntegration
     ? `\n    ${ENGLISH_CLIL_INSTRUCTIONS}\n    CẤP ĐỘ TÍCH HỢP TIẾNG ANH (CLIL): ${options.englishIntegrationLevel}${customEnglishTargetInstruction}\n`
     : "";
 
-  // YCCĐ STEM nhập tay từ phụ lục đầu năm (Ưu tiên số 1)
+  // YCCĐ STEM: Ưu tiên 1 (nhập tay) -> Ưu tiên 2 (trích từ PPCT)
   const customStemTargetInstruction = (options.stemCustomTarget && options.stemCustomTarget.trim().length > 0)
     ? `\n    🎯 YÊU CẦU CẦN ĐẠT STEM ĐƯỢC CHỈ ĐỊNH (ƯU TIÊN TUYỆT ĐỐI SỐ 1):
     "${options.stemCustomTarget.trim()}"
     -> BẮT BUỘC: Đưa nguyên văn YCCĐ trên vào mục Mục tiêu STEM thay vì tự sinh.
     -> BẮT BUỘC: Nội dung Hoạt động Vận dụng STEM phải bám sát đúng YCCĐ này.
     -> TUYỆT ĐỐI KHÔNG tự ý thay đổi hoặc bỏ qua YCCĐ này.\n`
-    : "";
+    : hasPPCT
+      ? `\n    🎯 NGUỒN CHỦ ĐỀ / NHIỆM VỤ STEM TỰ ĐỘNG TỪ BẢNG PHỤ LỤC / PPCT (ƯU TIÊN SỐ 2):
+    -> BẮT BUỘC: Quét tìm hàng của bài học này trên bảng PPCT để lấy nội dung từ cột STEM / Giáo dục STEM / YCCĐ STEM / Nhiệm vụ STEM / Dự án STEM / Chủ đề STEM.
+    -> BẮT BUỘC: Đưa nguyên văn nội dung trích xuất vào mục Mục tiêu:
+       <blue>* Năng lực Giáo dục STEM (theo PPCT):</blue>
+       <blue>- [Nội dung nguyên văn trích từ cột STEM trong PPCT]</blue>
+    -> BẮT BUỘC: Thiết kế Hoạt động 4 (Vận dụng / STEM mini) và Bảng Rubric 3 tiêu chí BÁM SÁT 100% đúng chủ đề / sản phẩm / mô hình STEM này từ PPCT. TUYỆT ĐỐI KHÔNG tự ý bịa ra nhiệm vụ STEM khác.\n`
+      : "";
 
   // TÍCH HỢP STEM VÀO HOẠT ĐỘNG VẬN DỤNG (MÔ HÌNH A)
   const stemPrompt = options.enableStem
@@ -594,13 +649,19 @@ export const generateNLSLessonPlan = async (
     ? `\n    === BẢNG TỔNG HỢP HOẠT ĐỘNG NLS & AI (BẬT) ===\n    BẮT BUỘC tạo marker sau ở CUỐI BÀI (NGAY SAU phần Dặn dò / Hướng dẫn về nhà):\n    ===NLS_BẢNG_TỔNG_HỢP_HĐ|VITRI: Cuối giáo án > Sau phần Dặn dò / Hướng dẫn về nhà===\n    | Hoạt động | NLS/AI tích hợp | Công cụ | Sản phẩm/minh chứng |\n    |:--|:--|:--|:--|\n    | Hoạt động 1: [Tên HĐ 1] | [Mã NLS/AI đã chèn vào HĐ1] | [Công cụ từ câu chỉ báo HĐ1] | [Sản phẩm từ câu chỉ báo HĐ1] |\n    | Hoạt động 2: [Tên HĐ 2] | [Mã NLS/AI đã chèn vào HĐ2] | [Công cụ từ câu chỉ báo HĐ2] | [Sản phẩm từ câu chỉ báo HĐ2] |\n    | Hoạt động 3: [Tên HĐ 3] | [Mã NLS/AI đã chèn vào HĐ3] | [Công cụ từ câu chỉ báo HĐ3] | [Sản phẩm từ câu chỉ báo HĐ3] |\n    | Hoạt động 4: [Tên HĐ 4] | [Mã NLS/AI đã chèn vào HĐ4] | [Công cụ từ câu chỉ báo HĐ4] | [Sản phẩm từ câu chỉ báo HĐ4] |\n    ===END===\n\n    NGUYÊN TẮC KHỚP CHÍNH XÁC — BẮT BUỘC TUYỆT ĐỐI:\n    1. DUYỆT LẠI toàn bộ nội dung vừa sinh ở HĐ 1 → HĐ 4. Với mỗi hoạt động:\n       Liệt kê CHÍNH XÁC các mã NLS (x.x.TCxa) và AI ([7.X.x]) đã xuất hiện trong phần d. Tổ chức thực hiện.\n    2. CHỈ đưa vào bảng các mã ĐÃ THỰC SỰ XUẤT HIỆN — TUYỆT ĐỐI CẤM thêm mã mới không có trong giáo án.\n    3. TUYỆT ĐỐI CẤM gộp mã của hoạt động này sang hoạt động khác.\n    4. Cột Công cụ và Sản phẩm/minh chứng PHẢI BÁM SÁT câu chỉ báo NLS/AI đã viết.\n    5. Nếu một hoạt động không có NLS/AI → ghi Không có vào cột NLS/AI tích hợp.\n    6. Tên hoạt động trong cột Hoạt động PHẢI KHỚP với tên thực tế trong giáo án.\n`
     : `\n    BẢNG TỔNG HỢP NLS & AI: TẮT → Không tạo marker ===NLS_BẢNG_TỔNG_HỢP_HĐ===.\n`;
 
-  // Nội dung QPAN nhập tay từ phụ lục đầu năm (Ưu tiên số 1)
+  // Nội dung QPAN: Ưu tiên 1 (nhập tay) -> Ưu tiên 2 (trích từ PPCT)
   const customQpanTargetInstruction = (options.qpanCustomTarget && options.qpanCustomTarget.trim().length > 0)
     ? `\n    🎯 NỘI DUNG LỒNG GHÉP QPAN ĐƯỢC CHỈ ĐỊNH (ƯU TIÊN TUYỆT ĐỐI SỐ 1):
     "${options.qpanCustomTarget.trim()}"
     -> BẮT BUỘC: Sử dụng đúng nội dung trên khi lồng ghép vào phần Phẩm chất (Mục tiêu) và d. Tổ chức thực hiện.
     -> TUYỆT ĐỐI KHÔNG tự ý thay đổi hoặc sinh nội dung QPAN khác ngoài nội dung trên.\n`
-    : "";
+    : hasPPCT
+      ? `\n    🎯 NGUỒN NỘI DUNG QPAN TỰ ĐỘNG TỪ BẢNG PHỤ LỤC / PPCT (ƯU TIÊN SỐ 2):
+    -> BẮT BUỘC: Quét tìm hàng của bài học này trên bảng PPCT để lấy nội dung từ cột QPAN / Giáo dục Quốc phòng và An ninh / Lồng ghép QPAN / Quốc phòng an ninh / TT 08/2024 / GDQPAN.
+    -> BẮT BUỘC: Đưa nguyên văn nội dung trích xuất vào mục Phẩm chất (trong ===NLS_MỤC_TIÊU===):
+       <red>- Giáo dục Quốc phòng và An ninh (TT 08/2024/TT-BGDĐT) (theo PPCT): [Nội dung nguyên văn trích từ cột QPAN trong PPCT].</red>
+    -> BẮT BUỘC: Sử dụng đúng nội dung này để chèn câu <red>[Lồng ghép QPAN - TT 08/2024]: ...</red> vào 1-2 hoạt động phù hợp nhất trong bài.\n`
+      : "";
 
   // LỒNG GHÉP GIÁO DỤC QUỐC PHÒNG VÀ AN NINH (THÔNG TƯ 08/2024/TT-BGDĐT)
   const isQpanActive = !!options.includeQPAN;
