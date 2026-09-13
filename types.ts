@@ -77,6 +77,11 @@ export interface ProcessingOptions {
   nextLessonContent?: string;  // Nội dung file giáo án bài tiếp theo (text đã đọc từ docx)
   nextLessonTitle?: string;    // Tên bài học tiếp theo (nhập tay - Cách 2)
   nextLessonSummary?: string;  // Tóm tắt nội dung bài tiếp theo (nhập tay - Cách 2)
+  // Phạm vi tích hợp hoạt động (Tránh quá tải, chọn hoạt động trọng tâm)
+  activityScope?: 'ALL' | 'CUSTOM'; // 'ALL' (mặc định): trải đều HĐ 1->4; 'CUSTOM': theo lựa chọn của GV
+  selectedMainActivities?: number[]; // [1, 2, 3, 4] hoặc [2]...
+  selectedSubActivitiesHD2?: string[]; // ['2.1', '2.2']...
+  customSubActivityNote?: string; // Ghi chú tên mục cụ thể
 }
 
 
@@ -104,6 +109,10 @@ export interface HistoryItem {
   qpanCustomTarget?: string;
   teachingEnvironment?: TeachingEnvironment;
   includeQPAN?: boolean;
+  activityScope?: 'ALL' | 'CUSTOM';
+  selectedMainActivities?: number[];
+  selectedSubActivitiesHD2?: string[];
+  customSubActivityNote?: string;
 }
 export type ProPackage = 'TRIAL' | 'BONUS_5' | 'BONUS_10' | 'BONUS_20' | '1_YEAR' | '2_YEARS' | 'LIFETIME';
 

@@ -37,6 +37,11 @@ const App: React.FC = () => {
   const [nextLessonTitle, setNextLessonTitle] = useState<string>('');
   const [nextLessonSummary, setNextLessonSummary] = useState<string>('');
   const [autoDetectedMsg, setAutoDetectedMsg] = useState<string | null>(null);
+  // Phạm vi tích hợp NLS & AI vào hoạt động (ALL vs CUSTOM)
+  const [activityScope, setActivityScope] = useState<'ALL' | 'CUSTOM'>('ALL');
+  const [selectedMainActivities, setSelectedMainActivities] = useState<number[]>([1, 2, 3, 4]);
+  const [selectedSubActivitiesHD2, setSelectedSubActivitiesHD2] = useState<string[]>(['2.1', '2.2']);
+  const [customSubActivityNote, setCustomSubActivityNote] = useState<string>('');
 
 
   // Content States
@@ -190,6 +195,10 @@ const App: React.FC = () => {
           nextLessonContent: nextLessonContent || undefined,
           nextLessonTitle: nextLessonTitle || undefined,
           nextLessonSummary: nextLessonSummary || undefined,
+          activityScope,
+          selectedMainActivities,
+          selectedSubActivitiesHD2,
+          customSubActivityNote: customSubActivityNote || undefined,
         }
       );
 
@@ -224,6 +233,10 @@ const App: React.FC = () => {
         qpanCustomTarget: includeQPAN ? (qpanCustomTarget || undefined) : undefined,
         teachingEnvironment,
         includeQPAN,
+        activityScope,
+        selectedMainActivities,
+        selectedSubActivitiesHD2,
+        customSubActivityNote: customSubActivityNote || undefined,
       };
 
       saveToHistory(historyItem);
@@ -291,6 +304,14 @@ const App: React.FC = () => {
               setNextLessonTitle={setNextLessonTitle}
               nextLessonSummary={nextLessonSummary}
               setNextLessonSummary={setNextLessonSummary}
+              activityScope={activityScope}
+              setActivityScope={setActivityScope}
+              selectedMainActivities={selectedMainActivities}
+              setSelectedMainActivities={setSelectedMainActivities}
+              selectedSubActivitiesHD2={selectedSubActivitiesHD2}
+              setSelectedSubActivitiesHD2={setSelectedSubActivitiesHD2}
+              customSubActivityNote={customSubActivityNote}
+              setCustomSubActivityNote={setCustomSubActivityNote}
             />
 
             <ContentInput
@@ -509,6 +530,10 @@ const App: React.FC = () => {
           setResult(item.result);
           setSubject(item.subject);
           setGrade(item.grade);
+          if (item.activityScope) setActivityScope(item.activityScope);
+          if (item.selectedMainActivities) setSelectedMainActivities(item.selectedMainActivities);
+          if (item.selectedSubActivitiesHD2) setSelectedSubActivitiesHD2(item.selectedSubActivitiesHD2);
+          if (item.customSubActivityNote) setCustomSubActivityNote(item.customSubActivityNote);
         }}
         onDeleteHistory={handleDeleteHistoryItem}
         onClearAllHistory={handleClearAllHistory}

@@ -771,6 +771,75 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
 
 ` : '';
 
+  // ====== PHẠM VI TÍCH HỢP HOẠT ĐỘNG (TOÀN BÀI VS TÙY CHỌN TRỌNG TÂM) ======
+  const isCustomActivityScope = options.activityScope === 'CUSTOM';
+  const selectedActs = (options.selectedMainActivities && options.selectedMainActivities.length > 0)
+    ? options.selectedMainActivities
+    : [1, 2, 3, 4];
+  const selectedSubs = (options.selectedSubActivitiesHD2 && options.selectedSubActivitiesHD2.length > 0)
+    ? options.selectedSubActivitiesHD2
+    : ['2.1', '2.2'];
+  const customNote = options.customSubActivityNote ? options.customSubActivityNote.trim() : '';
+
+  const actDescriptions: string[] = [];
+  const unselectedActs: string[] = [];
+
+  if (isCustomActivityScope) {
+    if (selectedActs.includes(1)) actDescriptions.push("Hoạt động 1 (Khởi động / Mở đầu)");
+    else unselectedActs.push("Hoạt động 1");
+
+    if (selectedActs.includes(2)) {
+      const subDesc = selectedSubs.map(s => `HĐ ${s}`).join(", ");
+      let hd2Text = `Hoạt động 2 (Hình thành kiến thức mới) -> CỤ THỂ CHỈ TÍCH HỢP VÀO CÁC NHÁNH NHỎ: [${subDesc}]`;
+      if (customNote) {
+        hd2Text += ` (Ghi chú mục của GV: "${customNote}")`;
+      }
+      actDescriptions.push(hd2Text);
+
+      const unselectedSubs = ['2.1', '2.2', '2.3', '2.4'].filter(s => !selectedSubs.includes(s));
+      if (unselectedSubs.length > 0) {
+        unselectedActs.push(`Các nhánh còn lại của Hoạt động 2 (gồm: ${unselectedSubs.map(s => `HĐ ${s}`).join(", ")})`);
+      }
+    } else {
+      unselectedActs.push("Hoạt động 2");
+    }
+
+    if (selectedActs.includes(3)) actDescriptions.push("Hoạt động 3 (Luyện tập)");
+    else unselectedActs.push("Hoạt động 3");
+
+    if (selectedActs.includes(4)) actDescriptions.push("Hoạt động 4 (Vận dụng / STEM)");
+    else unselectedActs.push("Hoạt động 4");
+  }
+
+  const activityScopePrompt = isCustomActivityScope ? `
+    🎯 ⭐ CHỈ THỊ ĐẶC BIỆT VỀ PHẠM VI TÍCH HỢP NLS & AI (THEO YÊU CẦU CỤ THỂ CỦA GIÁO VIÊN):
+    - GIÁO VIÊN YÊU CẦU: KHÔNG tích hợp dàn trải vào mọi hoạt động để tránh quá tải tiết học.
+    - DANH SÁCH HOẠT ĐỘNG ĐƯỢC CHỌN ĐỂ TÍCH HỢP NLS/AI:
+      ${actDescriptions.map(d => `+ ${d}`).join("\n      ")}
+    
+    ⛔️ NGUYÊN TẮC BẮT BUỘC TUÂN THỦ TUYỆT ĐỐI:
+    1. ĐỐI VỚI CÁC HOẠT ĐỘNG / NHÁNH NHỎ ĐƯỢC CHỌN Ở TRÊN:
+       - Chèn thẻ <blue> (NLS) và/hoặc <purple> (AI) vào phần "d. Tổ chức thực hiện" (trọng tâm Bước 2: HS thực hiện nhiệm vụ).
+       - Đối với Hoạt động 2: CHỈ chèn vào đúng các hoạt động nhỏ / mục được chỉ định (${selectedSubs.map(s => `HĐ ${s}`).join(", ")}).
+       - Tạo các Marker tương ứng cho hoạt động/nhánh nhỏ được chọn: ví dụ ===NLS_HOẠT_ĐỘNG_2_BƯỚC_2=== hoặc ===NLS_HOẠT_ĐỘNG_2_1_BƯỚC_2===, ===NLS_HOẠT_ĐỘNG_2_2_BƯỚC_2===.
+    2. ĐỐI VỚI TẤT CẢ CÁC HOẠT ĐỘNG VÀ NHÁNH NHỎ CÒN LẠI KHÔNG ĐƯỢC CHỌN (${unselectedActs.join("; ")}):
+       - TUYỆT ĐỐI CẤM chèn bất kỳ thẻ <blue> hay <purple> nào vào các hoạt động này.
+       - TUYỆT ĐỐI GIỮ NGUYÊN 100% nội dung và định dạng gốc của các hoạt động đó.
+       - KHÔNG tạo Marker NLS cho các hoạt động không được chọn.
+    3. ĐỐI VỚI MỤC TIÊU (===NLS_MỤC_TIÊU===):
+       - Mục Năng lực số / Năng lực AI chỉ nêu các chỉ báo năng lực thực sự phục vụ cho (các) hoạt động được chọn nêu trên. TUYỆT ĐỐI KHÔNG viết dàn trải 4-5 chỉ báo cho các hoạt động không được tích hợp.
+    4. BẢNG TỔNG HỢP NLS & AI (nếu bật):
+       - Chỉ liệt kê (các) hoạt động được chọn có tích hợp. Các hoạt động không chọn ghi rõ: "Không tích hợp (theo phân phối bài dạy)".
+` : '';
+
+  const activityScopePromptEN = isCustomActivityScope ? `
+    🎯 ⭐ SPECIAL INSTRUCTION ON INTEGRATION SCOPE (AS REQUESTED BY TEACHER):
+    - TEACHER SPECIFIED: DO NOT integrate into all activities to prevent cognitive overload.
+    - ONLY INTEGRATE DIGITAL COMPETENCE & AI INTO SELECTED ACTIVITIES:
+      ${actDescriptions.map(d => `+ ${d}`).join("\n      ")}
+    - STRICTLY PROHIBITED: DO NOT add <blue> or <purple> tags to any other activity (${unselectedActs.join("; ")}). Keep original text 100% untouched.
+` : '';
+
   // User prompt
   const userPrompt = isEnglishSubject ? `
     DIGITAL COMPETENCE FRAMEWORK REFERENCE DATA:
@@ -781,6 +850,7 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
     ${stemPrompt}
     ${summaryTablePrompt}
     ${qpanPrompt}
+    ${activityScopePromptEN}
 
     LESSON PLAN INPUT INFORMATION:
     - Subject: ${info.subject}
@@ -797,6 +867,7 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
     ${disabilityStatusInstruction}
     ${englishStatusInstruction}
     ${qpanStatusInstruction}
+    ${activityScopePromptEN}
 
     ${options.analyzeOnly ? "- Analyze only, do not edit in detail." : needMarkersForSubFeatures ? "- DO NOT insert Digital Competence in blue (<blue>) or AI Competence in purple (<purple>). DO NOT generate DC summary tables.\n    - BUT YOU MUST STILL OUTPUT THE STRUCTURED MARKERS ===DC_OBJECTIVES=== AND ===DC_ACTIVITY_X_ORGANIZATION=== to wrap <green>Disability Support</green> and/or <orange>English Integration</orange> content for automated Word DOCX injection." : isNlsActive ? "- Edit the lesson plan and INTEGRATE ALL ENABLED COMPETENCIES (Digital Competence / AI / Disability Support / English) evenly across activities." : "- Keep lesson plan structure and only process enabled items."}
     ${options.detailedReport ? "- Include a detailed explanation table of selected competence codes at the end." : ""}
@@ -823,6 +894,7 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
     ${flippedPrompt}
     ${summaryTablePrompt}
     ${qpanPrompt}
+    ${activityScopePrompt}
 
     THÔNG TIN GIÁO ÁN ĐẦU VÀO:
     - Môn học: ${info.subject}
@@ -839,13 +911,14 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
     ${disabilityStatusInstruction}
     ${englishStatusInstruction}
     ${qpanStatusInstruction}
+    ${activityScopePrompt}
 
     YÊU CẦU XỬ LÝ NỘI DUNG:
     ${options.analyzeOnly ? "- Chỉ phân tích, không chỉnh sửa chi tiết." : needMarkersForSubFeatures ? "- KHÔNG chèn Năng lực số màu xanh (<blue>) hay Năng lực AI màu tím (<purple>), KHÔNG tạo Bảng tổng hợp NLS ở cuối bài.\n    - NHƯNG BẮT BUỘC PHẢI TẠO CÁC MARKER ===NLS_MỤC_TIÊU=== VÀ ===NLS_HOẠT_ĐỘNG_X_TỔ_CHỨC=== (hoặc ===NLS_HOẠT_ĐỘNG_X_BƯỚC_Y===) để bọc nội dung được BẬT (HSKT hoặc Tiếng Anh) phục vụ chèn tự động vào file Word (.docx)." : (() => {
         const tasks: string[] = [];
-        if (isDigitalNLSActive && isAINLActive) tasks.push("TÍCH HỢP SONG SONG cả Năng lực số (<blue>) và Năng lực AI (<purple>) vào phần d. Tổ chức thực hiện");
-        else if (isDigitalNLSActive) tasks.push("TÍCH HỢP NĂNG LỰC SỐ (<blue>) vào phần d. Tổ chức thực hiện (CẤM dùng thẻ <purple> hay mã AI)");
-        else if (isAINLActive) tasks.push("TÍCH HỢP NĂNG LỰC AI (<purple>) vào phần d. Tổ chức thực hiện (CẤM dùng thẻ <blue> hay mã NLS thông thường)");
+        if (isDigitalNLSActive && isAINLActive) tasks.push("TÍCH HỢP SONG SONG cả Năng lực số (<blue>) và Năng lực AI (<purple>) vào phần d. Tổ chức thực hiện" + (isCustomActivityScope ? " CỦA CÁC HOẠT ĐỘNG ĐƯỢC CHỈ ĐỊNH" : ""));
+        else if (isDigitalNLSActive) tasks.push("TÍCH HỢP NĂNG LỰC SỐ (<blue>) vào phần d. Tổ chức thực hiện" + (isCustomActivityScope ? " CỦA CÁC HOẠT ĐỘNG ĐƯỢC CHỈ ĐỊNH" : "") + " (CẤM dùng thẻ <purple> hay mã AI)");
+        else if (isAINLActive) tasks.push("TÍCH HỢP NĂNG LỰC AI (<purple>) vào phần d. Tổ chức thực hiện" + (isCustomActivityScope ? " CỦA CÁC HOẠT ĐỘNG ĐƯỢC CHỈ ĐỊNH" : "") + " (CẤM dùng thẻ <blue> hay mã NLS thông thường)");
         if (isDisabilityActive) tasks.push("ĐỒNG THỜI chèn câu HỖ TRỢ HSKT (<green>) vào đúng các bước của hoạt động (trọng tâm Bước 1 & Bước 2, tối đa 1 câu/bước)");
         if (isEnglishActive) tasks.push("ĐỒNG THỜI chèn nội dung TÍCH HỢP TIẾNG ANH (<orange>) vào các hoạt động theo đúng cấp độ");
         if (isQpanActive) tasks.push("ĐỒNG THỜI lồng ghép GIÁO DỤC QUỐC PHÒNG VÀ AN NINH (<red>) theo Thông tư 08/2024/TT-BGDĐT vào 1-2 hoạt động phù hợp nhất");
@@ -887,8 +960,11 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
        - NLS (<blue>) VÀ NĂNG LỰC AI (<purple>) LUÔN LUÔN LÀ NĂNG LỰC CỦA HỌC SINH (HS).
        - MỌI CÂU CHỈ BÁO NLS/AI PHẢI BẮT ĐẦU BẰNG "HS [Hành động số / AI cụ thể] để [Mục đích học tập]".
        - 🚫 CẤM TUYỆT ĐỐI dùng: "GV hướng dẫn HS...", "GV yêu cầu HS...". Câu chỉ báo chỉ mô tả hành động và năng lực thực tế của Học sinh.
-    7. ⭐ QUY TẮC PHÂN BỔ TRẢI ĐỀU NLS VÀ NL AI QUA TẤT CẢ CÁC HOẠT ĐỘNG (CHUẨN CV 5512):
-       - Trải đều: MỌI HOẠT ĐỘNG (HĐ 1 Khởi động, HĐ 2 Khám phá/HTKM, HĐ 3 Luyện tập, HĐ 4 Vận dụng/STEM) đều cần được tích hợp NLS và/hoặc NL AI phù hợp, thiết thực.
+    7. ⭐ QUY TẮC PHÂN BỔ NLS VÀ NL AI:
+       ${isCustomActivityScope
+         ? `- PHẠM VI GIÁO VIÊN ĐÃ CHỌN: CHỈ TÍCH HỢP VÀO: ${actDescriptions.join('; ')}. TUYỆT ĐỐI CẤM chèn thẻ <blue> hoặc <purple> vào bất kỳ hoạt động hoặc nhánh nhỏ nào khác!`
+         : `- Trải đều: MỌI HOẠT ĐỘNG (HĐ 1 Khởi động, HĐ 2 Khám phá/HTKM, HĐ 3 Luyện tập, HĐ 4 Vận dụng/STEM) đều cần được tích hợp NLS và/hoặc NL AI phù hợp, thiết thực.`
+       }
        - Bước 1 (Giao nhiệm vụ): ❌ Mặc định KHÔNG chèn.
        - Bước 2 (Thực hiện nhiệm vụ): ✅ ĐÂY LÀ VỊ TRÍ CHÈN TRỌNG TÂM cho từng hoạt động khi HS trực tiếp thao tác công cụ số/AI (tra cứu, bấm MTCT, vẽ GeoGebra, thí nghiệm ảo PhET, nhập Excel, làm bài trắc nghiệm Quizizz/Kahoot, đối chiếu câu trả lời AI với SGK).
        - Bước 3 (Báo cáo): ✅ Chèn khi HS thực sự nộp/trình chiếu file số qua Padlet/Google Slides/máy chiếu.

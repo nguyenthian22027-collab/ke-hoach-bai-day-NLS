@@ -58,6 +58,15 @@ interface LessonFormProps {
   setNextLessonTitle: (val: string) => void;
   nextLessonSummary: string;
   setNextLessonSummary: (val: string) => void;
+  // Phạm vi tích hợp hoạt động NLS & AI
+  activityScope?: 'ALL' | 'CUSTOM';
+  setActivityScope?: (val: 'ALL' | 'CUSTOM') => void;
+  selectedMainActivities?: number[];
+  setSelectedMainActivities?: (val: number[]) => void;
+  selectedSubActivitiesHD2?: string[];
+  setSelectedSubActivitiesHD2?: (val: string[]) => void;
+  customSubActivityNote?: string;
+  setCustomSubActivityNote?: (val: string) => void;
 }
 
 const LessonForm: React.FC<LessonFormProps> = ({
@@ -108,6 +117,14 @@ const LessonForm: React.FC<LessonFormProps> = ({
   setNextLessonTitle,
   nextLessonSummary,
   setNextLessonSummary,
+  activityScope = 'ALL',
+  setActivityScope,
+  selectedMainActivities = [1, 2, 3, 4],
+  setSelectedMainActivities,
+  selectedSubActivitiesHD2 = ['2.1', '2.2'],
+  setSelectedSubActivitiesHD2,
+  customSubActivityNote = '',
+  setCustomSubActivityNote,
 }) => {
   const nextLessonFileRef = useRef<HTMLInputElement>(null);
 
@@ -377,6 +394,160 @@ const LessonForm: React.FC<LessonFormProps> = ({
                 </label>
               </div>
             )}
+
+            {/* PHẠM VI TÍCH HỢP HOẠT ĐỘNG: Toàn bài vs Tùy chọn hoạt động trọng tâm */}
+            <div className="p-3.5 rounded-2xl bg-white border border-indigo-100 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-indigo-950 flex items-center gap-1.5">
+                  <span className="text-base">🎯</span>
+                  <span>Phạm vi tích hợp NLS & AI vào các hoạt động:</span>
+                </label>
+                <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${
+                  activityScope === 'ALL'
+                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                    : 'bg-purple-50 text-purple-700 border-purple-200'
+                }`}>
+                  {activityScope === 'ALL' ? 'Toàn bộ bài học' : 'Theo hoạt động chọn'}
+                </span>
+              </div>
+
+              {/* 2 chế độ: Tất cả (Mặc định) vs Tùy chọn trọng tâm */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setActivityScope?.('ALL')}
+                  className={`p-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+                    activityScope === 'ALL'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-600 shadow-md shadow-blue-500/20'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <span>🌐 Tất cả các hoạt động</span>
+                  <span className="text-[10px] opacity-80 font-normal">(Trải đều HĐ 1 → 4)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActivityScope?.('CUSTOM')}
+                  className={`p-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+                    activityScope === 'CUSTOM'
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20 ring-2 ring-purple-300/40'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <span>🎯 Tùy chọn hoạt động trọng tâm</span>
+                  <span className="text-[10px] opacity-80 font-normal">(Tránh quá tải)</span>
+                </button>
+              </div>
+
+              {/* Khi chọn CUSTOM: hiển thị 4 checkbox cho 4 hoạt động */}
+              {activityScope === 'CUSTOM' && (
+                <div className="pt-2.5 border-t border-indigo-100/70 space-y-3 animate-fadeIn">
+                  <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+                    💡 <em>Chọn các hoạt động cần tích hợp NLS/AI. Các hoạt động không chọn sẽ được <strong>giữ nguyên 100% nguyên bản</strong> (không chèn NLS/AI):</em>
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {[
+                      { id: 1, label: 'Hoạt động 1: Mở đầu / Khởi động' },
+                      { id: 2, label: 'Hoạt động 2: Hình thành kiến thức mới (Khám phá)' },
+                      { id: 3, label: 'Hoạt động 3: Luyện tập' },
+                      { id: 4, label: 'Hoạt động 4: Vận dụng' },
+                    ].map((act) => {
+                      const isChecked = selectedMainActivities.includes(act.id);
+                      return (
+                        <label
+                          key={act.id}
+                          className={`flex items-center space-x-2.5 p-2.5 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
+                            isChecked
+                              ? 'bg-indigo-50/90 border-indigo-300 text-indigo-900 shadow-xs'
+                              : 'bg-slate-50/60 border-slate-200 text-slate-500 hover:bg-slate-100/70'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (!setSelectedMainActivities) return;
+                              if (e.target.checked) {
+                                setSelectedMainActivities([...selectedMainActivities, act.id].sort((a, b) => a - b));
+                              } else {
+                                const remaining = selectedMainActivities.filter(id => id !== act.id);
+                                setSelectedMainActivities(remaining.length > 0 ? remaining : [act.id]);
+                              }
+                            }}
+                            className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                          />
+                          <span>{act.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+
+                  {/* ĐẶC BIỆT: Phân nhánh nhỏ cho Hoạt động 2 (Hình thành kiến thức) */}
+                  {selectedMainActivities.includes(2) && (
+                    <div className="p-3 bg-gradient-to-br from-indigo-50/70 via-purple-50/40 to-slate-50 rounded-xl border border-indigo-200 space-y-2.5 animate-fadeIn">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-extrabold text-indigo-950 uppercase tracking-wider flex items-center gap-1.5">
+                          <span>📌</span> Chỉ định nhánh nhỏ trong Hoạt động 2 (Hình thành kiến thức):
+                        </span>
+                        <span className="text-[10px] text-indigo-700 bg-white px-2 py-0.5 rounded-full border border-indigo-200 font-semibold">
+                          Tích hợp có chọn lọc
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                          { id: '2.1', label: 'HĐ 2.1 (Mục 1)' },
+                          { id: '2.2', label: 'HĐ 2.2 (Mục 2)' },
+                          { id: '2.3', label: 'HĐ 2.3 (Mục 3)' },
+                          { id: '2.4', label: 'HĐ 2.4 (Mục 4)' },
+                        ].map((sub) => {
+                          const isSubChecked = selectedSubActivitiesHD2.includes(sub.id);
+                          return (
+                            <label
+                              key={sub.id}
+                              className={`flex items-center space-x-1.5 p-2 rounded-lg border text-[11px] font-bold cursor-pointer transition-all ${
+                                isSubChecked
+                                  ? 'bg-purple-100/90 border-purple-300 text-purple-950 shadow-xs'
+                                  : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSubChecked}
+                                onChange={(e) => {
+                                  if (!setSelectedSubActivitiesHD2) return;
+                                  if (e.target.checked) {
+                                    setSelectedSubActivitiesHD2([...selectedSubActivitiesHD2, sub.id]);
+                                  } else {
+                                    const remaining = selectedSubActivitiesHD2.filter(id => id !== sub.id);
+                                    setSelectedSubActivitiesHD2(remaining.length > 0 ? remaining : [sub.id]);
+                                  }
+                                }}
+                                className="w-3.5 h-3.5 text-purple-600 rounded border-slate-300 focus:ring-purple-500"
+                              />
+                              <span>{sub.label}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+
+                      {/* Ô nhập tuỳ chọn tên mục cụ thể */}
+                      <div className="pt-1">
+                        <input
+                          type="text"
+                          value={customSubActivityNote}
+                          onChange={(e) => setCustomSubActivityNote?.(e.target.value)}
+                          placeholder="Hoặc nhập tên mục/nhiệm vụ cụ thể (VD: Mục 1. Khái niệm phân số, HĐ 2.1...)"
+                          className="w-full text-xs p-2 rounded-lg border border-indigo-200 bg-white placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all font-medium"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Nút thủ công & Tự động: Chế độ Bổ sung (File đã có NLS sẵn) - LUÔN LUÔN HIỂN THỊ */}
             <div className={`p-3.5 rounded-2xl border transition-all ${
