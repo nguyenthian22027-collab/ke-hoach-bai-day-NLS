@@ -449,9 +449,17 @@ export const generateNLSLessonPlan = async (
       BƯỚC 2: Tìm ĐÚNG HÀNG của bài học đó trong bảng Phụ lục / PPCT.
       ⚠️ LƯU Ý SO KHỚP TÊN BÀI HỌC: Tên bài trong PPCT có thể có thêm số tiết, chữ 'Bài', 'Chủ đề', số La Mã, hoặc cách viết tắt (vd: "Bài 1. Thiết bị vào và ra (2 tiết)", "Chủ đề 1: Bài 1..."). Bạn PHẢI đối chiếu linh hoạt để tìm đúng hàng của bài học này!
 
-      BƯỚC 3 (NĂNG LỰC SỐ & AI):
-      - Tìm cột có tiêu đề chứa: "Năng lực số", "NLS", "YCCĐ năng lực số", "Phát triển NLS", "Ứng dụng CNTT", "Chuyển đổi số", "AI", "Năng lực AI", "Trí tuệ nhân tạo"...
-      - Trích xuất NGUYÊN VĂN mã và nội dung từ cột đó đưa vào mục Mục tiêu Năng lực số - GIỮ NGUYÊN MÃ SỐ VÀ NỘI DUNG.
+      BƯỚC 3 (NĂNG LỰC SỐ & AI - KHÓA CHẶT DANH MỤC MÃ & TÁI SỬ DỤNG MÃ):
+      - Nhận diện linh hoạt: Dù nội dung PPCT/Phụ lục là dạng BẢNG nhiều cột hay văn bản dán tự do (ví dụ: "NLS: 1.1.TC1a, 3.1.TC1a... NL AI: [AI: 6.C2.1]..."), hãy trích xuất NGUYÊN VĂN mã và nội dung đó đưa vào mục Mục tiêu:
+        + Năng lực số: <blue>- [Mã NLS]: [Nội dung]</blue>
+        + Năng lực AI: <purple>- [Mã AI]: [Nội dung]</purple>
+      - 🚨 KHÓA CHẶT ZERO-HALLUCINATION TRONG MỤC TIÊU (===NLS_MỤC_TIÊU===):
+        + Danh sách mã trích xuất được là TẬP ĐÓNG DUY NHẤT.
+        + TUYỆT ĐỐI CẤM sinh thêm bất kỳ mã nào khác trong mục Mục tiêu!
+        + Ví dụ: Nếu giáo viên chỉ cung cấp 1 mã AI [6.C2.1] thì trong ===NLS_MỤC_TIÊU=== chỉ được có duy nhất mã [6.C2.1], CẤM TUYỆT ĐỐI sinh thêm [6.A1.3] hay bất kỳ mã AI nào khác. Tương tự, nếu chỉ có mã 1.1b thì CẤM tự ý thêm 1.1.NC1b, 2.1...
+      - 🚨 NGUYÊN TẮC TÁI SỬ DỤNG MÃ (CODE RE-USE) TRONG TIẾN TRÌNH DẠY HỌC (PHẦN III):
+        + Khi phân bổ vào các hoạt động (HĐ 1, 2, 3, 4 hoặc các nhánh nhỏ HĐ 2.1, 2.2, 2.3 trong phần Hình thành kiến thức): Nếu số lượng hoạt động cần tích hợp nhiều hơn số lượng mã có sẵn (ví dụ chỉ có 1 mã NLS hoặc 1 mã AI), BẮT BUỘC TÁI SỬ DỤNG CÙNG 1 MÃ ĐÓ cho nhiều hoạt động / nhánh nhỏ.
+        + Tại mỗi hoạt động, chỉ cần viết hành động học tập của HS cho phù hợp với nội dung bài dạy đó, nhưng BẮT BUỘC PHẢI GIỮ NGUYÊN MÃ ĐÃ CẤP, TUYỆT ĐỐI CẤM BỊA RA MÃ MỚI!
 
       BƯỚC 4 (HỌC SINH KHUYẾT TẬT - NẾU BẬT CHẾ ĐỘ HSKT):
       - Tìm cột có tiêu đề chứa: "Học sinh khuyết tật", "HSKT", "Yêu cầu cần đạt đối với học sinh khuyết tật", "YCCĐ HSKT", "Điều chỉnh cho HSKT", "Mục tiêu hòa nhập", "Hòa nhập", "Hỗ trợ HSKT"...
@@ -511,6 +519,7 @@ export const generateNLSLessonPlan = async (
       
       ⛔️ CÁC ĐIỀU CẤM (STRICTLY PROHIBITED):
       - CẤM TUYỆT ĐỐI việc tự ý thêm bất kỳ năng lực hay nhiệm vụ nào khác mâu thuẫn với nội dung trong PPCT của bài học này.
+      - CẤM TUYỆT ĐỐI sinh thêm mã mới ngoài danh mục đã cung cấp (Tập đóng). Nếu thiếu mã để phân bổ cho nhiều hoạt động, BẮT BUỘC tái sử dụng các mã đã có, CẤM bịa mã mới!
       - CẤM thay đổi mã số hay nội dung. VD: 1.1.TC1a phải giữ nguyên.
       - CẤM chèn Năng lực số vào các mục "a) Mục tiêu", "b) Nội dung", "c) Sản phẩm" của các hoạt động. CHỈ CHÈN VÀO "d) Tổ chức thực hiện".
       - Nếu cột nào trong PPCT để trống, thì mục tiêu tương ứng mới ghi không có hoặc tự sinh vừa sức.
@@ -577,6 +586,22 @@ export const generateNLSLessonPlan = async (
 
   const disabilityNames = selectedDisabilityTypes.map(t => disabilityLabelMap[t] || t).join('\n    + ');
   const hasPPCT = !!(info.distributionContent && info.distributionContent.trim().length > 0);
+
+  // YCCĐ / Mã NLS: Ưu tiên 1 (nhập tay) -> Ưu tiên 2 (trích từ PPCT)
+  const customNlsTargetInstruction = (options.nlsCustomTarget && options.nlsCustomTarget.trim().length > 0)
+    ? `\n    🎯 DANH SÁCH MÃ & YÊU CẦU CẦN ĐẠT NĂNG LỰC SỐ ĐƯỢC CHỈ ĐỊNH (ƯU TIÊN TUYỆT ĐỐI SỐ 1 - KHÓA CHẶT TẬP ĐÓNG):
+    "${options.nlsCustomTarget.trim()}"
+    -> BẮT BUỘC: Phần I Mục tiêu (===NLS_MỤC_TIÊU===) CHỈ ĐƯỢC PHÉP chứa đúng các mã NLS này. TUYỆT ĐỐI CẤM TỰ SINH THÊM BẤT KỲ MÃ NLS NÀO KHÁC!
+    -> NGUYÊN TẮC TÁI SỬ DỤNG TRONG TIẾN TRÌNH DẠY HỌC: Nếu cần tích hợp NLS vào nhiều hoạt động hoặc nhiều nhánh nhỏ trong phần Hình thành kiến thức mà số lượng mã ít hơn số hoạt động, BẮT BUỘC TÁI SỬ DỤNG CÁC MÃ TRÊN (HS thực hiện hành động số phù hợp kiến thức của từng hoạt động nhưng GIỮ NGUYÊN MÃ ĐÃ CẤP, KHÔNG ĐƯỢC ĐỔI HOẶC BỊA MÃ MỚI).\n`
+    : "";
+
+  // YCCĐ / Mã AI: Ưu tiên 1 (nhập tay) -> Ưu tiên 2 (trích từ PPCT)
+  const customAiTargetInstruction = (options.aiCustomTarget && options.aiCustomTarget.trim().length > 0)
+    ? `\n    🎯 DANH SÁCH MÃ & YÊU CẦU CẦN ĐẠT NĂNG LỰC AI ĐƯỢC CHỈ ĐỊNH (ƯU TIÊN TUYỆT ĐỐI SỐ 1 - KHÓA CHẶT TẬP ĐÓNG):
+    "${options.aiCustomTarget.trim()}"
+    -> BẮT BUỘC: Phần I Mục tiêu (===NLS_MỤC_TIÊU===) CHỈ ĐƯỢC PHÉP chứa đúng các mã AI này (ví dụ chỉ có 1 mã [6.C2.1] thì chỉ ghi duy nhất 1 mã này). TUYỆT ĐỐI CẤM TỰ SINH THÊM MÃ AI KHÁC!
+    -> NGUYÊN TẮC TÁI SỬ DỤNG TRONG TIẾN TRÌNH DẠY HỌC: Nếu cần tích hợp AI vào nhiều hoạt động hoặc nhiều nhánh nhỏ trong phần Hình thành kiến thức / Luyện tập / Vận dụng, BẮT BUỘC TÁI SỬ DỤNG CÙNG MÃ AI TRÊN (HS phân tích, đối chiếu hoặc tìm hiểu ứng dụng AI theo nội dung từng hoạt động nhưng GIỮ NGUYÊN MÃ ĐÃ CẤP, KHÔNG ĐƯỢC BỊA THÊM MÃ MỚI NHƯ [6.A1.3], [7.A1.1]...).\n`
+    : "";
 
   // Yêu cầu cần đạt HSKT: Ưu tiên 1 (nhập tay) -> Ưu tiên 2 (trích từ PPCT)
   const customTargetInstruction = (options.disabilityCustomTarget && options.disabilityCustomTarget.trim().length > 0)
@@ -845,6 +870,8 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
     DIGITAL COMPETENCE FRAMEWORK REFERENCE DATA:
     ${frameworkData}
     ${aiFrameworkPrompt}
+    ${customNlsTargetInstruction}
+    ${customAiTargetInstruction}
     ${disabilityPrompt}
     ${englishPrompt}
     ${stemPrompt}
@@ -875,7 +902,7 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
     FORMAT REQUIREMENTS (MANDATORY):
     1. PRESERVE ORIGINAL FORMATTING: You must keep bold (**text**), italic (*text*) formatting from the original text.
     2. TABLES: Use standard Markdown Table.
-    ${isDigitalNLSActive && isAINLActive ? "3. DC & AI ADDITIONS: Use <blue>...</blue> tags for digital competence and <purple>...</purple> for AI competence. Include indicator codes (e.g. 1.1.TC1a: or NLc.C2:)." : isDigitalNLSActive ? "3. DC ADDITIONS: ONLY use <blue>...</blue> tags for digital competence (e.g. 1.1.TC1a:). ABSOLUTELY DO NOT use <purple> tags or AI codes." : isAINLActive ? "3. AI ADDITIONS: ONLY use <purple>...</purple> tags for AI competence (e.g. NLc.C2:). ABSOLUTELY DO NOT use <blue> tags or standard DC codes." : "3. DC & AI ADDITIONS: DISABLED. DO NOT use <blue> or <purple> tags."}
+    ${isDigitalNLSActive && isAINLActive ? "3. DC & AI ADDITIONS: Use <blue>...</blue> tags for digital competence and <purple>...</purple> for AI competence. Include indicator codes (e.g. 1.1.TC1a: or [6.C2.1]:). If specific codes are provided, LOCK STRICTLY to those codes (no extra codes) and RE-USE the same code(s) across activities." : isDigitalNLSActive ? "3. DC ADDITIONS: ONLY use <blue>...</blue> tags for digital competence (e.g. 1.1.TC1a:). ABSOLUTELY DO NOT use <purple> tags or AI codes. LOCK to provided codes and re-use across activities if needed." : isAINLActive ? "3. AI ADDITIONS: ONLY use <purple>...</purple> tags for AI competence (e.g. [6.C2.1]:). ABSOLUTELY DO NOT use <blue> tags or standard DC codes. LOCK to provided codes and re-use across activities if needed." : "3. DC & AI ADDITIONS: DISABLED. DO NOT use <blue> or <purple> tags."}
     ${isDisabilityActive ? "4. DISABILITY SUPPORT: Use <green>[Hỗ trợ HSKT: ...]</green> to mark inclusive education support in green." : "4. DISABILITY SUPPORT: DISABLED. ABSOLUTELY DO NOT use <green> tags or disability support."}
     ${isEnglishActive ? "5. ENGLISH INTEGRATION: Use <orange>[EN Instruction: ...]</orange> or similar tags based on the level in orange." : "5. ENGLISH INTEGRATION: DISABLED. ABSOLUTELY DO NOT use <orange> tags or English content."}
     6. LOCATION: Insert in Objectives under "2. Competence". For activities, ONLY insert into section "d) Organization" (or steps under Organization). DO NOT insert into Content, Outcomes, or Objectives of activities.
@@ -888,6 +915,8 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
     DỮ LIỆU THAM CHIẾU KHUNG NĂNG LỰC SỐ & NĂNG LỰC AI (QĐ 3439 & TT 02):
     ${frameworkData}
     ${aiFrameworkPrompt}
+    ${customNlsTargetInstruction}
+    ${customAiTargetInstruction}
     ${disabilityPrompt}
     ${englishPrompt}
     ${stemPrompt}
@@ -960,11 +989,13 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
        - NLS (<blue>) VÀ NĂNG LỰC AI (<purple>) LUÔN LUÔN LÀ NĂNG LỰC CỦA HỌC SINH (HS).
        - MỌI CÂU CHỈ BÁO NLS/AI PHẢI BẮT ĐẦU BẰNG "HS [Hành động số / AI cụ thể] để [Mục đích học tập]".
        - 🚫 CẤM TUYỆT ĐỐI dùng: "GV hướng dẫn HS...", "GV yêu cầu HS...". Câu chỉ báo chỉ mô tả hành động và năng lực thực tế của Học sinh.
-    7. ⭐ QUY TẮC PHÂN BỔ NLS VÀ NL AI:
+    7. ⭐ QUY TẮC PHÂN BỔ NLS VÀ NL AI & TÁI SỬ DỤNG MÃ (ZERO-HALLUCINATION & CODE RE-USE):
        ${isCustomActivityScope
          ? `- PHẠM VI GIÁO VIÊN ĐÃ CHỌN: CHỈ TÍCH HỢP VÀO: ${actDescriptions.join('; ')}. TUYỆT ĐỐI CẤM chèn thẻ <blue> hoặc <purple> vào bất kỳ hoạt động hoặc nhánh nhỏ nào khác!`
          : `- Trải đều: MỌI HOẠT ĐỘNG (HĐ 1 Khởi động, HĐ 2 Khám phá/HTKM, HĐ 3 Luyện tập, HĐ 4 Vận dụng/STEM) đều cần được tích hợp NLS và/hoặc NL AI phù hợp, thiết thực.`
        }
+       - 🚨 KHÓA CHẶT MÃ TRONG MỤC TIÊU (===NLS_MỤC_TIÊU===): Khi giáo viên đã cung cấp mã NLS hoặc AI (nhập tay hoặc trích từ PPCT), mục Mục tiêu CHỈ ĐƯỢC CHỨA ĐÚNG CÁC MÃ NÀY. TUYỆT ĐỐI CẤM SINH THÊM MÃ MỚI NGOÀI DANH MỤC!
+       - 🚨 NGUYÊN TẮC TÁI SỬ DỤNG MÃ (CODE RE-USE) TRONG TIẾN TRÌNH DẠY HỌC: Nếu số lượng hoạt động hoặc số lượng nhánh nhỏ trong phần Hình thành kiến thức nhiều hơn số lượng mã được cấp (ví dụ: chỉ có 1 mã NLS 1.1b, hoặc chỉ có 1 mã AI [6.C2.1]), BẮT BUỘC TÁI SỬ DỤNG CÙNG 1 MÃ ĐÓ qua các hoạt động hoặc các nhánh nhỏ! Tại mỗi hoạt động, chỉ cần điều chỉnh hành động học tập cho phù hợp với nội dung bài dạy, nhưng PHẢI GIỮ NGUYÊN MÃ ĐÃ CẤP, CẤM BỊA THÊM MÃ MỚI!
        - Bước 1 (Giao nhiệm vụ): ❌ Mặc định KHÔNG chèn.
        - Bước 2 (Thực hiện nhiệm vụ): ✅ ĐÂY LÀ VỊ TRÍ CHÈN TRỌNG TÂM cho từng hoạt động khi HS trực tiếp thao tác công cụ số/AI (tra cứu, bấm MTCT, vẽ GeoGebra, thí nghiệm ảo PhET, nhập Excel, làm bài trắc nghiệm Quizizz/Kahoot, đối chiếu câu trả lời AI với SGK).
        - Bước 3 (Báo cáo): ✅ Chèn khi HS thực sự nộp/trình chiếu file số qua Padlet/Google Slides/máy chiếu.

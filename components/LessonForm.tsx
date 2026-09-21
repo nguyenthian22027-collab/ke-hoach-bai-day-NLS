@@ -67,6 +67,11 @@ interface LessonFormProps {
   setSelectedSubActivitiesHD2?: (val: string[]) => void;
   customSubActivityNote?: string;
   setCustomSubActivityNote?: (val: string) => void;
+  // Nhập mã NLS & AI dán tay (Ưu tiên số 1 - Khóa chặn tập đóng)
+  nlsCustomTarget?: string;
+  setNlsCustomTarget?: (val: string) => void;
+  aiCustomTarget?: string;
+  setAiCustomTarget?: (val: string) => void;
 }
 
 const LessonForm: React.FC<LessonFormProps> = ({
@@ -125,6 +130,10 @@ const LessonForm: React.FC<LessonFormProps> = ({
   setSelectedSubActivitiesHD2,
   customSubActivityNote = '',
   setCustomSubActivityNote,
+  nlsCustomTarget,
+  setNlsCustomTarget,
+  aiCustomTarget,
+  setAiCustomTarget,
 }) => {
   const nextLessonFileRef = useRef<HTMLInputElement>(null);
 
@@ -545,6 +554,54 @@ const LessonForm: React.FC<LessonFormProps> = ({
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+            </div>
+
+            {/* Nhập mã & YCCĐ NLS / AI chỉ định (Tùy chọn - Khóa chặn danh mục mã & Tái sử dụng) */}
+            <div className="p-3.5 rounded-2xl bg-white border border-indigo-100 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-indigo-950 flex items-center gap-1.5">
+                  <span>🔒</span>
+                  <span>Mã & YCCĐ NLS / AI chỉ định (Tùy chọn - Khóa chặn danh mục mã):</span>
+                </label>
+                <span className="text-[10px] font-semibold text-blue-700 bg-blue-100/90 px-2 py-0.5 rounded-full border border-blue-200">
+                  Ưu tiên số 1 - Khóa cứng
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                💡 <em>Dán mã NLS hoặc mã AI vào đây nếu Thầy/Cô chỉ muốn dùng đúng các mã này. AI sẽ <strong>khóa cứng 100%</strong> (không sinh mã lạ trong Mục tiêu), và sẽ <strong>tái sử dụng mã</strong> qua các hoạt động trong bài dạy nếu số hoạt động nhiều hơn số mã:</em>
+              </p>
+
+              {(integrationMode === 'BOTH' || integrationMode === 'NLS') && (
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-blue-900 flex items-center gap-1">
+                    <Cpu size={13} className="text-blue-600" />
+                    <span>Mã / YCCĐ Năng lực số (NLS) chỉ định:</span>
+                  </span>
+                  <textarea
+                    value={nlsCustomTarget || ''}
+                    onChange={(e) => setNlsCustomTarget && setNlsCustomTarget(e.target.value)}
+                    placeholder="VD: 1.1.TC1a, 3.1.TC1a, 5.3.TC1a hoặc 1.1b... (Nếu để trống, AI tự sinh theo Thông tư 02 hoặc lấy từ cột NLS trong PPCT)"
+                    rows={2}
+                    className="w-full rounded-xl border border-blue-200 bg-blue-50/20 p-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-400/20 resize-none shadow-2xs transition-all font-medium"
+                  />
+                </div>
+              )}
+
+              {(integrationMode === 'BOTH' || integrationMode === 'AI') && (
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-purple-900 flex items-center gap-1">
+                    <Bot size={13} className="text-purple-600" />
+                    <span>Mã / YCCĐ Năng lực AI chỉ định:</span>
+                  </span>
+                  <textarea
+                    value={aiCustomTarget || ''}
+                    onChange={(e) => setAiCustomTarget && setAiCustomTarget(e.target.value)}
+                    placeholder="VD: [AI: 6.C2.1] Phân biệt ứng dụng có AI... (Nếu để trống, AI tự sinh theo Khung AI hoặc lấy từ cột AI trong PPCT)"
+                    rows={2}
+                    className="w-full rounded-xl border border-purple-200 bg-purple-50/20 p-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-400/20 resize-none shadow-2xs transition-all font-medium"
+                  />
                 </div>
               )}
             </div>

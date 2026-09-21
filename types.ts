@@ -82,6 +82,9 @@ export interface ProcessingOptions {
   selectedMainActivities?: number[]; // [1, 2, 3, 4] hoặc [2]...
   selectedSubActivitiesHD2?: string[]; // ['2.1', '2.2']...
   customSubActivityNote?: string; // Ghi chú tên mục cụ thể
+  // YCCĐ / Mã NLS & AI dán tay trực tiếp (Ưu tiên số 1 - Khóa chặn tuyệt đối)
+  nlsCustomTarget?: string; // Yêu cầu cần đạt / Mã NLS nhập tay
+  aiCustomTarget?: string;  // Yêu cầu cần đạt / Mã Năng lực AI nhập tay
 }
 
 
@@ -113,6 +116,8 @@ export interface HistoryItem {
   selectedMainActivities?: number[];
   selectedSubActivitiesHD2?: string[];
   customSubActivityNote?: string;
+  nlsCustomTarget?: string;
+  aiCustomTarget?: string;
 }
 export type ProPackage = 'TRIAL' | 'BONUS_5' | 'BONUS_10' | 'BONUS_20' | '1_YEAR' | '2_YEARS' | 'LIFETIME';
 

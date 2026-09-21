@@ -42,6 +42,9 @@ const App: React.FC = () => {
   const [selectedMainActivities, setSelectedMainActivities] = useState<number[]>([1, 2, 3, 4]);
   const [selectedSubActivitiesHD2, setSelectedSubActivitiesHD2] = useState<string[]>(['2.1', '2.2']);
   const [customSubActivityNote, setCustomSubActivityNote] = useState<string>('');
+  // Mã & YCCĐ NLS và AI dán tay (Ưu tiên số 1 - Khóa chặn tuyệt đối)
+  const [nlsCustomTarget, setNlsCustomTarget] = useState<string>('');
+  const [aiCustomTarget, setAiCustomTarget] = useState<string>('');
 
 
   // Content States
@@ -199,6 +202,8 @@ const App: React.FC = () => {
           selectedMainActivities,
           selectedSubActivitiesHD2,
           customSubActivityNote: customSubActivityNote || undefined,
+          nlsCustomTarget: nlsCustomTarget || undefined,
+          aiCustomTarget: aiCustomTarget || undefined,
         }
       );
 
@@ -237,6 +242,8 @@ const App: React.FC = () => {
         selectedMainActivities,
         selectedSubActivitiesHD2,
         customSubActivityNote: customSubActivityNote || undefined,
+        nlsCustomTarget: nlsCustomTarget || undefined,
+        aiCustomTarget: aiCustomTarget || undefined,
       };
 
       saveToHistory(historyItem);
@@ -312,6 +319,10 @@ const App: React.FC = () => {
               setSelectedSubActivitiesHD2={setSelectedSubActivitiesHD2}
               customSubActivityNote={customSubActivityNote}
               setCustomSubActivityNote={setCustomSubActivityNote}
+              nlsCustomTarget={nlsCustomTarget}
+              setNlsCustomTarget={setNlsCustomTarget}
+              aiCustomTarget={aiCustomTarget}
+              setAiCustomTarget={setAiCustomTarget}
             />
 
             <ContentInput
@@ -534,6 +545,8 @@ const App: React.FC = () => {
           if (item.selectedMainActivities) setSelectedMainActivities(item.selectedMainActivities);
           if (item.selectedSubActivitiesHD2) setSelectedSubActivitiesHD2(item.selectedSubActivitiesHD2);
           if (item.customSubActivityNote) setCustomSubActivityNote(item.customSubActivityNote);
+          if (item.nlsCustomTarget !== undefined) setNlsCustomTarget(item.nlsCustomTarget || '');
+          if (item.aiCustomTarget !== undefined) setAiCustomTarget(item.aiCustomTarget || '');
         }}
         onDeleteHistory={handleDeleteHistoryItem}
         onClearAllHistory={handleClearAllHistory}

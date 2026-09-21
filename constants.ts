@@ -370,6 +370,11 @@ NGUYÊN TẮC NGHIÊM NGẶT (BẮT BUỘC TUÂN THỦ 100%):
      + Bước 2 (Thực hiện nhiệm vụ – HS làm việc): ✅ ĐÂY LÀ VỊ TRÍ CHÈN TRỌNG TÂM cho từng hoạt động khi HS trực tiếp thao tác công cụ số/AI.
      + Bước 3 (Báo cáo, thảo luận – HS trình bày): ✅ Chèn khi HS thực sự chia sẻ file sản phẩm số qua Padlet, Google Slides, máy chiếu.
      + Bước 4 (Đánh giá, kết luận – GV chốt): ❌ Mặc định KHÔNG chèn NLS/AI.
+   - 🚨 QUY TẮC KHÓA CHẶT MÃ & TÁI SỬ DỤNG (ZERO-HALLUCINATION & RE-USE RULE — BẮT BUỘC TUYỆT ĐỐI):
+     + Khi người dùng đã cung cấp danh sách mã NLS hoặc AI (qua ô dán tay hoặc trích xuất từ PPCT): TẤT CẢ các mã này tạo thành một TẬP ĐÓNG (Closed Set).
+     + TUYỆT ĐỐI CẤM sinh thêm bất kỳ mã NLS hay mã AI nào khác ngoài danh sách đã có!
+     + Nếu số lượng hoạt động cần tích hợp nhiều hơn số lượng mã được cấp (ví dụ: chỉ có 1 mã NLS 1.1b, hoặc chỉ có 1 mã AI [6.C2.1]): BẮT BUỘC TÁI SỬ DỤNG CÙNG 1 MÃ ĐÓ qua các hoạt động hoặc các nhánh nhỏ trong phần Hình thành kiến thức! Tại mỗi hoạt động, chỉ diễn đạt hành động học tập cho phù hợp với nội dung bài dạy, nhưng PHẢI GIỮ NGUYÊN MÃ ĐÃ CẤP, CẤM BỊA RA MÃ MỚI!
+     + Phần Mục tiêu (===NLS_MỤC_TIÊU===): Chỉ liệt kê đúng các mã duy nhất đã được cấp, KHÔNG sinh thêm bất kỳ mã thừa nào!
 
 4. ⭐ NGUYÊN TẮC TÍCH HỢP AI THỰC TẾ — CẤM BỊA NHIỆM VỤ PHI THỰC TẾ:
    - CẤP TIỂU HỌC & THCS (Lớp 1-9):
