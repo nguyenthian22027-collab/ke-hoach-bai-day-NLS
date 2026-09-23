@@ -129,6 +129,17 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                 Dán mã <code className="text-amber-300 font-mono">AIzaSy...</code> vào ô bên dưới. Bạn có thể dán <strong>nhiều API Key</strong> (mỗi key 1 dòng) để AI tự động xoay vòng khi hết dung lượng trong ngày!
               </li>
             </ol>
+
+            <div className="bg-amber-400/15 border border-amber-400/30 rounded-xl p-2.5 text-[11px] text-amber-200 leading-relaxed flex items-start space-x-2">
+              <span className="text-sm shrink-0">💡</span>
+              <div>
+                <strong className="text-amber-300">Lưu ý quan trọng cho Key mới tạo:</strong>
+                <ul className="list-disc pl-3.5 mt-0.5 space-y-0.5 text-indigo-100/90">
+                  <li>Google cần khoảng <strong>1 - 2 phút</strong> sau khi bấm Create Key để kích hoạt hạn ngạch. Nếu vừa tạo xong bấm kiểm tra bị báo 429, Thầy/Cô chỉ cần đợi 1-2 phút rồi thử lại.</li>
+                  <li>Nên tạo Key bằng tài khoản <strong>Gmail cá nhân (@gmail.com)</strong>. Tránh dùng email trường (@edu.vn) vì quản trị viên trường học thường khóa quyền Gemini API.</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
           {/* Textarea Multi-Key Input */}

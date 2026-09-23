@@ -323,11 +323,16 @@ function getSubjectGuidance(subject: Subject): string {
   }
 }
 
-// Define the hierarchy of models for fallback
+// Define the hierarchy of models for fallback (Đảm bảo luôn có các model Quota cao dự phòng)
 const MODELS = [
-  "gemini-3-flash-preview",  // Priority 1: Default - Fast & Good quality
-  "gemini-3-pro-preview",    // Priority 2: Deep thinking / Best quality
-  "gemini-2.5-flash"         // Priority 3: Fallback stable
+  "gemini-2.5-flash",        // Priority 1: Chuẩn Google, ổn định, quota cao
+  "gemini-3.1-flash-lite",   // Priority 2: Siêu nhanh, hạn ngạch quota cao
+  "gemini-2.5-flash-lite",   // Priority 3: Hạn ngạch Free Tier tối đa
+  "gemini-2.0-flash",        // Priority 4: Ổn định, hạn ngạch rộng
+  "gemini-3.5-flash",        // Priority 5: Model mới 2026
+  "gemini-3.0-flash",        // Priority 6: Thế hệ 3.0
+  "gemini-2.5-pro",          // Priority 7: Suy luận sâu
+  "gemini-1.5-flash",        // Priority 8: Dự phòng
 ];
 
 // Helper phân tách và làm sạch danh sách API Keys
@@ -358,7 +363,7 @@ export interface TestKeyResult {
   details?: { key: string; ok: boolean; msg: string }[];
 }
 
-// Hàm kiểm tra kết nối API Key
+// Hàm kiểm tra kết nối API Key với cơ chế đa model dự phòng
 export const testApiKey = async ({
   apiKey,
   model = 'gemini-2.5-flash'
@@ -375,40 +380,86 @@ export const testApiKey = async ({
   let validCount = 0;
 
   // Sử dụng model được chọn hoặc fallback gemini-2.5-flash
-  const testModel = (model && model !== 'auto' && !model.includes('Tự động')) ? model : 'gemini-2.5-flash';
+  const primaryTestModel = (model && model !== 'auto' && !model.includes('Tự động')) ? model : 'gemini-2.5-flash';
+  
+  // Danh sách các model kiểm tra theo thứ tự ưu tiên: model được chọn trước, sau đó là các model quota cao
+  const candidateModels = [
+    primaryTestModel,
+    'gemini-2.5-flash',
+    'gemini-3.1-flash-lite',
+    'gemini-2.5-flash-lite',
+    'gemini-2.0-flash',
+    'gemini-3.5-flash',
+    'gemini-1.5-flash'
+  ].filter((m, idx, arr) => arr.indexOf(m) === idx);
 
   for (const key of keys) {
     const masked = key.length > 8 ? `${key.slice(0, 6)}...${key.slice(-4)}` : key;
-    try {
-      const ai = new GoogleGenAI({ apiKey: key });
-      const response = await ai.models.generateContent({
-        model: testModel,
-        contents: "Trả lời đúng một từ: OK",
+    const ai = new GoogleGenAI({ apiKey: key });
+    let keySuccess = false;
+    let keyMsg = "";
+
+    for (const testModel of candidateModels) {
+      try {
+        const response = await ai.models.generateContent({
+          model: testModel,
+          contents: "Trả lời đúng một từ: OK",
+        });
+        const text = response.text || '';
+        if (text.length > 0) {
+          keySuccess = true;
+          if (testModel === primaryTestModel) {
+            keyMsg = `Kết nối thành công! Key hoạt động tốt (Model: ${testModel}).`;
+          } else {
+            keyMsg = `Kết nối thành công! (Key hoạt động tốt qua kênh tự động ${testModel}).`;
+          }
+          break; // Thành công, không cần thử model tiếp theo của key này
+        }
+      } catch (err: any) {
+        const rawMsg = err.message || "";
+        console.warn(`Test Key [${masked}] với model [${testModel}] gặp lỗi:`, rawMsg);
+
+        // Nếu API Key sai cấu trúc / không hợp lệ (400) -> Key sai, dừng ngay
+        if (rawMsg.includes("400") || rawMsg.toLowerCase().includes("api key not valid")) {
+          keyMsg = "API Key không hợp lệ hoặc copy thiếu ký tự (400)";
+          break;
+        }
+        // Nếu bị 403 Forbidden
+        if (rawMsg.includes("403")) {
+          keyMsg = "Bị từ chối truy cập (403) - Kiểm tra quyền hạn Key trên Google AI Studio";
+          break;
+        }
+        // Nếu bị 429 Quota Exceeded trên model này, thử model tiếp theo trong candidateModels!
+        if (rawMsg.includes("429") || rawMsg.toLowerCase().includes("quota") || rawMsg.toLowerCase().includes("resource_exhausted")) {
+          keyMsg = "Hạn ngạch model đang bận hoặc chưa kích hoạt (429 RESOURCE_EXHAUSTED)";
+          // Chờ 800ms trước khi thử model tiếp theo để tránh rate limiter
+          await new Promise(r => setTimeout(r, 800));
+          continue;
+        }
+        // Nếu 404 model not found
+        if (rawMsg.includes("404") || rawMsg.toLowerCase().includes("not found")) {
+          keyMsg = `Model ${testModel} chưa hỗ trợ trên dự án này (404)`;
+          continue;
+        }
+        keyMsg = rawMsg;
+      }
+    }
+
+    if (keySuccess) {
+      validCount++;
+      results.push({ key: masked, ok: true, msg: keyMsg });
+    } else {
+      results.push({ 
+        key: masked, 
+        ok: false, 
+        msg: keyMsg || "Hạn ngạch Google API chưa kích hoạt (429)." 
       });
-      const text = response.text || '';
-      if (text.length > 0) {
-        validCount++;
-        results.push({ key: masked, ok: true, msg: "Kết nối thành công! Key hoạt động tốt." });
-      } else {
-        results.push({ key: masked, ok: false, msg: "API phản hồi rỗng." });
-      }
-    } catch (err: any) {
-      console.error(`Test Key Error [${masked}]:`, err);
-      let msg = err.message || "Lỗi không xác định";
-      if (msg.includes("429") || msg.toLowerCase().includes("quota") || msg.toLowerCase().includes("resource_exhausted")) {
-        msg = "Hết ngạch hạn (Quota Exceeded - 429)";
-      } else if (msg.includes("400") || msg.toLowerCase().includes("api key not valid")) {
-        msg = "API Key không hợp lệ (400)";
-      } else if (msg.includes("403")) {
-        msg = "Bị từ chối truy cập (403)";
-      }
-      results.push({ key: masked, ok: false, msg });
     }
   }
 
   const summaryMsg = validCount > 0
     ? `Kết nối thành công! (${validCount}/${keys.length} Key hoạt động tốt)`
-    : `Kiểm tra thất bại. Không có Key nào hoạt động (${results[0]?.msg || 'Lỗi kết nối'})`;
+    : `Kiểm tra chưa thành công (Lỗi 429 Hạn ngạch). Lưu ý cho Key mới tạo: 1) Google cần khoảng 1-2 phút sau khi tạo để kích hoạt hạn ngạch; 2) Nên dùng Gmail cá nhân (@gmail.com) vì email trường (@edu.vn) thường bị khóa quyền Gemini API; 3) Thầy/Cô có thể đợi 1 phút rồi bấm 'Kiểm tra kết nối' lại.`;
 
   return {
     ok: validCount > 0,
@@ -1058,15 +1109,28 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
         error.message = errorMessage;
         lastError = error;
 
-        // Nếu gặp lỗi 429 Quota Exceeded hoặc Key hỏng, lập tức chuyển sang Key tiếp theo nếu còn
-        const isQuotaOrKeyError = errorMessage.includes("429") || 
-                                  errorMessage.toLowerCase().includes("quota") ||
-                                  errorMessage.includes("403") ||
-                                  errorMessage.includes("API key not valid");
+        // Nếu gặp lỗi 400 (Key sai định dạng) hoặc 403 (Forbidden), Key này vô dụng -> chuyển sang Key tiếp theo nếu còn
+        const isFatalKeyError = errorMessage.includes("400") || 
+                                errorMessage.toLowerCase().includes("api key not valid") ||
+                                errorMessage.includes("403");
 
-        if (isQuotaOrKeyError && keyIdx < keys.length - 1) {
-          console.warn(`Key ${keyIdx + 1} encountered rate limit / auth issue (${errorMessage}). Switching to next API key...`);
-          break; // Thoát vòng lặp model để chuyển sang Key tiếp theo trong keys
+        if (isFatalKeyError) {
+          console.warn(`Key ${keyIdx + 1} is invalid/forbidden (${errorMessage}). Switching to next key...`);
+          break; // Bỏ qua các model còn lại của Key này, chuyển sang Key tiếp theo
+        }
+
+        // Nếu gặp 429 Quota Exceeded, Resource Exhausted, hoặc Model không hỗ trợ (404/503):
+        // KHÔNG bỏ cuộc trên Key này! Chúng ta chờ 1.5s và THỬ TIẾP model dự phòng tiếp theo trong targetModels!
+        const isRateLimitOrModelError = errorMessage.includes("429") ||
+                                        errorMessage.toLowerCase().includes("quota") ||
+                                        errorMessage.toLowerCase().includes("resource_exhausted") ||
+                                        errorMessage.includes("404") ||
+                                        errorMessage.includes("503");
+
+        if (isRateLimitOrModelError) {
+          console.warn(`Model ${currentModelId} on Key ${keyIdx + 1} hit rate limit / model error (${errorMessage}). Waiting 1.5s then switching to next fallback model...`);
+          await new Promise(r => setTimeout(r, 1500));
+          continue; // Thử model tiếp theo trên cùng Key này
         }
       }
     }
@@ -1074,6 +1138,17 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
 
   // If all keys and models failed
   if (lastError) {
+    const rawMsg = lastError.message || "";
+    if (rawMsg.includes("429") || rawMsg.toLowerCase().includes("quota") || rawMsg.toLowerCase().includes("resource_exhausted")) {
+      throw new Error(
+        `Hạn ngạch Google API tạm thời chưa kích hoạt hoặc đang bận (Lỗi 429 Quota Exceeded).\n\n` +
+        `💡 HƯỚNG DẪN XỬ LÝ:\n` +
+        `1. Nếu vừa mới tạo API Key: Google AI Studio cần 1 - 2 phút để kích hoạt hạn ngạch trên toàn hệ thống. Thầy/Cô vui lòng đợi 1-2 phút rồi bấm lại.\n` +
+        `2. Tránh dùng Email trường (@edu.vn): Tài khoản nhà trường thường bị Google chặn quyền Gemini API. Hãy dùng tài khoản Gmail cá nhân (@gmail.com) để tạo Key miễn phí.\n` +
+        `3. Chọn Model ổn định: Trong "Cài đặt Gemini API", Thầy/Cô có thể chọn model 'gemini-2.0-flash' hoặc 'gemini-1.5-flash' để có hạn ngạch miễn phí dồi dào nhất.\n` +
+        `4. Dán nhiều Key: Dán 2 - 3 API Key (mỗi dòng 1 key) để hệ thống tự động luân phiên khi có key bị giới hạn.`
+      );
+    }
     throw lastError;
   }
 

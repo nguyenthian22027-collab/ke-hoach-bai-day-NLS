@@ -249,7 +249,16 @@ const App: React.FC = () => {
       saveToHistory(historyItem);
     } catch (err: any) {
       console.error("Process Error:", err);
-      setError(err.message || "Đã xảy ra lỗi không xác định khi kết nối với AI.");
+      let errMsg = err.message || "Đã xảy ra lỗi không xác định khi kết nối với AI.";
+      if (errMsg.includes("429") || errMsg.toLowerCase().includes("quota") || errMsg.toLowerCase().includes("resource_exhausted")) {
+        errMsg = `Hạn ngạch Google API tạm thời chưa kích hoạt hoặc đang bận (Lỗi 429 - Quota Exceeded).\n\n` +
+          `💡 HƯỚNG DẪN XỬ LÝ CHO KEY MỚI:\n` +
+          `• Nếu là Key vừa tạo: Google AI Studio cần 1 - 2 phút để kích hoạt hạn ngạch. Thầy/Cô vui lòng đợi 1 phút rồi bấm lại.\n` +
+          `• Dùng Gmail cá nhân (@gmail.com): Tránh dùng email trường (@edu.vn) vì quản trị viên thường chặn quyền Gemini API.\n` +
+          `• Thử đổi Model: Vào "Cài đặt Gemini API" thử chọn model 'gemini-2.0-flash' hoặc 'gemini-1.5-flash'.\n` +
+          `• Dán nhiều Key: Thầy/Cô có thể dán 2 - 3 API Key (mỗi dòng 1 key) để tự động xoay vòng.`;
+      }
+      setError(errMsg);
     } finally {
       setLoading(false);
     }
@@ -429,8 +438,9 @@ const App: React.FC = () => {
             )}
 
             {error && (
-              <div className="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl flex items-center shadow-sm">
-                <span className="font-bold mr-2 text-rose-900">Lỗi:</span> {error}
+              <div className="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl flex items-start shadow-sm whitespace-pre-line text-sm leading-relaxed">
+                <span className="font-bold mr-2 text-rose-900 shrink-0">Lỗi:</span>
+                <div>{error}</div>
               </div>
             )}
 

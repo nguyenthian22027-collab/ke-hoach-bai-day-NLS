@@ -90,10 +90,13 @@ async function translateParagraphBatch(
 
   const targetModels = [
     options.selectedModel || 'gemini-2.5-flash',
+    'gemini-2.5-flash',
+    'gemini-3.1-flash-lite',
+    'gemini-2.5-flash-lite',
+    'gemini-2.0-flash',
     'gemini-3.5-flash',
-    'gemini-2.5-pro',
-    'gemini-2.0-flash'
-  ];
+    'gemini-1.5-flash'
+  ].filter((m, idx, arr) => arr.indexOf(m) === idx);
 
   const userPrompt = `Translate the following Vietnamese lesson plan items into pedagogical English according to the system instructions.
 Return ONLY a valid JSON array with keys "id" and "en".
@@ -154,14 +157,29 @@ ${JSON.stringify(batch.map(item => ({ id: item.id, vi: item.text })), null, 2)}`
         lastError = error;
 
         const errMsg = (error.message || '').toLowerCase();
-        if (errMsg.includes('429') || errMsg.includes('quota') || errMsg.includes('403') || errMsg.includes('key not valid')) {
+        // Nếu API Key sai định dạng hoặc bị cấm, dừng Key này và thử Key tiếp theo
+        if (errMsg.includes('400') || errMsg.includes('key not valid') || errMsg.includes('403')) {
           break; // Đổi key tiếp theo
+        }
+
+        // Nếu 429 quota hoặc lỗi model, đợi 1.2s rồi thử model tiếp theo của cùng Key này
+        if (errMsg.includes('429') || errMsg.includes('quota') || errMsg.includes('resource_exhausted')) {
+          await new Promise(r => setTimeout(r, 1200));
+          continue; // Thử model tiếp theo trên cùng key
         }
       }
     }
   }
 
-  throw lastError || new Error('Dịch batch thất bại với tất cả API Key.');
+  if (lastError) {
+    const rawMsg = (lastError.message || '').toLowerCase();
+    if (rawMsg.includes('429') || rawMsg.includes('quota') || rawMsg.includes('resource_exhausted')) {
+      throw new Error('Hạn ngạch Google API đang bận hoặc chưa kích hoạt (429). Mẹo: Key mới tạo cần 1-2 phút để kích hoạt; nên dùng Gmail cá nhân @gmail.com.');
+    }
+    throw lastError;
+  }
+
+  throw new Error('Dịch batch thất bại với tất cả API Key.');
 }
 
 /**
