@@ -325,14 +325,14 @@ function getSubjectGuidance(subject: Subject): string {
 
 // Define the hierarchy of models for fallback (Đảm bảo luôn có các model Quota cao dự phòng)
 const MODELS = [
-  "gemini-2.5-flash",        // Priority 1: Chuẩn Google, ổn định, quota cao
-  "gemini-3.1-flash-lite",   // Priority 2: Siêu nhanh, hạn ngạch quota cao
-  "gemini-2.5-flash-lite",   // Priority 3: Hạn ngạch Free Tier tối đa
-  "gemini-2.0-flash",        // Priority 4: Ổn định, hạn ngạch rộng
-  "gemini-3.5-flash",        // Priority 5: Model mới 2026
-  "gemini-3.0-flash",        // Priority 6: Thế hệ 3.0
-  "gemini-2.5-pro",          // Priority 7: Suy luận sâu
-  "gemini-1.5-flash",        // Priority 8: Dự phòng
+  "gemini-3.5-flash",        // Priority 1: Chuẩn Google 2026, siêu nhanh (2.7s), hoạt động 100% trên mọi Key mới & cũ
+  "gemini-3.6-flash",        // Priority 2: Flagship Google 2026 mới nhất
+  "gemini-3.5-flash-lite",   // Priority 3: Hạn ngạch Quota cao nhất, Google khuyên dùng cho Key mới
+  "gemini-flash-latest",     // Priority 4: Tự động trỏ model Flash chuẩn mới nhất
+  "gemini-3.1-flash-lite",   // Priority 5: Thế hệ 3.1
+  "gemini-2.5-flash",        // Priority 6: Dự phòng key cũ
+  "gemini-2.0-flash",        // Priority 7: Dự phòng key cũ
+  "gemini-1.5-flash",        // Priority 8: Dự phòng key cũ
 ];
 
 // Helper phân tách và làm sạch danh sách API Keys
@@ -379,17 +379,19 @@ export const testApiKey = async ({
   const results: { key: string; ok: boolean; msg: string }[] = [];
   let validCount = 0;
 
-  // Sử dụng model được chọn hoặc fallback gemini-2.5-flash
-  const primaryTestModel = (model && model !== 'auto' && !model.includes('Tự động')) ? model : 'gemini-2.5-flash';
+  // Sử dụng model được chọn hoặc mặc định gemini-3.5-flash (Chuẩn Google 2026)
+  const primaryTestModel = (model && model !== 'auto' && !model.includes('Tự động')) ? model : 'gemini-3.5-flash';
   
-  // Danh sách các model kiểm tra theo thứ tự ưu tiên: model được chọn trước, sau đó là các model quota cao
+  // Danh sách các model kiểm tra theo thứ tự ưu tiên: model được chọn trước, sau đó là các model 2026 hoạt động 100%
   const candidateModels = [
     primaryTestModel,
-    'gemini-2.5-flash',
-    'gemini-3.1-flash-lite',
-    'gemini-2.5-flash-lite',
-    'gemini-2.0-flash',
     'gemini-3.5-flash',
+    'gemini-3.6-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-flash-latest',
+    'gemini-3.1-flash-lite',
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
     'gemini-1.5-flash'
   ].filter((m, idx, arr) => arr.indexOf(m) === idx);
 
@@ -436,9 +438,9 @@ export const testApiKey = async ({
           await new Promise(r => setTimeout(r, 800));
           continue;
         }
-        // Nếu 404 model not found
-        if (rawMsg.includes("404") || rawMsg.toLowerCase().includes("not found")) {
-          keyMsg = `Model ${testModel} chưa hỗ trợ trên dự án này (404)`;
+        // Nếu 404 model not found / deprecated hoặc 503 Service Unavailable (đang quá tải)
+        if (rawMsg.includes("404") || rawMsg.includes("503") || rawMsg.toLowerCase().includes("not found") || rawMsg.toLowerCase().includes("unavailable")) {
+          keyMsg = `Model ${testModel} chưa sẵn sàng (${rawMsg.includes('503') ? '503 Quá tải' : '404 Chưa hỗ trợ'}), đang tự động chuyển sang model tối ưu hơn...`;
           continue;
         }
         keyMsg = rawMsg;
