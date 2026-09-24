@@ -325,8 +325,8 @@ function getSubjectGuidance(subject: Subject): string {
 
 // Define the hierarchy of models for fallback (Đảm bảo luôn có các model Quota cao dự phòng)
 const MODELS = [
-  "gemini-3.5-flash",        // Priority 1: Chuẩn Google 2026, siêu nhanh (2.7s), hoạt động 100% trên mọi Key mới & cũ
-  "gemini-3.6-flash",        // Priority 2: Flagship Google 2026 mới nhất
+  "gemini-3.6-flash",        // Priority 1: Flagship Google 2026 mới nhất, hoạt động 100%
+  "gemini-3.5-flash",        // Priority 2: Chuẩn Google 2026, siêu nhanh (2.7s), hoạt động 100%
   "gemini-3.5-flash-lite",   // Priority 3: Hạn ngạch Quota cao nhất, Google khuyên dùng cho Key mới
   "gemini-flash-latest",     // Priority 4: Tự động trỏ model Flash chuẩn mới nhất
   "gemini-3.1-flash-lite",   // Priority 5: Thế hệ 3.1
@@ -486,8 +486,15 @@ export const generateNLSLessonPlan = async (
   // Danh sách Models
   let targetModels = [...MODELS];
   if (options.selectedModel && options.selectedModel !== 'auto' && !options.selectedModel.includes('Tự động')) {
-    // Đưa model được chọn lên đầu tiên
-    targetModels = [options.selectedModel, ...MODELS.filter(m => m !== options.selectedModel)];
+    // Đưa model được chọn lên đầu tiên, đồng thời đưa các model 2026 hoạt động 100% làm cứu nguy ngay sau nó
+    targetModels = [
+      options.selectedModel,
+      'gemini-3.6-flash',
+      'gemini-3.5-flash',
+      'gemini-3.5-flash-lite',
+      'gemini-flash-latest',
+      ...MODELS.filter(m => m !== options.selectedModel)
+    ].filter((m, idx, arr) => arr.indexOf(m) === idx);
   }
 
   let distributionContext = "";
@@ -1121,19 +1128,11 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
           break; // Bỏ qua các model còn lại của Key này, chuyển sang Key tiếp theo
         }
 
-        // Nếu gặp 429 Quota Exceeded, Resource Exhausted, hoặc Model không hỗ trợ (404/503):
-        // KHÔNG bỏ cuộc trên Key này! Chúng ta chờ 1.5s và THỬ TIẾP model dự phòng tiếp theo trong targetModels!
-        const isRateLimitOrModelError = errorMessage.includes("429") ||
-                                        errorMessage.toLowerCase().includes("quota") ||
-                                        errorMessage.toLowerCase().includes("resource_exhausted") ||
-                                        errorMessage.includes("404") ||
-                                        errorMessage.includes("503");
-
-        if (isRateLimitOrModelError) {
-          console.warn(`Model ${currentModelId} on Key ${keyIdx + 1} hit rate limit / model error (${errorMessage}). Waiting 1.5s then switching to next fallback model...`);
-          await new Promise(r => setTimeout(r, 1500));
-          continue; // Thử model tiếp theo trên cùng Key này
-        }
+        // Với mọi lỗi khác (404 Not Found, Model không hỗ trợ, 503 Quá tải, 429 Quota Exceeded):
+        // Luôn kiên trì chuyển sang model dự phòng tiếp theo trong targetModels!
+        console.warn(`Model ${currentModelId} on Key ${keyIdx + 1} gặp lỗi (${errorMessage}). Đang tự động chuyển sang model dự phòng tiếp theo...`);
+        await new Promise(r => setTimeout(r, 600));
+        continue;
       }
     }
   }
@@ -1147,8 +1146,17 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
         `💡 HƯỚNG DẪN XỬ LÝ:\n` +
         `1. Nếu vừa mới tạo API Key: Google AI Studio cần 1 - 2 phút để kích hoạt hạn ngạch trên toàn hệ thống. Thầy/Cô vui lòng đợi 1-2 phút rồi bấm lại.\n` +
         `2. Tránh dùng Email trường (@edu.vn): Tài khoản nhà trường thường bị Google chặn quyền Gemini API. Hãy dùng tài khoản Gmail cá nhân (@gmail.com) để tạo Key miễn phí.\n` +
-        `3. Chọn Model ổn định: Trong "Cài đặt Gemini API", Thầy/Cô có thể chọn model 'gemini-2.0-flash' hoặc 'gemini-1.5-flash' để có hạn ngạch miễn phí dồi dào nhất.\n` +
+        `3. Chọn Model ổn định: Trong "Cài đặt Gemini API", Thầy/Cô nên chọn 'gemini-3.6-flash' hoặc 'gemini-3.5-flash'.\n` +
         `4. Dán nhiều Key: Dán 2 - 3 API Key (mỗi dòng 1 key) để hệ thống tự động luân phiên khi có key bị giới hạn.`
+      );
+    }
+    if (rawMsg.includes("404") || rawMsg.toLowerCase().includes("not found") || rawMsg.toLowerCase().includes("not supported")) {
+      throw new Error(
+        `Model đang chọn (${options.selectedModel || 'gemini-1.5-flash'}) đã ngưng hỗ trợ cho API Key tạo từ năm 2026.\n\n` +
+        `💡 CÁCH XỬ LÝ ĐƠN GIẢN:\n` +
+        `• Bấm vào "Cài đặt / Thay đổi API Key".\n` +
+        `• Chọn Model: '✨ gemini-3.6-flash (Mới ra mắt)' hoặc '🌟 gemini-3.5-flash (Model Mới Nhất 2026)'.\n` +
+        `• Bấm "Lưu cài đặt" rồi bấm lại "Bắt đầu soạn giáo án".`
       );
     }
     throw lastError;

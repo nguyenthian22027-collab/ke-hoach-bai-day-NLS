@@ -62,8 +62,8 @@ const App: React.FC = () => {
 
   // API Key & Model State
   const [apiKey, setApiKey] = useState<string>('');
-  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.5-flash');
-  const [selectedMathModel, setSelectedMathModel] = useState<string>('gemini-3.5-flash');
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.6-flash');
+  const [selectedMathModel, setSelectedMathModel] = useState<string>('gemini-3.6-flash');
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
 
   // History State
@@ -97,8 +97,22 @@ const App: React.FC = () => {
       setShowApiKeyModal(true);
     }
 
-    if (storedModel) setSelectedModel(storedModel);
-    if (storedMathModel) setSelectedMathModel(storedMathModel);
+    if (storedModel) {
+      if (['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-3.0-flash'].includes(storedModel)) {
+        setSelectedModel('gemini-3.6-flash');
+        localStorage.setItem('GEMINI_SELECTED_MODEL', 'gemini-3.6-flash');
+      } else {
+        setSelectedModel(storedModel);
+      }
+    }
+    if (storedMathModel) {
+      if (['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-3.0-flash'].includes(storedMathModel)) {
+        setSelectedMathModel('gemini-3.6-flash');
+        localStorage.setItem('GEMINI_MATH_MODEL', 'gemini-3.6-flash');
+      } else {
+        setSelectedMathModel(storedMathModel);
+      }
+    }
 
     if (storedHistory) {
       try {
@@ -255,8 +269,14 @@ const App: React.FC = () => {
           `💡 HƯỚNG DẪN XỬ LÝ CHO KEY MỚI:\n` +
           `• Nếu là Key vừa tạo: Google AI Studio cần 1 - 2 phút để kích hoạt hạn ngạch. Thầy/Cô vui lòng đợi 1 phút rồi bấm lại.\n` +
           `• Dùng Gmail cá nhân (@gmail.com): Tránh dùng email trường (@edu.vn) vì quản trị viên thường chặn quyền Gemini API.\n` +
-          `• Thử đổi Model: Vào "Cài đặt Gemini API" thử chọn model 'gemini-2.0-flash' hoặc 'gemini-1.5-flash'.\n` +
+          `• Thử đổi Model: Vào "Cài đặt Gemini API" chọn model 'gemini-3.6-flash' hoặc 'gemini-3.5-flash'.\n` +
           `• Dán nhiều Key: Thầy/Cô có thể dán 2 - 3 API Key (mỗi dòng 1 key) để tự động xoay vòng.`;
+      } else if (errMsg.includes("404") || errMsg.toLowerCase().includes("not found") || errMsg.toLowerCase().includes("not supported")) {
+        errMsg = `Model đang chọn đã ngưng hỗ trợ cho API Key tạo từ năm 2026.\n\n` +
+          `💡 CÁCH XỬ LÝ ĐƠN GIẢN:\n` +
+          `• Thầy/Cô bấm vào nút "Cấu hình / Thay đổi API Key".\n` +
+          `• Tại ô "Model OCR Nhận diện", hãy chọn: '✨ gemini-3.6-flash' hoặc '🌟 gemini-3.5-flash'.\n` +
+          `• Bấm "Lưu cấu hình" và bấm lại "Bắt đầu soạn giáo án" là sẽ chạy thành công 100%!`;
       }
       setError(errMsg);
     } finally {
