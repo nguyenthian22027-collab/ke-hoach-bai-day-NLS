@@ -16,8 +16,8 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   onSave,
   onClose,
   initialKey = '',
-  initialModel = 'gemini-3.5-flash',
-  initialMathModel = 'gemini-3.5-flash'
+  initialModel = 'gemini-3.6-flash',
+  initialMathModel = 'gemini-3.6-flash'
 }) => {
   const [keysInput, setKeysInput] = useState(initialKey);
   const [selectedModel, setSelectedModel] = useState(initialModel);
@@ -28,8 +28,8 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
 
   useEffect(() => {
     setKeysInput(initialKey);
-    setSelectedModel(initialModel || 'gemini-3.5-flash');
-    setSelectedMathModel(initialMathModel || 'gemini-3.5-flash');
+    setSelectedModel(initialModel || 'gemini-3.6-flash');
+    setSelectedMathModel(initialMathModel || 'gemini-3.6-flash');
     setTestResult(null);
   }, [initialKey, initialModel, initialMathModel, isOpen]);
 
@@ -177,10 +177,10 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                 onChange={(e) => setSelectedModel(e.target.value)}
                 className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all cursor-pointer"
               >
-                <option value="gemini-3.5-flash">🌟 gemini-3.5-flash (Model Mới Nhất 2026)</option>
+                <option value="gemini-3.6-flash">✨ gemini-3.6-flash (Mới Nhất 2026 - Tốc Độ Cao & Khuyên Dùng)</option>
+                <option value="gemini-3.5-flash">🌟 gemini-3.5-flash (Thế hệ 3.5)</option>
                 <option value="gemini-3.0-flash">🚀 gemini-3.0-flash (Thế hệ 3.0 Siêu Nhanh)</option>
                 <option value="gemini-3.1-flash-lite">⚡ gemini-3.1-flash-lite (Hạn ngạch Quota cao)</option>
-                <option value="gemini-3.6-flash">✨ gemini-3.6-flash (Mới ra mắt)</option>
                 <option value="gemini-2.0-flash">🔷 gemini-2.0-flash (Ổn định, Đọc toán cực tốt)</option>
                 <option value="gemini-1.5-flash">🧠 gemini-1.5-flash (Chuẩn Google)</option>
                 <option value="gemini-1.5-pro">🎯 gemini-1.5-pro (Đọc để chữ mờ / khó)</option>
@@ -198,6 +198,7 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                 onChange={(e) => setSelectedMathModel(e.target.value)}
                 className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all cursor-pointer"
               >
+                <option value="gemini-3.6-flash">✨ gemini-3.6-flash (Mới nhất 2026)</option>
                 <option value="gemini-3.5-flash">gemini-3.5-flash</option>
                 <option value="gemini-3.0-flash">gemini-3.0-flash</option>
                 <option value="gemini-2.0-flash">gemini-2.0-flash</option>

@@ -366,7 +366,7 @@ export interface TestKeyResult {
 // Hàm kiểm tra kết nối API Key với cơ chế đa model dự phòng
 export const testApiKey = async ({
   apiKey,
-  model = 'gemini-2.5-flash'
+  model = 'gemini-3.6-flash'
 }: {
   apiKey: string;
   model?: string;
@@ -379,14 +379,14 @@ export const testApiKey = async ({
   const results: { key: string; ok: boolean; msg: string }[] = [];
   let validCount = 0;
 
-  // Sử dụng model được chọn hoặc mặc định gemini-3.5-flash (Chuẩn Google 2026)
-  const primaryTestModel = (model && model !== 'auto' && !model.includes('Tự động')) ? model : 'gemini-3.5-flash';
+  // Sử dụng model được chọn hoặc mặc định gemini-3.6-flash (Chuẩn Google 2026)
+  const primaryTestModel = (model && model !== 'auto' && !model.includes('Tự động')) ? model : 'gemini-3.6-flash';
   
   // Danh sách các model kiểm tra theo thứ tự ưu tiên: model được chọn trước, sau đó là các model 2026 hoạt động 100%
   const candidateModels = [
     primaryTestModel,
-    'gemini-3.5-flash',
     'gemini-3.6-flash',
+    'gemini-3.5-flash',
     'gemini-3.5-flash-lite',
     'gemini-flash-latest',
     'gemini-3.1-flash-lite',

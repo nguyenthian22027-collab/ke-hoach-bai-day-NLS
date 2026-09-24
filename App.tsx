@@ -97,21 +97,16 @@ const App: React.FC = () => {
       setShowApiKeyModal(true);
     }
 
-    if (storedModel) {
-      if (['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-3.0-flash'].includes(storedModel)) {
-        setSelectedModel('gemini-3.6-flash');
-        localStorage.setItem('GEMINI_SELECTED_MODEL', 'gemini-3.6-flash');
-      } else {
-        setSelectedModel(storedModel);
-      }
-    }
-    if (storedMathModel) {
-      if (['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-3.0-flash'].includes(storedMathModel)) {
-        setSelectedMathModel('gemini-3.6-flash');
-        localStorage.setItem('GEMINI_MATH_MODEL', 'gemini-3.6-flash');
-      } else {
-        setSelectedMathModel(storedMathModel);
-      }
+    const migrated = localStorage.getItem('MIGRATED_TO_3_6_V1');
+    if (!migrated) {
+      setSelectedModel('gemini-3.6-flash');
+      setSelectedMathModel('gemini-3.6-flash');
+      localStorage.setItem('GEMINI_SELECTED_MODEL', 'gemini-3.6-flash');
+      localStorage.setItem('GEMINI_MATH_MODEL', 'gemini-3.6-flash');
+      localStorage.setItem('MIGRATED_TO_3_6_V1', 'true');
+    } else {
+      if (storedModel) setSelectedModel(storedModel);
+      if (storedMathModel) setSelectedMathModel(storedMathModel);
     }
 
     if (storedHistory) {
