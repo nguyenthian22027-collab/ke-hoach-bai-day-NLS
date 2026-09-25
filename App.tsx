@@ -168,6 +168,14 @@ const App: React.FC = () => {
       return;
     }
 
+    // Kiểm tra API Key trước khi gọi AI — nếu thiếu thì mở modal thay vì báo lỗi nội bộ
+    const effectiveKey = apiKey || localStorage.getItem('GEMINI_API_KEY') || '';
+    if (!effectiveKey || effectiveKey.trim().length === 0) {
+      setError("Chưa có API Key. Vui lòng nhập Gemini API Key trong phần Cài đặt.");
+      setShowApiKeyModal(true);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setResult(null);
@@ -185,7 +193,7 @@ const App: React.FC = () => {
           analyzeOnly, 
           detailedReport, 
           comparisonExport: false, 
-          apiKey, 
+          apiKey: effectiveKey,  // Dùng effectiveKey đã kiểm tra (có fallback localStorage)
           selectedModel, 
           selectedMathModel, 
           integrationMode: includeNLSAndAI ? integrationMode : 'NONE',

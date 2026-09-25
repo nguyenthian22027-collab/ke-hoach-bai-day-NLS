@@ -419,27 +419,38 @@ export const testApiKey = async ({
         }
       } catch (err: any) {
         const rawMsg = err.message || "";
+        const rawMsgLower = rawMsg.toLowerCase();
         console.warn(`Test Key [${masked}] với model [${testModel}] gặp lỗi:`, rawMsg);
 
-        // Nếu API Key sai cấu trúc / không hợp lệ (400) -> Key sai, dừng ngay
-        if (rawMsg.includes("400") || rawMsg.toLowerCase().includes("api key not valid")) {
-          keyMsg = "API Key không hợp lệ hoặc copy thiếu ký tự (400)";
-          break;
+        // Phân biệt lỗi 400: "API key not valid" = Key sai → dừng ngay
+        // Nhưng "400 INVALID_ARGUMENT / not found" = Model không tồn tại → thử model tiếp theo!
+        if (rawMsg.includes("400")) {
+          const isKeyInvalid = rawMsgLower.includes("api key not valid") 
+            || rawMsgLower.includes("invalid api key")
+            || rawMsgLower.includes("api_key_invalid");
+          if (isKeyInvalid) {
+            keyMsg = "API Key không hợp lệ hoặc copy thiếu ký tự. Kiểm tra lại trên aistudio.google.com/app/apikey";
+            break; // Key sai → dừng, không thử model tiếp
+          } else {
+            // 400 do model không tồn tại/không hỗ trợ → thử model tiếp
+            keyMsg = `Model ${testModel} không được hỗ trợ (400), đang chuyển sang model khác...`;
+            continue;
+          }
         }
-        // Nếu bị 403 Forbidden
+        // Nếu bị 403 Forbidden — KEY bị cấm hoặc chưa bật API
         if (rawMsg.includes("403")) {
-          keyMsg = "Bị từ chối truy cập (403) - Kiểm tra quyền hạn Key trên Google AI Studio";
+          keyMsg = "Bị từ chối truy cập (403). Kiểm tra quyền hạn Key trên Google AI Studio (nên dùng Gmail @gmail.com thay vì email trường)";
           break;
         }
         // Nếu bị 429 Quota Exceeded trên model này, thử model tiếp theo trong candidateModels!
-        if (rawMsg.includes("429") || rawMsg.toLowerCase().includes("quota") || rawMsg.toLowerCase().includes("resource_exhausted")) {
+        if (rawMsg.includes("429") || rawMsgLower.includes("quota") || rawMsgLower.includes("resource_exhausted")) {
           keyMsg = "Hạn ngạch model đang bận hoặc chưa kích hoạt (429 RESOURCE_EXHAUSTED)";
           // Chờ 800ms trước khi thử model tiếp theo để tránh rate limiter
           await new Promise(r => setTimeout(r, 800));
           continue;
         }
         // Nếu 404 model not found / deprecated hoặc 503 Service Unavailable (đang quá tải)
-        if (rawMsg.includes("404") || rawMsg.includes("503") || rawMsg.toLowerCase().includes("not found") || rawMsg.toLowerCase().includes("unavailable")) {
+        if (rawMsg.includes("404") || rawMsg.includes("503") || rawMsgLower.includes("not found") || rawMsgLower.includes("unavailable")) {
           keyMsg = `Model ${testModel} chưa sẵn sàng (${rawMsg.includes('503') ? '503 Quá tải' : '404 Chưa hỗ trợ'}), đang tự động chuyển sang model tối ưu hơn...`;
           continue;
         }
@@ -477,8 +488,11 @@ export const generateNLSLessonPlan = async (
   options: ProcessingOptions
 ): Promise<string> => {
 
-  // Lấy danh sách API Keys
-  const keys = parseApiKeys(options.apiKeys || options.apiKey || process.env.API_KEY);
+  // Lấy danh sách API Keys — Ưu tiên: options.apiKeys > options.apiKey > localStorage > process.env.API_KEY
+  const keySource = options.apiKeys || options.apiKey 
+    || (typeof localStorage !== 'undefined' ? localStorage.getItem('GEMINI_API_KEY') || '' : '')
+    || (typeof process !== 'undefined' ? process.env.API_KEY : '');
+  const keys = parseApiKeys(keySource);
   if (keys.length === 0) {
     throw new Error("Missing API_KEY. Vui lòng nhập Gemini API Key trong phần cài đặt.");
   }
@@ -1118,14 +1132,29 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
         error.message = errorMessage;
         lastError = error;
 
-        // Nếu gặp lỗi 400 (Key sai định dạng) hoặc 403 (Forbidden), Key này vô dụng -> chuyển sang Key tiếp theo nếu còn
-        const isFatalKeyError = errorMessage.includes("400") || 
-                                errorMessage.toLowerCase().includes("api key not valid") ||
-                                errorMessage.includes("403");
+        const errLower = errorMessage.toLowerCase();
 
-        if (isFatalKeyError) {
-          console.warn(`Key ${keyIdx + 1} is invalid/forbidden (${errorMessage}). Switching to next key...`);
-          break; // Bỏ qua các model còn lại của Key này, chuyển sang Key tiếp theo
+        // Phân biệt lỗi 400 chặt chẽ: chỉ break khi Key thực sự sai (api key not valid)
+        // Nếu 400 do model không hỗ trợ / INVALID_ARGUMENT → tiếp tục thử model khác!
+        if (errorMessage.includes("400")) {
+          const isKeyInvalid = errLower.includes("api key not valid") 
+            || errLower.includes("invalid api key")
+            || errLower.includes("api_key_invalid");
+          if (isKeyInvalid) {
+            console.warn(`Key ${keyIdx + 1} is INVALID (${errorMessage}). Switching to next key...`);
+            break; // Key thực sự sai → chuyển Key tiếp theo
+          } else {
+            // 400 do model → tiếp tục thử model khác của cùng Key
+            console.warn(`Model ${currentModelId} on Key ${keyIdx + 1}: 400 model error, trying next model...`);
+            await new Promise(r => setTimeout(r, 600));
+            continue;
+          }
+        }
+
+        // 403 Forbidden → Key bị chặn, chuyển Key tiếp theo
+        if (errorMessage.includes("403")) {
+          console.warn(`Key ${keyIdx + 1} is FORBIDDEN (403). Switching to next key...`);
+          break;
         }
 
         // Với mọi lỗi khác (404 Not Found, Model không hỗ trợ, 503 Quá tải, 429 Quota Exceeded):
