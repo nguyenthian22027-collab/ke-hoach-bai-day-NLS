@@ -323,16 +323,13 @@ function getSubjectGuidance(subject: Subject): string {
   }
 }
 
-// Define the hierarchy of models for fallback (Đảm bảo luôn có các model Quota cao dự phòng)
+// Define the hierarchy of models for fallback (Chỉ giữ các model 2026 còn hoạt động, loại bỏ model đã khai tử)
 const MODELS = [
   "gemini-3.6-flash",        // Priority 1: Flagship Google 2026 mới nhất, hoạt động 100%
-  "gemini-3.5-flash",        // Priority 2: Chuẩn Google 2026, siêu nhanh (2.7s), hoạt động 100%
-  "gemini-3.5-flash-lite",   // Priority 3: Hạn ngạch Quota cao nhất, Google khuyên dùng cho Key mới
+  "gemini-3.5-flash",        // Priority 2: Chuẩn Google 2026
+  "gemini-3.5-flash-lite",   // Priority 3: Hạn ngạch Quota cao, dự phòng
   "gemini-flash-latest",     // Priority 4: Tự động trỏ model Flash chuẩn mới nhất
   "gemini-3.1-flash-lite",   // Priority 5: Thế hệ 3.1
-  "gemini-2.5-flash",        // Priority 6: Dự phòng key cũ
-  "gemini-2.0-flash",        // Priority 7: Dự phòng key cũ
-  "gemini-1.5-flash",        // Priority 8: Dự phòng key cũ
 ];
 
 // Helper phân tách và làm sạch danh sách API Keys
@@ -390,9 +387,6 @@ export const testApiKey = async ({
     'gemini-3.5-flash-lite',
     'gemini-flash-latest',
     'gemini-3.1-flash-lite',
-    'gemini-2.5-flash',
-    'gemini-2.0-flash',
-    'gemini-1.5-flash'
   ].filter((m, idx, arr) => arr.indexOf(m) === idx);
 
   for (const key of keys) {
@@ -1090,7 +1084,8 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
   `;
 
   // Fallback Logic: Try each Key and Model sequence
-  let lastError = null;
+  let lastError: any = null;
+  let primaryError: any = null;
 
   for (let keyIdx = 0; keyIdx < keys.length; keyIdx++) {
     const currentKey = keys[keyIdx];
@@ -1098,97 +1093,139 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
 
     for (let modelIdx = 0; modelIdx < targetModels.length; modelIdx++) {
       const currentModelId = targetModels[modelIdx];
+      const isPrimaryModel = (modelIdx === 0);
       console.log(`Attempting generation with Key ${keyIdx + 1}/${keys.length} and model: ${currentModelId}...`);
 
-      try {
-        const response = await ai.models.generateContent({
-          model: currentModelId,
-          config: {
-            systemInstruction: systemInstruction,
-            temperature: 0.1,
-          },
-          contents: userPrompt,
-        });
+      // Retry tối đa 2 lần cho model 3.6-flash nếu gặp lỗi tạm thời (429 Rate Limit hoặc 503 Overloaded)
+      const maxRetries = (currentModelId === 'gemini-3.6-flash') ? 2 : 0;
+      let modelSucceeded = false;
 
-        const text = response.text;
-        if (!text) {
-          throw new Error("API trả về kết quả rỗng (Empty Response).");
-        }
-        return text; // Success!
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          if (attempt > 0) {
+            console.log(`Retry attempt ${attempt}/${maxRetries} for model ${currentModelId}...`);
+          }
 
-      } catch (error: any) {
-        console.error(`Error with Key ${keyIdx + 1} and model ${currentModelId}:`, error);
+          const response = await ai.models.generateContent({
+            model: currentModelId,
+            config: {
+              systemInstruction: systemInstruction,
+              temperature: 0.1,
+            },
+            contents: userPrompt,
+          });
 
-        let errorMessage = error.message || "";
-        if (typeof errorMessage === 'string' && errorMessage.trim().startsWith('{')) {
-          try {
-            const errorObj = JSON.parse(errorMessage);
-            if (errorObj.error && errorObj.error.message) {
-              errorMessage = errorObj.error.message;
-            }
-          } catch (e) { /* ignore */ }
-        }
+          const text = response.text;
+          if (!text) {
+            throw new Error("API trả về kết quả rỗng (Empty Response).");
+          }
+          return text; // Success!
 
-        error.message = errorMessage;
-        lastError = error;
+        } catch (error: any) {
+          console.error(`Error with Key ${keyIdx + 1} and model ${currentModelId} (attempt ${attempt + 1}):`, error);
 
-        const errLower = errorMessage.toLowerCase();
+          let errorMessage = error.message || "";
+          if (typeof errorMessage === 'string' && errorMessage.trim().startsWith('{')) {
+            try {
+              const errorObj = JSON.parse(errorMessage);
+              if (errorObj.error && errorObj.error.message) {
+                errorMessage = errorObj.error.message;
+              }
+            } catch (e) { /* ignore */ }
+          }
 
-        // Phân biệt lỗi 400 chặt chẽ: chỉ break khi Key thực sự sai (api key not valid)
-        // Nếu 400 do model không hỗ trợ / INVALID_ARGUMENT → tiếp tục thử model khác!
-        if (errorMessage.includes("400")) {
-          const isKeyInvalid = errLower.includes("api key not valid") 
-            || errLower.includes("invalid api key")
-            || errLower.includes("api_key_invalid");
-          if (isKeyInvalid) {
-            console.warn(`Key ${keyIdx + 1} is INVALID (${errorMessage}). Switching to next key...`);
-            break; // Key thực sự sai → chuyển Key tiếp theo
-          } else {
-            // 400 do model → tiếp tục thử model khác của cùng Key
-            console.warn(`Model ${currentModelId} on Key ${keyIdx + 1}: 400 model error, trying next model...`);
-            await new Promise(r => setTimeout(r, 600));
+          error.message = errorMessage;
+          lastError = error;
+          if (isPrimaryModel && !primaryError) {
+            primaryError = error;
+          }
+
+          const errLower = errorMessage.toLowerCase();
+          const is429 = errorMessage.includes("429") || errLower.includes("quota") || errLower.includes("resource_exhausted");
+          const is503 = errorMessage.includes("503") || errLower.includes("unavailable") || errLower.includes("overloaded");
+
+          // Nếu là lỗi tạm thời (429 hoặc 503) và còn lượt retry trên model này -> chờ rồi thử lại
+          if (attempt < maxRetries && (is429 || is503)) {
+            const delay = (attempt + 1) * 1500; // 1.5s, 3s
+            console.warn(`Model ${currentModelId} gặp lỗi tạm thời (${is429 ? '429 Quota/Rate Limit' : '503 Quá tải'}), chờ ${delay}ms để thử lại...`);
+            await new Promise(r => setTimeout(r, delay));
             continue;
           }
-        }
 
-        // 403 Forbidden → Key bị chặn, chuyển Key tiếp theo
-        if (errorMessage.includes("403")) {
-          console.warn(`Key ${keyIdx + 1} is FORBIDDEN (403). Switching to next key...`);
-          break;
-        }
+          // Phân biệt lỗi 400 chặt chẽ: chỉ break khi Key thực sự sai (api key not valid)
+          if (errorMessage.includes("400")) {
+            const isKeyInvalid = errLower.includes("api key not valid") 
+              || errLower.includes("invalid api key")
+              || errLower.includes("api_key_invalid");
+            if (isKeyInvalid) {
+              console.warn(`Key ${keyIdx + 1} is INVALID (${errorMessage}). Switching to next key...`);
+              break; // Key thực sự sai → chuyển Key tiếp theo
+            } else {
+              // 400 do model không hỗ trợ → thử model khác
+              console.warn(`Model ${currentModelId} on Key ${keyIdx + 1}: 400 model error, trying next model...`);
+              await new Promise(r => setTimeout(r, 600));
+              break; // Thoát vòng retry của model này, chuyển model tiếp
+            }
+          }
 
-        // Với mọi lỗi khác (404 Not Found, Model không hỗ trợ, 503 Quá tải, 429 Quota Exceeded):
-        // Luôn kiên trì chuyển sang model dự phòng tiếp theo trong targetModels!
-        console.warn(`Model ${currentModelId} on Key ${keyIdx + 1} gặp lỗi (${errorMessage}). Đang tự động chuyển sang model dự phòng tiếp theo...`);
-        await new Promise(r => setTimeout(r, 600));
-        continue;
+          // 403 Forbidden → Key bị chặn, chuyển Key tiếp theo
+          if (errorMessage.includes("403")) {
+            console.warn(`Key ${keyIdx + 1} is FORBIDDEN (403). Switching to next key...`);
+            break;
+          }
+
+          // Chuyển sang model dự phòng tiếp theo
+          console.warn(`Model ${currentModelId} on Key ${keyIdx + 1} gặp lỗi (${errorMessage}). Đang chuyển sang model dự phòng tiếp theo...`);
+          await new Promise(r => setTimeout(r, 600));
+          break; // Thoát vòng retry của model này, chuyển model tiếp theo
+        }
+      }
+
+      // Nếu key bị 400 invalid hoặc 403 forbidden -> dừng thử các model khác của key này
+      const lastMsg = (lastError?.message || "").toLowerCase();
+      if (lastMsg.includes("api key not valid") || lastMsg.includes("invalid api key") || lastMsg.includes("403")) {
+        break; // Chuyển sang key tiếp theo
       }
     }
   }
 
-  // If all keys and models failed
-  if (lastError) {
-    const rawMsg = lastError.message || "";
+  // If all keys and models failed: Ưu tiên báo lỗi gốc (primaryError) để không bị lỗi của model dự phòng làm sai lệch
+  const effectiveError = primaryError || lastError;
+  if (effectiveError) {
+    const rawMsg = effectiveError.message || "";
+    const isOldModelSelected = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-2.5-flash'].includes(options.selectedModel || '');
+
     if (rawMsg.includes("429") || rawMsg.toLowerCase().includes("quota") || rawMsg.toLowerCase().includes("resource_exhausted")) {
       throw new Error(
-        `Hạn ngạch Google API tạm thời chưa kích hoạt hoặc đang bận (Lỗi 429 Quota Exceeded).\n\n` +
-        `💡 HƯỚNG DẪN XỬ LÝ:\n` +
-        `1. Nếu vừa mới tạo API Key: Google AI Studio cần 1 - 2 phút để kích hoạt hạn ngạch trên toàn hệ thống. Thầy/Cô vui lòng đợi 1-2 phút rồi bấm lại.\n` +
-        `2. Tránh dùng Email trường (@edu.vn): Tài khoản nhà trường thường bị Google chặn quyền Gemini API. Hãy dùng tài khoản Gmail cá nhân (@gmail.com) để tạo Key miễn phí.\n` +
-        `3. Chọn Model ổn định: Trong "Cài đặt Gemini API", Thầy/Cô nên chọn 'gemini-3.6-flash' hoặc 'gemini-3.5-flash'.\n` +
-        `4. Dán nhiều Key: Dán 2 - 3 API Key (mỗi dòng 1 key) để hệ thống tự động luân phiên khi có key bị giới hạn.`
+        `Hạn ngạch Google API tạm thời hết hoặc đang bận (Lỗi 429 Quota Exceeded).\n\n` +
+        `💡 NGUYÊN NHÂN & HƯỚNG DẪN XỬ LÝ:\n` +
+        `1. Giới hạn gói Miễn phí: Google giới hạn số lượt yêu cầu/phút và dung lượng mỗi ngày cho mỗi API Key miễn phí.\n` +
+        `2. Giải pháp tốt nhất: Thầy/Cô dán thêm 2 - 3 API Key (tạo từ các tài khoản Gmail cá nhân khác nhau, mỗi key 1 dòng trong Cài đặt API) để hệ thống tự động luân phiên khi hết hạn ngạch!\n` +
+        `3. Nếu vừa mới tạo Key: Google cần khoảng 1 - 2 phút để kích hoạt hạn ngạch. Thầy/Cô vui lòng đợi 1-2 phút rồi thử lại.\n` +
+        `4. Đảm bảo dùng Gmail cá nhân (@gmail.com), tránh dùng email trường học (@edu.vn).`
       );
     }
-    if (rawMsg.includes("404") || rawMsg.toLowerCase().includes("not found") || rawMsg.toLowerCase().includes("not supported")) {
+
+    if (rawMsg.includes("503") || rawMsg.toLowerCase().includes("unavailable") || rawMsg.toLowerCase().includes("overloaded")) {
       throw new Error(
-        `Model đang chọn (${options.selectedModel || 'gemini-1.5-flash'}) đã ngưng hỗ trợ cho API Key tạo từ năm 2026.\n\n` +
+        `Máy chủ Google Gemini đang tạm thời quá tải (Lỗi 503 Service Unavailable).\n\n` +
+        `💡 HƯỚNG DẪN XỬ LÝ:\n` +
+        `• Máy chủ Google đang có lượng người dùng truy cập đột biến. Thầy/Cô vui lòng đợi khoảng 30 giây rồi bấm lại "Bắt đầu soạn giáo án".\n` +
+        `• Thầy/Cô có thể dán 2 - 3 API Key trong phần "Cài đặt Gemini API" để AI tự động đổi kênh kết nối khi máy chủ bận.`
+      );
+    }
+
+    if (isOldModelSelected && (rawMsg.includes("404") || rawMsg.toLowerCase().includes("not found") || rawMsg.toLowerCase().includes("not supported"))) {
+      throw new Error(
+        `Model đang chọn (${options.selectedModel}) đã ngưng hỗ trợ cho API Key tạo từ năm 2026.\n\n` +
         `💡 CÁCH XỬ LÝ ĐƠN GIẢN:\n` +
         `• Bấm vào "Cài đặt / Thay đổi API Key".\n` +
-        `• Chọn Model: '✨ gemini-3.6-flash (Mới ra mắt)' hoặc '🌟 gemini-3.5-flash (Model Mới Nhất 2026)'.\n` +
-        `• Bấm "Lưu cài đặt" rồi bấm lại "Bắt đầu soạn giáo án".`
+        `• Tại ô "Model OCR Nhận diện", hãy chọn: '✨ gemini-3.6-flash (Mới Nhất 2026 - Tốc Độ Cao & Khuyên Dùng)'.\n` +
+        `• Bấm "Xong & Lưu" rồi bấm lại "Bắt đầu soạn giáo án".`
       );
     }
-    throw lastError;
+
+    throw effectiveError;
   }
 
   throw new Error("Tất cả các API Key hoặc Model đều thất bại. Vui lòng kiểm tra lại cấu hình API Key trong phần cài đặt.");

@@ -181,10 +181,10 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                 <option value="gemini-3.5-flash">🌟 gemini-3.5-flash (Thế hệ 3.5)</option>
                 <option value="gemini-3.0-flash">🚀 gemini-3.0-flash (Thế hệ 3.0 Siêu Nhanh)</option>
                 <option value="gemini-3.1-flash-lite">⚡ gemini-3.1-flash-lite (Hạn ngạch Quota cao)</option>
-                <option value="gemini-2.0-flash">🔷 gemini-2.0-flash (Ổn định, Đọc toán cực tốt)</option>
-                <option value="gemini-1.5-flash">🧠 gemini-1.5-flash (Chuẩn Google)</option>
-                <option value="gemini-1.5-pro">🎯 gemini-1.5-pro (Đọc để chữ mờ / khó)</option>
-                <option value="auto">🔄 Tự động xoay vòng Model (Auto Fallback)</option>
+                <option value="auto">🔄 Tự động xoay vòng Model (Auto Fallback 2026)</option>
+                <option value="gemini-2.0-flash">🔷 gemini-2.0-flash (Chỉ dành cho Key cũ trước 2026)</option>
+                <option value="gemini-1.5-flash">🧠 gemini-1.5-flash (Chỉ dành cho Key cũ trước 2026)</option>
+                <option value="gemini-1.5-pro">🎯 gemini-1.5-pro (Chỉ dành cho Key cũ trước 2026)</option>
               </select>
             </div>
 
@@ -201,8 +201,8 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                 <option value="gemini-3.6-flash">✨ gemini-3.6-flash (Mới nhất 2026)</option>
                 <option value="gemini-3.5-flash">gemini-3.5-flash</option>
                 <option value="gemini-3.0-flash">gemini-3.0-flash</option>
-                <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-                <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                <option value="gemini-2.0-flash">gemini-2.0-flash (Key cũ)</option>
+                <option value="gemini-1.5-pro">gemini-1.5-pro (Key cũ)</option>
               </select>
             </div>
 

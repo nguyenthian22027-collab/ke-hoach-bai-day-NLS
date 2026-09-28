@@ -95,9 +95,6 @@ async function translateParagraphBatch(
     'gemini-3.5-flash-lite',
     'gemini-flash-latest',
     'gemini-3.1-flash-lite',
-    'gemini-2.5-flash',
-    'gemini-2.0-flash',
-    'gemini-1.5-flash'
   ].filter((m, idx, arr) => arr.indexOf(m) === idx);
 
   const userPrompt = `Translate the following Vietnamese lesson plan items into pedagogical English according to the system instructions.
