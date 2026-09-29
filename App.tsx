@@ -62,8 +62,8 @@ const App: React.FC = () => {
 
   // API Key & Model State
   const [apiKey, setApiKey] = useState<string>('');
-  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.6-flash');
-  const [selectedMathModel, setSelectedMathModel] = useState<string>('gemini-3.6-flash');
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.8-flash');
+  const [selectedMathModel, setSelectedMathModel] = useState<string>('gemini-3.8-flash');
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
 
   // History State
@@ -97,13 +97,13 @@ const App: React.FC = () => {
       setShowApiKeyModal(true);
     }
 
-    const migrated = localStorage.getItem('MIGRATED_TO_3_6_V1');
+    const migrated = localStorage.getItem('MIGRATED_TO_3_8_V1');
     if (!migrated) {
-      setSelectedModel('gemini-3.6-flash');
-      setSelectedMathModel('gemini-3.6-flash');
-      localStorage.setItem('GEMINI_SELECTED_MODEL', 'gemini-3.6-flash');
-      localStorage.setItem('GEMINI_MATH_MODEL', 'gemini-3.6-flash');
-      localStorage.setItem('MIGRATED_TO_3_6_V1', 'true');
+      setSelectedModel('gemini-3.8-flash');
+      setSelectedMathModel('gemini-3.8-flash');
+      localStorage.setItem('GEMINI_SELECTED_MODEL', 'gemini-3.8-flash');
+      localStorage.setItem('GEMINI_MATH_MODEL', 'gemini-3.8-flash');
+      localStorage.setItem('MIGRATED_TO_3_8_V1', 'true');
     } else {
       if (storedModel) setSelectedModel(storedModel);
       if (storedMathModel) setSelectedMathModel(storedMathModel);
@@ -286,7 +286,7 @@ const App: React.FC = () => {
           errMsg = `Model đang chọn (${selectedModel}) đã ngưng hỗ trợ cho API Key tạo từ năm 2026.\n\n` +
             `💡 CÁCH XỬ LÝ ĐƠN GIẢN:\n` +
             `• Thầy/Cô bấm vào nút "Cấu hình / Thay đổi API Key".\n` +
-            `• Tại ô "Model OCR Nhận diện", hãy chọn: '✨ gemini-3.6-flash (Mới Nhất 2026)'.\n` +
+            `• Tại ô "Model OCR Nhận diện", hãy chọn: '🔥 gemini-3.8-flash (Mới Nhất 2026)' hoặc '✨ gemini-3.6-flash'.\n` +
             `• Bấm "Xong & Lưu" và bấm lại "Bắt đầu soạn giáo án" là sẽ chạy thành công 100%!`;
         }
       }

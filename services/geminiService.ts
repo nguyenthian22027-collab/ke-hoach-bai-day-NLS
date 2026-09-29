@@ -325,11 +325,12 @@ function getSubjectGuidance(subject: Subject): string {
 
 // Define the hierarchy of models for fallback (Chỉ giữ các model 2026 còn hoạt động, loại bỏ model đã khai tử)
 const MODELS = [
-  "gemini-3.6-flash",        // Priority 1: Flagship Google 2026 mới nhất, hoạt động 100%
-  "gemini-3.5-flash",        // Priority 2: Chuẩn Google 2026
-  "gemini-3.5-flash-lite",   // Priority 3: Hạn ngạch Quota cao, dự phòng
-  "gemini-flash-latest",     // Priority 4: Tự động trỏ model Flash chuẩn mới nhất
-  "gemini-3.1-flash-lite",   // Priority 5: Thế hệ 3.1
+  "gemini-3.8-flash",        // Priority 1: Flagship Google 2026 mới nhất, thông minh & mạnh mẽ nhất
+  "gemini-3.6-flash",        // Priority 2: Chuẩn Google 2026 tốc độ cao & ổn định
+  "gemini-3.5-flash",        // Priority 3: Chuẩn Google 2026
+  "gemini-3.5-flash-lite",   // Priority 4: Hạn ngạch Quota cao, dự phòng
+  "gemini-flash-latest",     // Priority 5: Tự động trỏ model Flash chuẩn mới nhất
+  "gemini-3.1-flash-lite",   // Priority 6: Thế hệ 3.1
 ];
 
 // Helper phân tách và làm sạch danh sách API Keys
@@ -363,7 +364,7 @@ export interface TestKeyResult {
 // Hàm kiểm tra kết nối API Key với cơ chế đa model dự phòng
 export const testApiKey = async ({
   apiKey,
-  model = 'gemini-3.6-flash'
+  model = 'gemini-3.8-flash'
 }: {
   apiKey: string;
   model?: string;
@@ -376,12 +377,13 @@ export const testApiKey = async ({
   const results: { key: string; ok: boolean; msg: string }[] = [];
   let validCount = 0;
 
-  // Sử dụng model được chọn hoặc mặc định gemini-3.6-flash (Chuẩn Google 2026)
-  const primaryTestModel = (model && model !== 'auto' && !model.includes('Tự động')) ? model : 'gemini-3.6-flash';
+  // Sử dụng model được chọn hoặc mặc định gemini-3.8-flash (Chuẩn Google 2026)
+  const primaryTestModel = (model && model !== 'auto' && !model.includes('Tự động')) ? model : 'gemini-3.8-flash';
   
   // Danh sách các model kiểm tra theo thứ tự ưu tiên: model được chọn trước, sau đó là các model 2026 hoạt động 100%
   const candidateModels = [
     primaryTestModel,
+    'gemini-3.8-flash',
     'gemini-3.6-flash',
     'gemini-3.5-flash',
     'gemini-3.5-flash-lite',
@@ -497,6 +499,7 @@ export const generateNLSLessonPlan = async (
     // Đưa model được chọn lên đầu tiên, đồng thời đưa các model 2026 hoạt động 100% làm cứu nguy ngay sau nó
     targetModels = [
       options.selectedModel,
+      'gemini-3.8-flash',
       'gemini-3.6-flash',
       'gemini-3.5-flash',
       'gemini-3.5-flash-lite',
@@ -1096,8 +1099,8 @@ QUY TẮC VỊ TRÍ CHÈN (CHỈ TRONG CHẾ ĐỘ BỔ SUNG):
       const isPrimaryModel = (modelIdx === 0);
       console.log(`Attempting generation with Key ${keyIdx + 1}/${keys.length} and model: ${currentModelId}...`);
 
-      // Retry tối đa 2 lần cho model 3.6-flash nếu gặp lỗi tạm thời (429 Rate Limit hoặc 503 Overloaded)
-      const maxRetries = (currentModelId === 'gemini-3.6-flash') ? 2 : 0;
+      // Retry tối đa 2 lần cho model 3.8-flash và 3.6-flash nếu gặp lỗi tạm thời (429 Rate Limit hoặc 503 Overloaded)
+      const maxRetries = (currentModelId === 'gemini-3.8-flash' || currentModelId === 'gemini-3.6-flash') ? 2 : 0;
       let modelSucceeded = false;
 
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
