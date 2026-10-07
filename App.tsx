@@ -62,8 +62,8 @@ const App: React.FC = () => {
 
   // API Key & Model State
   const [apiKey, setApiKey] = useState<string>('');
-  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.8-flash');
-  const [selectedMathModel, setSelectedMathModel] = useState<string>('gemini-3.8-flash');
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.6-flash');
+  const [selectedMathModel, setSelectedMathModel] = useState<string>('gemini-3.6-flash');
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
 
   // History State
@@ -97,13 +97,13 @@ const App: React.FC = () => {
       setShowApiKeyModal(true);
     }
 
-    const migrated = localStorage.getItem('MIGRATED_TO_3_8_V1');
+    const migrated = localStorage.getItem('MIGRATED_TO_3_6_STABLE_V2');
     if (!migrated) {
-      setSelectedModel('gemini-3.8-flash');
-      setSelectedMathModel('gemini-3.8-flash');
-      localStorage.setItem('GEMINI_SELECTED_MODEL', 'gemini-3.8-flash');
-      localStorage.setItem('GEMINI_MATH_MODEL', 'gemini-3.8-flash');
-      localStorage.setItem('MIGRATED_TO_3_8_V1', 'true');
+      setSelectedModel('gemini-3.6-flash');
+      setSelectedMathModel('gemini-3.6-flash');
+      localStorage.setItem('GEMINI_SELECTED_MODEL', 'gemini-3.6-flash');
+      localStorage.setItem('GEMINI_MATH_MODEL', 'gemini-3.6-flash');
+      localStorage.setItem('MIGRATED_TO_3_6_STABLE_V2', 'true');
     } else {
       if (storedModel) setSelectedModel(storedModel);
       if (storedMathModel) setSelectedMathModel(storedMathModel);

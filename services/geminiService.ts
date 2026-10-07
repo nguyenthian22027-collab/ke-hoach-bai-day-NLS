@@ -325,15 +325,15 @@ function getSubjectGuidance(subject: Subject): string {
 
 // Define the hierarchy of models for fallback (Chỉ giữ các model 2026 còn hoạt động, loại bỏ model đã khai tử)
 const MODELS = [
-  "gemini-3.8-flash",        // Priority 1: Flagship Google 2026 mới nhất, thông minh & mạnh mẽ nhất
-  "gemini-3.6-flash",        // Priority 2: Chuẩn Google 2026 tốc độ cao & ổn định
+  "gemini-3.6-flash",        // Priority 1: Chuẩn Google 2026 tốc độ cao & ổn định 100%
+  "gemini-3.8-flash",        // Priority 2: Flagship Google 2026 thế hệ mới
   "gemini-3.5-flash",        // Priority 3: Chuẩn Google 2026
   "gemini-3.5-flash-lite",   // Priority 4: Hạn ngạch Quota cao, dự phòng
   "gemini-flash-latest",     // Priority 5: Tự động trỏ model Flash chuẩn mới nhất
   "gemini-3.1-flash-lite",   // Priority 6: Thế hệ 3.1
 ];
 
-// Helper phân tách và làm sạch danh sách API Keys
+// Helper phân tách và làm sạch danh sách API Keys (chống lỗi copy nhầm khoảng trắng ẩn, ký tự đặc biệt)
 export function parseApiKeys(input?: string | string[]): string[] {
   if (!input) return [];
   let rawKeys: string[] = [];
@@ -345,7 +345,17 @@ export function parseApiKeys(input?: string | string[]): string[] {
   }
   
   const parsed = rawKeys
-    .map(k => k.trim())
+    .map(k => {
+      return k
+        // Xóa khoảng trắng ẩn, zero-width space, non-breaking space (thường gặp khi copy từ Zalo, Word, Web)
+        .replace(/[\u200B-\u200D\uFEFF\u00A0\r]/g, '')
+        .trim()
+        // Xóa dấu ngoặc kép hoặc nháy đơn bao quanh
+        .replace(/^["'`]|["'`]$/g, '')
+        // Xóa các tiền tố vô tình copy như: "1. ", "- ", "• ", "* "
+        .replace(/^[•\-\*\d+\.\s]+/, '')
+        .trim();
+    })
     .filter(k => k.length > 0 && !k.startsWith('#'));
   
   // Loại bỏ trùng lặp
@@ -361,31 +371,31 @@ export interface TestKeyResult {
   details?: { key: string; ok: boolean; msg: string }[];
 }
 
-// Hàm kiểm tra kết nối API Key với cơ chế đa model dự phòng
+// Hàm kiểm tra kết nối API Key với cơ chế đa model dự phòng và Timeout 5s chống treo
 export const testApiKey = async ({
   apiKey,
-  model = 'gemini-3.8-flash'
+  model = 'gemini-3.6-flash'
 }: {
   apiKey: string;
   model?: string;
 }): Promise<TestKeyResult> => {
   const keys = parseApiKeys(apiKey);
   if (keys.length === 0) {
-    return { ok: false, msg: "Chưa nhập API Key nào.", testedCount: 0, validCount: 0 };
+    return { ok: false, msg: "Chưa nhập API Key nào. Vui lòng dán API Key vào ô bên trên.", testedCount: 0, validCount: 0 };
   }
 
   const results: { key: string; ok: boolean; msg: string }[] = [];
   let validCount = 0;
 
-  // Sử dụng model được chọn hoặc mặc định gemini-3.8-flash (Chuẩn Google 2026)
-  const primaryTestModel = (model && model !== 'auto' && !model.includes('Tự động')) ? model : 'gemini-3.8-flash';
+  // Sử dụng model được chọn hoặc mặc định gemini-3.6-flash (Chuẩn Google 2026 ổn định nhất)
+  const primaryTestModel = (model && model !== 'auto' && !model.includes('Tự động')) ? model : 'gemini-3.6-flash';
   
-  // Danh sách các model kiểm tra theo thứ tự ưu tiên: model được chọn trước, sau đó là các model 2026 hoạt động 100%
+  // Danh sách các model kiểm tra: ưu tiên model chọn trước, sau đó là các model ổn định nhất
   const candidateModels = [
     primaryTestModel,
-    'gemini-3.8-flash',
     'gemini-3.6-flash',
     'gemini-3.5-flash',
+    'gemini-3.8-flash',
     'gemini-3.5-flash-lite',
     'gemini-flash-latest',
     'gemini-3.1-flash-lite',
@@ -399,11 +409,20 @@ export const testApiKey = async ({
 
     for (const testModel of candidateModels) {
       try {
-        const response = await ai.models.generateContent({
-          model: testModel,
-          contents: "Trả lời đúng một từ: OK",
-        });
-        const text = response.text || '';
+        // Timeout 5 giây cho mỗi model để giao diện không bao giờ bị đơ/treo
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout máy chủ Google phản hồi chậm (>5s)")), 5000)
+        );
+
+        const response: any = await Promise.race([
+          ai.models.generateContent({
+            model: testModel,
+            contents: "Trả lời đúng một từ: OK",
+          }),
+          timeoutPromise
+        ]);
+
+        const text = response?.text || '';
         if (text.length > 0) {
           keySuccess = true;
           if (testModel === primaryTestModel) {
@@ -419,13 +438,12 @@ export const testApiKey = async ({
         console.warn(`Test Key [${masked}] với model [${testModel}] gặp lỗi:`, rawMsg);
 
         // Phân biệt lỗi 400: "API key not valid" = Key sai → dừng ngay
-        // Nhưng "400 INVALID_ARGUMENT / not found" = Model không tồn tại → thử model tiếp theo!
         if (rawMsg.includes("400")) {
           const isKeyInvalid = rawMsgLower.includes("api key not valid") 
             || rawMsgLower.includes("invalid api key")
             || rawMsgLower.includes("api_key_invalid");
           if (isKeyInvalid) {
-            keyMsg = "API Key không hợp lệ hoặc copy thiếu ký tự. Kiểm tra lại trên aistudio.google.com/app/apikey";
+            keyMsg = "API Key không hợp lệ hoặc copy thiếu ký tự. Vui lòng kiểm tra lại trên aistudio.google.com/app/apikey";
             break; // Key sai → dừng, không thử model tiếp
           } else {
             // 400 do model không tồn tại/không hỗ trợ → thử model tiếp
@@ -435,19 +453,18 @@ export const testApiKey = async ({
         }
         // Nếu bị 403 Forbidden — KEY bị cấm hoặc chưa bật API
         if (rawMsg.includes("403")) {
-          keyMsg = "Bị từ chối truy cập (403). Kiểm tra quyền hạn Key trên Google AI Studio (nên dùng Gmail @gmail.com thay vì email trường)";
+          keyMsg = "Bị từ chối truy cập (403). Kiểm tra quyền hạn Key trên Google AI Studio (nên dùng Gmail cá nhân @gmail.com thay vì email trường @edu.vn)";
           break;
         }
         // Nếu bị 429 Quota Exceeded trên model này, thử model tiếp theo trong candidateModels!
         if (rawMsg.includes("429") || rawMsgLower.includes("quota") || rawMsgLower.includes("resource_exhausted")) {
           keyMsg = "Hạn ngạch model đang bận hoặc chưa kích hoạt (429 RESOURCE_EXHAUSTED)";
-          // Chờ 800ms trước khi thử model tiếp theo để tránh rate limiter
-          await new Promise(r => setTimeout(r, 800));
+          await new Promise(r => setTimeout(r, 600));
           continue;
         }
-        // Nếu 404 model not found / deprecated hoặc 503 Service Unavailable (đang quá tải)
-        if (rawMsg.includes("404") || rawMsg.includes("503") || rawMsgLower.includes("not found") || rawMsgLower.includes("unavailable")) {
-          keyMsg = `Model ${testModel} chưa sẵn sàng (${rawMsg.includes('503') ? '503 Quá tải' : '404 Chưa hỗ trợ'}), đang tự động chuyển sang model tối ưu hơn...`;
+        // Nếu 404 model not found / deprecated hoặc 503 Service Unavailable hoặc Timeout
+        if (rawMsg.includes("404") || rawMsg.includes("503") || rawMsgLower.includes("not found") || rawMsgLower.includes("unavailable") || rawMsgLower.includes("timeout")) {
+          keyMsg = `Model ${testModel} chưa sẵn sàng (${rawMsg.includes('503') ? '503 Quá tải' : rawMsg.includes('timeout') ? 'Phản hồi chậm' : '404 Chưa hỗ trợ'}), đang tự động chuyển sang model tối ưu hơn...`;
           continue;
         }
         keyMsg = rawMsg;
@@ -468,7 +485,7 @@ export const testApiKey = async ({
 
   const summaryMsg = validCount > 0
     ? `Kết nối thành công! (${validCount}/${keys.length} Key hoạt động tốt)`
-    : `Kiểm tra chưa thành công (Lỗi 429 Hạn ngạch). Lưu ý cho Key mới tạo: 1) Google cần khoảng 1-2 phút sau khi tạo để kích hoạt hạn ngạch; 2) Nên dùng Gmail cá nhân (@gmail.com) vì email trường (@edu.vn) thường bị khóa quyền Gemini API; 3) Thầy/Cô có thể đợi 1 phút rồi bấm 'Kiểm tra kết nối' lại.`;
+    : `Kiểm tra chưa thành công. ${results[0]?.msg || 'Vui lòng kiểm tra lại Key.'}\n\n💡 Mẹo xử lý:\n1. Đảm bảo copy đúng toàn bộ chuỗi API Key (bắt đầu bằng AQ. hoặc AIza...).\n2. Nếu Key vừa mới tạo: Google AI Studio cần 1-2 phút để kích hoạt hạn ngạch, Thầy/Cô đợi 1 phút rồi bấm lại.\n3. Nên dùng tài khoản Gmail cá nhân (@gmail.com) để tạo Key, tránh dùng email trường (@edu.vn).`;
 
   return {
     ok: validCount > 0,
