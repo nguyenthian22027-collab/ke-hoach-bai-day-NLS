@@ -46,6 +46,66 @@ interface NLSSection {
   quotedText?: string; // Đoạn trích dẫn nguyên văn câu liền trước từ AI
 }
 
+// Component hiển thị tiến trình đang soạn với đồng hồ đếm giây trực tiếp & các giai đoạn sinh động
+const LoadingProgressView: React.FC = () => {
+  const [seconds, setSeconds] = React.useState(0);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setSeconds(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getPhaseText = () => {
+    if (seconds < 8) return 'Đang đọc và phân tích cấu trúc bài dạy theo Công văn 5512...';
+    if (seconds < 22) return 'Đang đối chiếu khung Năng lực số & Năng lực AI chuẩn...';
+    if (seconds < 40) return 'Đang soạn tích hợp NLS/AI vào chi tiết 4 hoạt động bài học...';
+    if (seconds < 60) return 'Đang khởi tạo các điểm đánh dấu (Marker) và bảng đối chiếu năng lực...';
+    return 'Google đang xử lý nội dung giáo án dài, sắp hoàn tất...';
+  };
+
+  return (
+    <div className="bg-white p-8 sm:p-12 rounded-3xl shadow-xl border border-blue-100 flex flex-col items-center justify-center min-h-[340px] text-center max-w-2xl mx-auto my-6 animate-fade-in">
+      <div className="relative mb-6">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-100 border-t-blue-600 shadow-md"></div>
+        <div className="absolute inset-0 flex items-center justify-center text-xs font-black text-blue-700 font-mono">
+          {seconds}s
+        </div>
+      </div>
+      <h3 className="text-lg font-bold text-slate-800 mb-1.5 flex items-center space-x-2">
+        <span>Đang xử lý & soạn giáo án</span>
+        <span className="text-xs bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full font-semibold font-mono">
+          {seconds} giây
+        </span>
+      </h3>
+      <p className="text-blue-600 font-medium text-sm animate-pulse mb-6 max-w-lg leading-relaxed">
+        {getPhaseText()}
+      </p>
+      
+      {/* Progress Bar ảo tạo cảm giác trực quan */}
+      <div className="w-full max-w-md bg-slate-100 rounded-full h-2 mb-6 overflow-hidden">
+        <div 
+          className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-1000 ease-out"
+          style={{ width: `${Math.min(95, Math.floor(seconds * 2.2))}%` }}
+        ></div>
+      </div>
+
+      <div className="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-4 max-w-lg text-xs text-amber-900 text-left flex items-start space-x-3 shadow-sm">
+        <span className="text-amber-500 font-bold text-lg leading-none mt-0.5">💡</span>
+        <div className="space-y-1">
+          <p className="font-semibold text-amber-950">
+            Thời gian soạn hoàn chỉnh thường mất từ 25 - 60 giây
+          </p>
+          <p className="text-slate-600 leading-relaxed">
+            Do AI tạo toàn bộ tiến trình 4 hoạt động chi tiết cùng các mục tiêu chỉ báo. Thầy/Cô vui lòng giữ nguyên màn hình và không tắt tab trình duyệt!
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ResultDisplay: React.FC<ResultDisplayProps> = ({
   result,
   loading,
@@ -1557,13 +1617,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
   };
 
   if (loading) {
-    return (
-      <div className="bg-white p-12 rounded-xl shadow-sm border border-blue-100 flex flex-col items-center justify-center min-h-[300px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600 mb-6"></div>
-        <h3 className="text-lg font-semibold text-blue-900 animate-pulse">Đang xử lý...</h3>
-        <p className="text-slate-500 mt-2 text-sm">Đang phân tích giáo án và tích hợp năng lực số...</p>
-      </div>
-    );
+    return <LoadingProgressView />;
   }
 
   if (!result) return null;
